@@ -10,3 +10,6 @@
   Link: <https://obrixia.com/dpa/>; rel="canonical"
 /compliance/
   Link: <https://obrixia.com/compliance/>; rel="canonical"
+
+/cdn-cgi/*
+  X-Robots-Tag: noindex, nofollow
