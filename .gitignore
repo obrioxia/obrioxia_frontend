@@ -1,43 +1,36 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
-
-# Compiled output
+# Automatically generated files (Angular build and configuration)
 /dist
+/compiled
+/out
 /tmp
-/out-tsc
-/bazel-out
+/coverage
+/e2e/
+/aot
+/src/styles.css.map
+/src/app/*.js
+/src/app/*.js.map
+/src/app/*.d.ts
+/src/app/**/*.js
+/src/app/**/*.js.map
+/src/app/**/*.d.ts
 
-# Node
+# Node environment dependencies
 /node_modules
-npm-debug.log
-yarn-error.log
+/npm-debug.log
+/yarn-error.log
+/bower_components
 
-# IDEs and editors
+# IDEs and editors configuration
 .idea/
 .project
+.vscode/
+/settings
 .classpath
 .c9/
-*.launch
-.settings/
-*.sublime-workspace
 
-# Visual Studio Code
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-.history/*
-
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-__screenshots__/
-
-# System files
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Environment variables
+.env

@@ -1,0 +1,4 @@
+/demo-core.html /demo-core.html 200
+/*.html   /:splat/   301
+/compliance.html  /compliance/ 301
+/security.html    /security/   301
