@@ -1,67 +1,44 @@
-import { Component } from '@angular/core';
-
 // --- NEW IMPORTS ---
+import { Component } from '@angular/core';
 // Import the new modules we need
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms'; // Needed for ngModel
+import { HttpClient, HttpClientModule } from '@angular/common/http'; // Needed for API calls
+import { RouterOutlet } from '@angular/router'; // Needed if you use routing
 
 @Component({
   selector: 'app-root',
   standalone: true,
   // --- UPDATE IMPORTS ARRAY ---
-  // We must add CommonModule and FormsModule here
-  imports: [CommonModule, FormsModule],
-  templateUrl: './app.html', // This points to our app.html file
-  styleUrl: './app.css'
+  // We must add CommonModule, FormsModule, HttpClientModule and RouterOutlet here
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterOutlet],
+  // --- CORRECT TEMPLATE URL ---
+  templateUrl: './app.component.html', // This points to our app.component.html file
+  styleUrl: './app.component.css' // Assuming app.component.css exists
 })
 export class AppComponent {
   // --- NEW LOGIC ---
+  title = 'obrioxia-frontend'; // Example property
 
-  // 1. This variable will hold the data from our form fields
-  incidentData: any = {
-    vehicleID: '',
-    speed: null,
-    gForce: null
-  };
+  // Declare properties needed by the template (matching app.component.ts)
+  incidentData = { vehicleID: '', speed: null, gForce: null };
+  serverResponse: any = null;
+  backendUrl = 'https://obrioxia-backend-x7mk.onrender.com'; // Your live backend URL
 
-  // 2. This variable will store the response from our server
-  serverResponse: string = 'No request sent yet.';
-
-  // 3. This is the backend server's API URL
-  backendUrl = 'http://localhost:3000/api/incident';
-
-  // 4. We must "inject" the HttpClient so we can use it to make web requests
+  // Inject HttpClient
   constructor(private http: HttpClient) {}
 
-  // 5. This is the function that runs when we click the "Submit" button
+  // Implement the onSubmit method needed by the template (matching app.component.ts)
   onSubmit() {
-    console.log('Submit button clicked!');
-    console.log('Data to send:', this.incidentData);
-
-    // We will add the other required data (timestamp and location) here
-    const dataToSend = {
-      ...this.incidentData,
-      timestamp: new Date().toISOString(), // Use the current time
-      location: {
-        type: "Point",
-        coordinates: [-0.1276, 51.5074] // Using a sample location (London)
-      }
-    };
-
-    // 6. Use the HttpClient to send a POST request to our backend
-    this.http.post(this.backendUrl, dataToSend)
-      .subscribe({
-        next: (response) => {
-          // This runs if the request is successful
-          console.log('Server responded successfully:', response);
-          this.serverResponse = JSON.stringify(response, null, 2);
-        },
-        error: (error) => {
-          // This runs if the request fails
-          console.error('Server returned an error:', error);
-          this.serverResponse = `Error: ${error.message}\n\n${JSON.stringify(error.error, null, 2)}`;
-        }
+    console.log('Submitting incident:', this.incidentData);
+    this.http.post<any>(`${this.backendUrl}/api/incidents`, this.incidentData) // Replace with your actual endpoint
+      .subscribe(response => {
+        console.log('Server response:', response);
+        this.serverResponse = { status: 'Success!', data: response };
+      }, error => {
+        console.error('Error submitting incident:', error);
+        this.serverResponse = { status: 'Error!', error: error.message };
       });
   }
 }
+
