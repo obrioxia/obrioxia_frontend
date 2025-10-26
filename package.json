@@ -19,12 +19,12 @@
     "@angular/platform-browser-dynamic": "^17.3.0",
     "@angular/router": "^17.3.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.5.0", // <<<--- Added tslib based on AI diagnosis
+    "tslib": "^2.5.0",
     "zone.js": "~0.14.3"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "^17.3.7", // <<<--- Build tools
-    "@angular/cli": "^17.3.7",                 // <<<--- CLI tools
+    "@angular-devkit/build-angular": "^17.3.7",
+    "@angular/cli": "^17.3.7",
     "@angular/compiler-cli": "^17.3.0",
     "@types/jasmine": "~5.1.0",
     "jasmine-core": "~5.1.0",
