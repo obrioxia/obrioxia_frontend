@@ -5,11 +5,16 @@ import { environment } from '../environments/environment';
 // Imports for standalone component
 import { CommonModule } from '@angular/common';
 import { JsonPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms'; // <-- THIS IS THE FIX
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, JsonPipe], // Required for *ngIf, *ngFor, | json
+  imports: [
+    CommonModule, 
+    JsonPipe, 
+    FormsModule // <-- THIS IS THE FIX
+  ], 
   templateUrl: './app.component.html'
 })
 export class AppComponent {
