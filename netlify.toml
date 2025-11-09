@@ -1,0 +1,7 @@
+[functions]
+  node_bundler = "esbuild"
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/obrioxia-proxy/api/:splat"
+  status = 200
+
