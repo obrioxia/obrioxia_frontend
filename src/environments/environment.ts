@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: process.env.OBRIOXIA_BACKEND_URL || ''
+  apiUrl: 'https://obrioxia-backend-pkrp.onrender.com/api'
 };

@@ -4,7 +4,7 @@ import { routes } from './app.routes';
 import { provideHttpClient } from '@angular/common/http';
 
 // FIX: Removed the dot before 'src'
-import { environment } from 'src/environments/environment';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
