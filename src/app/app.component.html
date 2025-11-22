@@ -1,26 +1,16 @@
-<div class="container">
-  <h1>Submit New Incident Report</h1>
-  <p>This form will send data to our backend server running on port 3000.</p>
+<div class="app-container">
+  <header class="top-nav">
+    <div class="logo">OBRIOXIA <span class="badge">V3</span></div>
+    <nav>
+      <a routerLink="/submit" routerLinkActive="active">Submit Incident</a>
+      <a routerLink="/incidents" routerLinkActive="active">View Incidents</a>
+      <a routerLink="/logs" routerLinkActive="active">Audit Chain</a>
+      <!-- New Link -->
+      <a routerLink="/verify" routerLinkActive="active" class="verify-link">Public Verify</a>
+    </nav>
+  </header>
 
-  <div class="form-group">
-    <label for="vehicleID">Vehicle ID:</label>
-    <input id="vehicleID" name="vehicleID" [(ngModel)]="incidentData.vehicleID" placeholder="e.g., VIN-TEST-12345">
-  </div>
-
-  <div class="form-group">
-    <label for="speed">Speed (kph):</label>
-    <input id="speed" name="speed" [(ngModel)]="incidentData.speed" type="number" step="any" placeholder="e.g., 88.5">
-  </div>
-
-  <div class="form-group">
-    <label for="gForce">G-Force:</label>
-    <input id="gForce" name="gForce" [(ngModel)]="incidentData.gForce" type="number" step="any" placeholder="e.g., 3.1">
-  </div>
-
-  <button (click)="onSubmit()">Submit Incident</button>
-
-  <hr>
-
-  <h2>Response from Server:</h2>
-  <pre>{{ serverResponse | json }}</pre>
+  <main class="content-area">
+    <router-outlet></router-outlet>
+  </main>
 </div>

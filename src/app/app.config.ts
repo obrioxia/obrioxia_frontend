@@ -1,20 +1,15 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
-
 import { routes } from './app.routes';
+import { provideHttpClient } from '@angular/common/http';
 
-// --- NEW IMPORTS ---
-// We need these modules to handle forms and HTTP requests
-import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+// FIX: Removed the dot before 'src'
+import { environment } from 'src/environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-
-    // --- NEW PROVIDERS ---
-    // Add these to the providers array
-    importProvidersFrom(FormsModule),
-    importProvidersFrom(HttpClientModule)
+    provideHttpClient()
   ]
 };
+

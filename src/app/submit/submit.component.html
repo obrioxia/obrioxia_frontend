@@ -1,0 +1,27 @@
+<div class="panel">
+  <h2>Submit New Incident</h2>
+  <p class="subtitle">Manually trigger an event for the immutable ledger.</p>
+
+  <div class="form-group">
+    <label for="vid">Vehicle ID</label>
+    <input 
+      type="text" 
+      id="vid" 
+      [(ngModel)]="vehicleId" 
+      placeholder="e.g. TEST-1234-X"
+      [disabled]="isLoading"
+    >
+  </div>
+
+  <button (click)="onSubmit()" [disabled]="isLoading || !vehicleId">
+    {{ isLoading ? 'Processing...' : 'Submit to Ledger' }}
+  </button>
+
+  <div *ngIf="successMessage" class="alert success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert error">
+    {{ errorMessage }}
+  </div>
+</div>
