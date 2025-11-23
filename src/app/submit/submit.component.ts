@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogsService } from '../services/logs.service';
@@ -11,35 +11,38 @@ import { LogsService } from '../services/logs.service';
   styleUrls: ['./submit.component.css']
 })
 export class SubmitComponent {
+  logsService = inject(LogsService);
+
   eventType = '';
   actorId = '';
-  metadata = '';
-
   isLoading = false;
-  errorMessage = '';
   successMessage = '';
-
-  constructor(private logsService: LogsService) {}
+  errorMessage = '';
 
   onSubmit() {
+    if (!this.eventType.trim() || !this.actorId.trim()) return;
+
     this.isLoading = true;
-    this.errorMessage = '';
     this.successMessage = '';
+    this.errorMessage = '';
 
-    const event = {
-      event_type: this.eventType,
-      actor_id: this.actorId,
-      metadata: this.metadata ? JSON.parse(this.metadata) : {}
-    };
-
-    this.logsService.submitInsuranceEvent(event).subscribe({
-      next: (res) => {
+    this.logsService.submitInsuranceEvent({
+      eventType: this.eventType,
+      actorId: this.actorId
+    }).subscribe({
+      next: (res: any) => {
         this.isLoading = false;
-        this.successMessage = 'Event logged successfully.';
+        if (res.ok) {
+          this.successMessage = `Stored Successfully! ID: ${res.id}`;
+          this.eventType = '';
+          this.actorId = '';
+        } else {
+          this.errorMessage = res.error || 'Failed to record.';
+        }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.errorMessage = 'Failed to record event.';
+        this.errorMessage = err.message || 'Server error';
       }
     });
   }
