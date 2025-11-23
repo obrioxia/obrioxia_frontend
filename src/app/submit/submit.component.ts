@@ -1,48 +1,58 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { LogsService } from '../services/logs.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-submit',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './submit.component.html',
-  styleUrls: ['./submit.component.css']
+  styleUrls: ['./submit.component.css'],
 })
 export class SubmitComponent {
-  logsService = inject(LogsService);
 
   eventType = '';
   actorId = '';
   isLoading = false;
-  successMessage = '';
   errorMessage = '';
+  successMessage = '';
+
+  private backendUrl = 'https://obrioxia-backend-pkrp.onrender.com/api/incidents';
+
+  constructor(private http: HttpClient) {}
 
   onSubmit() {
-    if (!this.eventType.trim() || !this.actorId.trim()) return;
+    if (!this.eventType.trim() || !this.actorId.trim()) {
+      this.errorMessage = 'Please fill both fields.';
+      return;
+    }
 
     this.isLoading = true;
-    this.successMessage = '';
     this.errorMessage = '';
+    this.successMessage = '';
 
-    this.logsService.submitInsuranceEvent({
-      eventType: this.eventType,
-      actorId: this.actorId
-    }).subscribe({
+    const payload = {
+      vehicleID: this.eventType,
+      data: {
+        actor_id: this.actorId
+      }
+    };
+
+    this.http.post(this.backendUrl, payload).subscribe({
       next: (res: any) => {
         this.isLoading = false;
-        if (res.ok) {
-          this.successMessage = `Stored Successfully! ID: ${res.id}`;
+        if (res?.success) {
+          this.successMessage = `Insurance event logged. Sequence: ${res.sequence}`;
           this.eventType = '';
           this.actorId = '';
         } else {
-          this.errorMessage = res.error || 'Failed to record.';
+          this.errorMessage = 'Failed to log event.';
         }
       },
-      error: (err: any) => {
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.message || 'Server error';
+        this.errorMessage = err?.error?.detail || 'Server Error';
       }
     });
   }

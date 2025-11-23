@@ -1,22 +1,25 @@
 <div class="container">
-  <h1>Log Insurance Event</h1>
+  <h2>Log Insurance Event</h2>
   <p>Record a tamper-evident insurance action to the immutable ledger.</p>
 
   <div class="card">
     <label>Event Type</label>
-    <input type="text" [(ngModel)]="eventType" placeholder="e.g. CLAIM_SUBMITTED or DAMAGE_ASSESSMENT">
+    <input type="text" [(ngModel)]="eventType" placeholder="e.g. CLAIM_SUBMITTED">
 
     <label>Actor ID</label>
-    <input type="text" [(ngModel)]="actorId" placeholder="e.g. inspector-447 or policyholder-992">
-    
-    <button class="btn-primary" (click)="onSubmit()" [disabled]="isLoading || !eventType || !actorId">
+    <input type="text" [(ngModel)]="actorId" placeholder="e.g. inspector-447">
+
+    <button class="btn-primary"
+            (click)="onSubmit()"
+            [disabled]="isLoading || !eventType || !actorId">
       Log Insurance Event
     </button>
 
-    <div class="success-message" *ngIf="successMessage">
+    <div *ngIf="successMessage" class="success-message">
       {{ successMessage }}
     </div>
-    <div class="error-message" *ngIf="errorMessage">
+
+    <div *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
   </div>
