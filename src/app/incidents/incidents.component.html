@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="header-row">
+    <h2>Registered Incidents</h2>
+    <div class="actions">
+      
+      <!-- THIS IS THE MISSING BUTTON -->
+      <button (click)="downloadJson()" class="download-btn" [disabled]="incidents.length === 0">
+        Download Proof ⬇️
+      </button>
+
+      <button (click)="loadData()" class="refresh-btn">Refresh</button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    Loading incidents...
+  </div>
+  
+  <!-- Error State -->
+  <div *ngIf="error" class="alert error">
+    {{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && incidents.length === 0" class="empty">
+    No incidents recorded yet.
+  </div>
+
+  <!-- Data Table -->
+  <table *ngIf="!isLoading && incidents.length > 0">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>ID</th>
+        <th>Chain Hash</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let inc of incidents">
+        <td>{{ (inc.timestamp || inc.ts_iso) | date:'medium' }}</td>
+        <td class="mono">{{ inc.id || inc._id }}</td>
+        <td class="mono hash">{{ (inc.hash || inc.prev_hash || 'Pending') | slice:0:16 }}...</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

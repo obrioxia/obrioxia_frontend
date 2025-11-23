@@ -1,0 +1,16 @@
+<div class="app-container">
+  <header class="top-nav">
+    <div class="logo">OBRIOXIA <span class="badge">V3</span></div>
+    <nav>
+      <a routerLink="/submit" routerLinkActive="active">Submit Incident</a>
+      <a routerLink="/incidents" routerLinkActive="active">View Incidents</a>
+      <a routerLink="/logs" routerLinkActive="active">Audit Chain</a>
+      <!-- New Link -->
+      <a routerLink="/verify" routerLinkActive="active" class="verify-link">Public Verify</a>
+    </nav>
+  </header>
+
+  <main class="content-area">
+    <router-outlet></router-outlet>
+  </main>
+</div>

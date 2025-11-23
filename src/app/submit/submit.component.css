@@ -1,0 +1,52 @@
+.panel {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #333;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 15px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  color: white;
+  border-radius: 4px;
+}
+
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+button:disabled {
+  background: #555;
+  cursor: not-allowed;
+}
+
+.alert {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success {
+  background: #155724;
+  color: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  background: #721c24;
+  color: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
