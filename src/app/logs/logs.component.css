@@ -1,59 +1,107 @@
-.container {
-  padding: 2rem;
-  color: #eee;
-}
+/* Inherits global .container styles */
 
-.header-row { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  margin-bottom: 1rem; 
-}
-
-.actions {
+/* The main container for the list */
+.logs-container {
   display: flex;
-  gap: 10px;
+  flex-direction: column;
+  gap: 1rem; /* Space between cards */
 }
 
-h2 { margin: 0; font-weight: 300; letter-spacing: 1px; }
+/* Individual Log Entry Card */
+.log-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.1s, border-color 0.1s;
+}
 
-.refresh-btn { 
-  background: #333; 
-  color: white; 
-  border: 1px solid #555; 
-  padding: 8px 16px; 
-  cursor: pointer; 
+.log-card:hover {
+  border-color: var(--text-muted);
+}
+
+/* Header section of the card (Sequence + Time) */
+.log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sequence-badge {
+  background-color: #333;
+  color: var(--text-light);
+  font-family: 'Courier New', Courier, monospace; /* Tech-y font */
+  padding: 0.25rem 0.5rem;
   border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
 }
 
-/* NEW DOWNLOAD BUTTON STYLE */
-.download-btn {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: bold;
+.timestamp {
+  color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
-.download-btn:hover { background: #0056b3; }
-
-.download-btn:disabled {
-  background: #444;
-  color: #888;
-  cursor: not-allowed;
+/* Main Content (Vehicle ID, Data) */
+.log-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: var(--text-light);
 }
 
-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-th, td { text-align: left; padding: 12px; border-bottom: 1px solid #444; }
-th { background: #222; color: #aaa; font-size: 0.9rem; text-transform: uppercase; }
-tr:hover { background: #2a2a2a; }
+.data-preview {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Adds "..." if data is too long */
+}
 
-.mono { font-family: monospace; color: #888; font-size: 0.9em; }
-.hash { color: #007bff; }
+/* Hashes Section */
+.hashes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-color);
+}
 
-.loading, .empty { text-align: center; padding: 2rem; color: #777; font-style: italic; }
-.alert.error { background: #5c1e1e; color: #ff8888; padding: 1rem; border-radius: 4px; border: 1px solid #ff4444; }
+.hash-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
 
+.hash-label {
+  color: var(--text-muted);
+  font-weight: 500;
+  min-width: 70px;
+}
 
+.hash-value {
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--primary-color); /* Highlights the hash */
+  word-break: break-all;
+}
+
+/* Loading and Error States */
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  border-radius: 8px;
+}

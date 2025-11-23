@@ -1,81 +1,113 @@
-nav a {
-  color: #aaa;
-  text-decoration: none;
-  margin-right: 20px;
-  font-size: 1rem;
-  transition: color 0.2s;
+/* Global Reset and Base Styles */
+:root {
+  --primary-color: #00e676; /* A bright, tech green */
+  --bg-dark: #121212; /* Deep black background */
+  --bg-card: #1e1e1e; /* Slightly lighter for cards */
+  --text-light: #e0e0e0; /* Highly readable off-white */
+  --text-muted: #a0a0a0; /* For secondary info */
+  --border-color: #333333;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-nav a:hover {
-  color: #fff;
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  background-color: var(--bg-dark); /* Dark background for the whole app */
+  color: var(--text-light); /* Light text by default */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-nav a.active {
-  color: #007bff;
-  border-bottom: 2px solid #007bff;
-  padding-bottom: 4px;
+/* Basic layout container for all pages */
+.container {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
 }
 
-.content-area {
+/* Header styling for all pages */
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--text-light);
+  letter-spacing: -0.02em;
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* Modern Card Style (Used across all pages) */
+.card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
   padding: 2rem;
-  flex: 1;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
-  color: #fff;
-  border-bottom: 1px solid #333;
-  padding-bottom: 10px;
-}
-
-.loading {
-  font-style: italic;
-  color: #999;
-}
-
-.alert {
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 4px;
-}
-
-.alert.error {
-  background-color: #721c24;
-  color: #f8d7da;
-  border: 1px solid #f5c6cb;
-}
-
-.alert.success {
-  background-color: #155724;
-  color: #d4edda;
-  border: 1px solid #c3e6cb;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 1rem;
-}
-
-th, td {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #333;
-}
-
-th {
-  background: #222;
-  color: #aaa;
-}
-
-tr:hover {
-  background: #2a2a2a;
-}
-
-.refresh-btn {
-  background: #333;
-  color: white;
-  border: 1px solid #555;
-  padding: 5px 15px;
+/* Button Styles */
+.btn-primary {
+  background-color: var(--primary-color);
+  color: #000;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 6px;
   cursor: pointer;
-  border-radius: 4px;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary:hover {
+  background-color: #00c853; /* Slightly darker green on hover */
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background-color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Form Inputs */
+input[type="text"], 
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background-color: #2a2a2a;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-light);
+  font-size: 1rem;
+  box-sizing: border-box; /* Important for padding */
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+/* Success Message */
+.success-message {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(0, 230, 118, 0.1); /* Low opacity green */
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
 }
