@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LogsService } from '../services/logs.service';
@@ -11,41 +11,33 @@ import { LogsService } from '../services/logs.service';
   styleUrls: ['./submit.component.css']
 })
 export class SubmitComponent {
-  logsService = inject(LogsService);
-
-  // THIS WAS MISSING — the cause of the error
-  vehicleId: string = '';
-
+  eventType = '';
+  actorId = '';
+  
   isLoading = false;
-  successMessage = '';
   errorMessage = '';
+  successMessage = '';
+
+  constructor(private logsService: LogsService) {}
 
   onSubmit() {
-    if (!this.vehicleId.trim()) return;
-
     this.isLoading = true;
-    this.successMessage = '';
     this.errorMessage = '';
+    this.successMessage = '';
 
     const payload = {
-      event_type: "AI_SCORING_COMPLETE",
-      actor_id: "Model_Test",
-      data: { vehicleId: this.vehicleId }
+      event_type: this.eventType,
+      actor_id: this.actorId
     };
 
     this.logsService.submitInsuranceEvent(payload).subscribe({
-      next: (res: any) => {
+      next: () => {
         this.isLoading = false;
-        if (res.success) {
-          this.successMessage = `Event recorded! Sequence: ${res.sequence}`;
-          this.vehicleId = '';
-        } else {
-          this.errorMessage = res.error || 'Failed to record.';
-        }
+        this.successMessage = 'Insurance event logged successfully!';
       },
-      error: (err: any) => {
+      error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.message || 'Server error';
+        this.errorMessage = err?.message || 'Failed to record event.';
       }
     });
   }
