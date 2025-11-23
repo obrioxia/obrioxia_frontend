@@ -12,7 +12,7 @@ import { LogsService, LogEntry } from '../services/logs.service';
 export class LogsComponent implements OnInit {
   logsService = inject(LogsService);
 
-  logs: LogEntry[] = [];
+  logs: any[] = []; // Changed to any[] to handle varying backend field names
   isLoading = true;
   error = '';
 
@@ -25,15 +25,24 @@ export class LogsComponent implements OnInit {
     this.logsService.getLogs(100).subscribe({
       next: (res) => {
         this.isLoading = false;
-        if (res.ok && res.items) {
+        console.log("Audit Chain Data:", res); // Debugging
+
+        // FIX: Handle the raw Array directly
+        if (Array.isArray(res)) {
+          this.logs = res;
+        } 
+        // Fallback: Handle the object wrapper if backend changes later
+        else if (res && res.ok && res.items) {
           this.logs = res.items;
-        } else {
-          this.error = res.error || 'Failed to fetch hash chain';
+        } 
+        else {
+          this.error = 'Invalid data format received from server';
         }
       },
       error: (err) => {
+        console.error(err);
         this.isLoading = false;
-        this.error = err.message;
+        this.error = 'Connection Error: ' + (err.message || 'Server unreachable');
       }
     });
   }
