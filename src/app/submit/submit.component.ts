@@ -13,7 +13,8 @@ import { LogsService } from '../services/logs.service';
 export class SubmitComponent {
   eventType = '';
   actorId = '';
-  
+  metadata = '';
+
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -25,19 +26,20 @@ export class SubmitComponent {
     this.errorMessage = '';
     this.successMessage = '';
 
-    const payload = {
+    const event = {
       event_type: this.eventType,
-      actor_id: this.actorId
+      actor_id: this.actorId,
+      metadata: this.metadata ? JSON.parse(this.metadata) : {}
     };
 
-    this.logsService.submitInsuranceEvent(payload).subscribe({
-      next: () => {
+    this.logsService.submitInsuranceEvent(event).subscribe({
+      next: (res) => {
         this.isLoading = false;
-        this.successMessage = 'Insurance event logged successfully!';
+        this.successMessage = 'Event logged successfully.';
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err?.message || 'Failed to record event.';
+        this.errorMessage = 'Failed to record event.';
       }
     });
   }

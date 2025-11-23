@@ -1,28 +1,25 @@
-<div class="container">
-  <div class="header">
-    <h1>Log Insurance Event</h1>
-    <p>Record a tamper-evident insurance action to the immutable ledger.</p>
+<div class="card">
+  <h2>Log Insurance Event</h2>
+  <p>Record a cryptographically sealed insurance decision event.</p>
+
+  <label>Event Type</label>
+  <input type="text" [(ngModel)]="eventType" placeholder="e.g. POLICY_UPDATE" />
+
+  <label>Actor ID</label>
+  <input type="text" [(ngModel)]="actorId" placeholder="e.g. SYSTEM_001" />
+
+  <label>Metadata (optional)</label>
+  <textarea [(ngModel)]="metadata" placeholder='{"key":"value"}'></textarea>
+
+  <button class="btn-primary" (click)="onSubmit()" [disabled]="isLoading">
+    {{ isLoading ? 'Submitting...' : 'Submit Insurance Event' }}
+  </button>
+
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
   </div>
 
-  <div class="card">
-    
-    <label>Event Type</label>
-    <input type="text"
-           [(ngModel)]="eventType"
-           placeholder="e.g. CLAIM_SUBMITTED or DAMAGE_ASSESSMENT" />
-
-    <label>Actor ID</label>
-    <input type="text"
-           [(ngModel)]="actorId"
-           placeholder="e.g. inspector-447 or policyholder-992" />
-
-    <button class="btn-primary"
-            (click)="onSubmit()"
-            [disabled]="isLoading || !eventType || !actorId">
-      {{ isLoading ? 'Submitting…' : 'Log Insurance Event' }}
-    </button>
-
-    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
-    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
   </div>
 </div>
