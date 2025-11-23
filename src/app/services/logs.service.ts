@@ -30,13 +30,14 @@ export class LogsService {
     };
 
     return this.http.post<any>(
-      `${this.apiUrl}/incidents`,
+      `${this.apiUrl}/api/incidents`,   // <— FIXED
       payload,
       { headers: this.getHeaders() }
     ).pipe(
       map(res => ({
         ok: res.success || false,
-        id: res.obrioxia_decision_id || null
+        id: res.obrioxia_decision_id || null,
+        sequence: res.sequence || null
       })),
       catchError(err => throwError(() => err))
     );
