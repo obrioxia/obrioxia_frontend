@@ -1,6 +1,6 @@
-<div class="panel">
+<div class="card">
   <h2>Submit New Incident</h2>
-  <p class="subtitle">Manually trigger an event for the immutable ledger.</p>
+  <p class="help-text">Manually trigger an event for the immutable ledger.</p>
 
   <div class="form-group">
     <label for="vid">Vehicle ID</label>
@@ -13,15 +13,15 @@
     >
   </div>
 
-  <button (click)="onSubmit()" [disabled]="isLoading || !vehicleId">
+  <button class="btn-primary" (click)="onSubmit()" [disabled]="isLoading || !vehicleId">
     {{ isLoading ? 'Processing...' : 'Submit to Ledger' }}
   </button>
 
-  <div *ngIf="successMessage" class="alert success">
+  <div *ngIf="successMessage" class="success-message">
     {{ successMessage }}
   </div>
 
-  <div *ngIf="errorMessage" class="alert error">
+  <div *ngIf="errorMessage" class="error-message" style="margin-top: 1rem; color: #ff6b6b; text-align: center;">
     {{ errorMessage }}
   </div>
 </div>
