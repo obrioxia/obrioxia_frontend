@@ -374,7 +374,7 @@ export class DashboardComponent {
 @Component({
   selector: 'app-claim-detail',
   standalone: true,
-  imports: [CommonModule, JsonPipe, DatePipe, CurrencyPipe, IconShield, IconLock, IconDownload, IconCheckCircle, IconClock],
+  imports: [CommonModule, JsonPipe, DatePipe, CurrencyPipe, IconShield, IconLock, IconDownload, IconCheckCircle, IconClock, IconFileText],
   template: `
     <div class="p-8 max-w-7xl mx-auto animate-fade-in min-h-screen">
       <button (click)="goBack.emit()" class="mb-6 text-slate-500 hover:text-slate-800 flex items-center gap-2 text-sm font-medium">
@@ -553,7 +553,7 @@ export class ClaimDetailComponent {
 @Component({
   selector: 'app-verify',
   standalone: true,
-  imports: [CommonModule, IconCheckCircle, IconDownload, IconFileText],
+  imports: [CommonModule, IconCheckCircle, IconDownload],
   template: `
     <div class="bg-slate-50 min-h-screen p-8 flex flex-col items-center justify-center">
        <div class="max-w-2xl w-full">
