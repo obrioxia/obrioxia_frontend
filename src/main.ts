@@ -289,7 +289,7 @@ export class LandingPageComponent {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, IconAlertTriangle, IconCheckCircle, IconClock],
+  imports: [CommonModule, IconCheckCircle, IconClock],
   template: `
     <div class="p-8 max-w-7xl mx-auto min-h-screen">
       <header class="mb-8 flex justify-between items-end">
@@ -374,7 +374,7 @@ export class DashboardComponent {
 @Component({
   selector: 'app-claim-detail',
   standalone: true,
-  imports: [CommonModule, JsonPipe, DatePipe, CurrencyPipe, IconShield, IconLock, IconFileText, IconDownload, IconAlertTriangle, IconCheckCircle, IconClock],
+  imports: [CommonModule, JsonPipe, DatePipe, CurrencyPipe, IconShield, IconLock, IconDownload, IconCheckCircle, IconClock],
   template: `
     <div class="p-8 max-w-7xl mx-auto animate-fade-in min-h-screen">
       <button (click)="goBack.emit()" class="mb-6 text-slate-500 hover:text-slate-800 flex items-center gap-2 text-sm font-medium">
@@ -644,10 +644,10 @@ shield = ClaimsShield(api_key="obs_live_...")
 shield.log_ai_event(
     claim_id="CLM-2025-AUTO-XJ9",
     model_id="FraudGuard_v2",
-    output={
+    output=&#123;
         "fraud_score": 0.88,
         "recommendation": "DENY"
-    }
+    &#125;
 )</pre>
              </div>
           </section>
@@ -664,10 +664,10 @@ shield.log_human_review(
     claim_id="CLM-2025-AUTO-XJ9",
     adjuster_id="ADJ-5542",
     decision="OVERRIDE_APPROVED",
-    metrics={
+    metrics=&#123;
         "file_open_duration_sec": 450, # Vital for Bad Faith Defense
         "interaction_type": "FULL_REVIEW"
-    }
+    &#125;
 )</pre>
              </div>
           </section>
