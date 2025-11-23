@@ -1,1 +1,94 @@
-/* App shell overrides (nav etc) live in styles.css now */
+/* Main Layout */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Navbar Container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e1e1e; /* Dark card background */
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #333;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Logo Styling */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.version-badge {
+  background-color: #333;
+  color: #00e676; /* Tech Green */
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-family: monospace;
+}
+
+/* Navigation Links (The Buttons) */
+.nav-links {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #a0a0a0; /* Grey text by default */
+  font-weight: 500;
+  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+/* Hover Effect */
+.nav-links a:hover {
+  background-color: #2a2a2a;
+  color: #fff;
+}
+
+/* Active State (Current Page) */
+.nav-links a.active-link {
+  background-color: rgba(0, 230, 118, 0.1); /* Low opacity green bg */
+  color: #00e676; /* Green Text */
+  border-color: rgba(0, 230, 118, 0.3); /* Subtle green border */
+}
+
+/* Content Padding */
+.content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
