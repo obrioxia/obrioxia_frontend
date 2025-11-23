@@ -12,10 +12,12 @@ export interface VerifyResponse {
 }
 
 export interface LogEntry {
-  ts_iso: string;
-  entry_hash: string;
-  prev_hash: string;
-  decision?: any;
+  sequence: number;
+  timestamp: string;
+  chain_hash: string;
+  prev_chain_hash: string;
+  event_type: string;
+  actor_id: string;
 }
 
 @Injectable({
@@ -23,8 +25,9 @@ export interface LogEntry {
 })
 export class PublicVerifyService {
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private apiUrl = environment.apiUrl.replace(/\/$/, '');
 
+  // Correct backend endpoint
   verifyLogs(logs: any[]): Observable<VerifyResponse> {
     return this.http.post<VerifyResponse>(`${this.apiUrl}/verify`, { logs }).pipe(
       catchError(err => {
@@ -34,8 +37,9 @@ export class PublicVerifyService {
     );
   }
 
-  getChainPreview(limit: number = 100): Observable<{ ok: boolean, items: LogEntry[] }> {
-    return this.http.get<{ ok: boolean, items: LogEntry[] }>(`${this.apiUrl}/logs?limit=${limit}`).pipe(
+  // FIX: Backend no longer has /logs — use /chain
+  getChainPreview(limit: number = 100): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/chain?limit=${limit}`).pipe(
       catchError(() => of({ ok: false, items: [] }))
     );
   }

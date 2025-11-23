@@ -13,7 +13,9 @@ import { LogsService } from '../services/logs.service';
 export class SubmitComponent {
   logsService = inject(LogsService);
 
+  // THIS WAS MISSING — the cause of the error
   vehicleId: string = '';
+
   isLoading = false;
   successMessage = '';
   errorMessage = '';
@@ -25,19 +27,25 @@ export class SubmitComponent {
     this.successMessage = '';
     this.errorMessage = '';
 
-    this.logsService.submitIncident(this.vehicleId).subscribe({
-      next: (res) => {
+    const payload = {
+      event_type: "AI_SCORING_COMPLETE",
+      actor_id: "Model_Test",
+      data: { vehicleId: this.vehicleId }
+    };
+
+    this.logsService.submitInsuranceEvent(payload).subscribe({
+      next: (res: any) => {
         this.isLoading = false;
-        if (res.ok) {
-          this.successMessage = `Incident recorded successfully! ID: ${res.id}`;
+        if (res.success) {
+          this.successMessage = `Event recorded! Sequence: ${res.sequence}`;
           this.vehicleId = '';
         } else {
-          this.errorMessage = res.error || 'Failed to record incident.';
+          this.errorMessage = res.error || 'Failed to record.';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         this.isLoading = false;
-        this.errorMessage = err.message;
+        this.errorMessage = err.message || 'Server error';
       }
     });
   }
