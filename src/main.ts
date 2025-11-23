@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, Injectable } from '@angular/core';
+import { Component, signal, inject, Injectable, Output, EventEmitter } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
 import { CommonModule, DatePipe, JsonPipe, CurrencyPipe } from '@angular/common';
 
@@ -7,47 +7,47 @@ import { CommonModule, DatePipe, JsonPipe, CurrencyPipe } from '@angular/common'
   selector: 'icon-shield',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`
-}) class IconShield {}
+}) export class IconShield {}
 
 @Component({
   selector: 'icon-check-circle',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
-}) class IconCheckCircle {}
+}) export class IconCheckCircle {}
 
 @Component({
   selector: 'icon-lock',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`
-}) class IconLock {}
+}) export class IconLock {}
 
 @Component({
   selector: 'icon-clock',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`
-}) class IconClock {}
+}) export class IconClock {}
 
 @Component({
   selector: 'icon-file-text',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`
-}) class IconFileText {}
+}) export class IconFileText {}
 
 @Component({
   selector: 'icon-download',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
-}) class IconDownload {}
+}) export class IconDownload {}
 
 @Component({
   selector: 'icon-alert-triangle',
   standalone: true,
   template: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
-}) class IconAlertTriangle {}
+}) export class IconAlertTriangle {}
 
 // --- DATA MODELS ---
 
-interface ClaimContext {
+export interface ClaimContext {
   claim_uuid: string;
   policy_number: string;
   incident_timestamp: string;
@@ -57,7 +57,7 @@ interface ClaimContext {
   claimed_amount: number;
 }
 
-interface AIEvent {
+export interface AIEvent {
   event_type: 'AI_SCORING_COMPLETE';
   timestamp: string;
   actor_id: string;
@@ -70,7 +70,7 @@ interface AIEvent {
   obrioxia_hash: string;
 }
 
-interface HumanEvent {
+export interface HumanEvent {
   event_type: 'HUMAN_ADJUSTER_REVIEW';
   timestamp: string;
   actor_id: string;
@@ -87,7 +87,7 @@ interface HumanEvent {
   obrioxia_hash: string;
 }
 
-interface ClaimRecord {
+export interface ClaimRecord {
   id: string;
   context: ClaimContext;
   ai_event: AIEvent;
@@ -168,7 +168,7 @@ const MOCK_CLAIMS: ClaimRecord[] = [
 // --- SERVICES ---
 
 @Injectable({ providedIn: 'root' })
-class ObrioxiaService {
+export class ObrioxiaService {
   claims = signal<ClaimRecord[]>(MOCK_CLAIMS);
   selectedClaimId = signal<string | null>('CLM-2025-AUTO-XJ9-004');
 
@@ -278,11 +278,10 @@ class ObrioxiaService {
          </div>
       </div>
     </div>
-  `,
-  outputs: ['navigateToDemo']
+  `
 })
-class LandingPageComponent {
-  navigateToDemo = new Component().output; 
+export class LandingPageComponent {
+  @Output() navigateToDemo = new EventEmitter<void>();
 }
 
 
@@ -364,12 +363,11 @@ class LandingPageComponent {
         </table>
       </div>
     </div>
-  `,
-  outputs: ['viewClaim']
+  `
 })
-class DashboardComponent {
+export class DashboardComponent {
   claims = inject(ObrioxiaService).claims;
-  viewClaim = new Component().output;
+  @Output() viewClaim = new EventEmitter<string>();
 }
 
 // 3. CLAIM DETAIL / TIMELINE COMPONENT
@@ -538,12 +536,11 @@ class DashboardComponent {
   styles: [`
     .animate-fade-in { animation: fadeIn 0.5s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-  `],
-  outputs: ['goBack']
+  `]
 })
-class ClaimDetailComponent {
+export class ClaimDetailComponent {
   claim = inject(ObrioxiaService).getClaim(inject(ObrioxiaService).selectedClaimId() || ''); 
-  goBack = new Component().output;
+  @Output() goBack = new EventEmitter<void>();
 
   formatDuration(seconds: number): string {
     const min = Math.floor(seconds / 60);
@@ -601,7 +598,7 @@ class ClaimDetailComponent {
     </div>
   `
 })
-class VerifyComponent {
+export class VerifyComponent {
   verified = false;
   verify() {
     this.verified = true;
@@ -679,7 +676,7 @@ shield.log_human_review(
     </div>
   `
 })
-class DocsComponent {}
+export class DocsComponent {}
 
 
 // MAIN APP SHELL
@@ -769,10 +766,6 @@ export class App {
   }
 }
 
-// Add signal to service for sharing state
-Object.defineProperty(ObrioxiaService.prototype, 'selectedClaimId', {
-  value: signal<string | null>('CLM-2025-AUTO-XJ9-004')
-});
-
 bootstrapApplication(App);
+
 
