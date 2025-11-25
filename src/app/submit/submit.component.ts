@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class SubmitComponent {
   
-  // --- UI Models (REQUIRED for HTML bindings) ---
+  // UI Models
   formData = {
     policyNumber: '',
     incidentType: 'CLAIM_SUBMITTED', 
@@ -21,33 +21,41 @@ export class SubmitComponent {
     agentId: ''
   };
   
-  // --- State Variables (REQUIRED for HTML *ngIf) ---
   isLoading = false;
   successData: any = null;
   errorMessage: string = '';
 
-  // --- THE "RAW FORCE" SUBMIT METHOD ---
   async submit() {
     this.isLoading = true;
     this.errorMessage = '';
     this.successData = null;
 
-    // 1. Hardcoded Credentials 
     const API_URL = 'https://obrioxia-backend-pkrp.onrender.com/api/incidents';
     const API_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
-    // 2. Prepare Payload
+    // --- THE HYBRID PAYLOAD FIX ---
+    // We send BOTH snake_case and camelCase to guarantee the backend accepts it.
+    // This solves the 422 error regardless of Pydantic configuration.
     const payload = {
+      // Snake Case (Python Standard)
       policy_number: this.formData.policyNumber || 'DEMO-POL-001',
       incident_type: this.formData.incidentType,
-      claim_amount: this.formData.claimAmount || 5000,
+      claim_amount: Number(this.formData.claimAmount) || 5000,
       decision_notes: this.formData.decisionNotes || 'Automated Demo Submission',
-      ai_confidence_score: this.formData.aiConfidenceScore,
-      agent_id: this.formData.agentId || 'DEMO_AGENT'
+      ai_confidence_score: Number(this.formData.aiConfidenceScore),
+      agent_id: this.formData.agentId || 'DEMO_AGENT',
+
+      // Camel Case (JS Standard) - just in case
+      policyNumber: this.formData.policyNumber || 'DEMO-POL-001',
+      incidentType: this.formData.incidentType,
+      claimAmount: Number(this.formData.claimAmount) || 5000,
+      decisionNotes: this.formData.decisionNotes || 'Automated Demo Submission',
+      aiConfidenceScore: Number(this.formData.aiConfidenceScore),
+      agentId: this.formData.agentId || 'DEMO_AGENT'
     };
 
     try {
-      console.log('🚀 Launching Direct Request with Key:', API_KEY);
+      console.log('🚀 Sending Hybrid Payload:', JSON.stringify(payload));
       
       const response = await fetch(API_URL, {
         method: 'POST',
@@ -58,19 +66,19 @@ export class SubmitComponent {
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
-
       if (!response.ok) {
-        throw new Error(result.error || 'Server rejected request');
+        const errorText = await response.text();
+        console.error('Server Error Details:', errorText);
+        throw new Error(`Server Error (${response.status}): ${errorText}`);
       }
 
-      // 4. Success
+      const result = await response.json();
       this.successData = result;
       this.isLoading = false;
 
     } catch (error: any) {
       console.error('💥 Crash:', error);
-      this.errorMessage = typeof error === 'string' ? error : error.message;
+      this.errorMessage = error.message;
       this.isLoading = false;
     }
   }
