@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 })
 export class SubmitComponent {
   
-  // --- UI Models (These were missing!) ---
+  // --- UI Models (REQUIRED for HTML bindings) ---
   formData = {
     policyNumber: '',
     incidentType: 'CLAIM_SUBMITTED', 
@@ -21,11 +21,12 @@ export class SubmitComponent {
     agentId: ''
   };
   
+  // --- State Variables (REQUIRED for HTML *ngIf) ---
   isLoading = false;
   successData: any = null;
   errorMessage: string = '';
 
-  // --- THE "RAW FORCE" SUBMIT ---
+  // --- THE "RAW FORCE" SUBMIT METHOD ---
   async submit() {
     this.isLoading = true;
     this.errorMessage = '';
@@ -74,4 +75,5 @@ export class SubmitComponent {
     }
   }
 }
+
 
