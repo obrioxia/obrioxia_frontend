@@ -1,6 +1,6 @@
 export const environment = {
-  production: false,
-  // Base URL only (Service adds /api/...)
+  production: true,
+  // Base URL only
   apiUrl: 'https://obrioxia-backend-pkrp.onrender.com', 
   
   // Matches the API Key in your Render Dashboard
