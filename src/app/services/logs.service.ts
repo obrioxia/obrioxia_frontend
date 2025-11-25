@@ -4,7 +4,6 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 
-// Define the shape of data the frontend sends
 export interface InsuranceLogData {
   policyNumber: string;
   incidentType: string;
@@ -19,24 +18,23 @@ export interface InsuranceLogData {
 })
 export class LogsService {
   private http = inject(HttpClient);
-  
-  // Remove trailing slash to prevent double-slashes in URLs
+  // Remove trailing slash to be safe
   private apiUrl = environment.apiUrl.replace(/\/$/, '');
+  
+  // HARDCODED KEY FOR DEMO STABILITY
+  private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
-    // 1. We grab the API Key from environment
-    const apiKey = environment.apiKey || ''; 
+    console.log('Attaching API Key:', this.HARD_CODED_KEY); // Debug log
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'x-api-key': apiKey 
+      'x-api-key': this.HARD_CODED_KEY 
     });
   }
 
-  // --- 1. SUBMIT INCIDENT (Write to Chain) ---
+  // SUBMIT INCIDENT
   submitInsuranceEvent(data: InsuranceLogData): Observable<any> {
-    
-    // 2. Map Frontend (camelCase) to Backend (snake_case)
     const payload = {
       policy_number: data.policyNumber,
       incident_type: data.incidentType,
@@ -65,7 +63,7 @@ export class LogsService {
     );
   }
 
-  // --- 2. GET FULL CHAIN (For Dashboard/Visualization) ---
+  // GET CHAIN
   getChain(): Observable<any[]> {
     return this.http.get<any[]>(
       `${this.apiUrl}/api/chain`,
@@ -75,11 +73,11 @@ export class LogsService {
     );
   }
 
-  // --- 3. VERIFY INTEGRITY (For Public Verify Page) ---
+  // VERIFY POLICY
   verifyPolicy(policyNumber: string): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/api/verify`,
-      { policy_number: policyNumber },
+      { policyNumber: policyNumber },
       { headers: this.getHeaders() }
     ).pipe(
       catchError(err => throwError(() => err))
