@@ -2,7 +2,9 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
+
+// We don't even need the environment import anymore for this emergency fix
+// import { environment } from 'src/environments/environment';
 
 export interface InsuranceLogData {
   policyNumber: string;
@@ -18,14 +20,16 @@ export interface InsuranceLogData {
 })
 export class LogsService {
   private http = inject(HttpClient);
-  // Remove trailing slash to be safe
-  private apiUrl = environment.apiUrl.replace(/\/$/, '');
+
+  // 1. HARDCODED URL (Bypasses environment.ts issues)
+  private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com';
   
-  // HARDCODED KEY FOR DEMO STABILITY
+  // 2. HARDCODED KEY (Bypasses Netlify env var issues)
   private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
-    console.log('Attaching API Key:', this.HARD_CODED_KEY); // Debug log
+    // This log PROVES you have the new code
+    console.log('Attaching API Key:', this.HARD_CODED_KEY); 
 
     return new HttpHeaders({
       'Content-Type': 'application/json',
