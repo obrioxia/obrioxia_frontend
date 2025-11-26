@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common'; 
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -10,17 +10,17 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./submit.component.css']
 })
 export class SubmitComponent {
-  
+
   // UI Models
   formData = {
     policyNumber: '',
-    incidentType: 'CLAIM_SUBMITTED', 
-    claimAmount: null as number | null, 
+    incidentType: 'CLAIM_SUBMITTED',
+    claimAmount: null as number | null,
     decisionNotes: '',
     aiConfidenceScore: 0.98,
     agentId: ''
   };
-  
+
   isLoading = false;
   successData: any = null;
   errorMessage: string = '';
@@ -33,9 +33,8 @@ export class SubmitComponent {
     const API_URL = 'https://obrioxia-backend-pkrp.onrender.com/api/incidents';
     const API_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
-    // --- THE HYBRID PAYLOAD FIX ---
-    // We send BOTH snake_case and camelCase to guarantee the backend accepts it.
-    // This solves the 422 error regardless of Pydantic configuration.
+    // --- HYBRID PAYLOAD FIX ---
+    // Sends both snake_case and camelCase to ensure backend acceptance
     const payload = {
       // Snake Case (Python Standard)
       policy_number: this.formData.policyNumber || 'DEMO-POL-001',
@@ -45,7 +44,7 @@ export class SubmitComponent {
       ai_confidence_score: Number(this.formData.aiConfidenceScore),
       agent_id: this.formData.agentId || 'DEMO_AGENT',
 
-      // Camel Case (JS Standard) - just in case
+      // Camel Case (JS Standard)
       policyNumber: this.formData.policyNumber || 'DEMO-POL-001',
       incidentType: this.formData.incidentType,
       claimAmount: Number(this.formData.claimAmount) || 5000,
@@ -56,7 +55,7 @@ export class SubmitComponent {
 
     try {
       console.log('🚀 Sending Hybrid Payload:', JSON.stringify(payload));
-      
+
       const response = await fetch(API_URL, {
         method: 'POST',
         headers: {
