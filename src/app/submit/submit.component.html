@@ -1,7 +1,6 @@
 <nav class="fixed w-full z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/5 top-0 left-0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
-            
             <div class="flex-shrink-0 flex items-center gap-3">
                 <div class="w-9 h-9 bg-white rounded-sm flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.2)]">
                     <i class="fas fa-cube text-black text-lg"></i>
@@ -30,7 +29,7 @@
 
 <div class="min-h-screen bg-[#050505] text-white font-sans pt-28 pb-20 px-4">
 
-    <div class="max-w-7xl mx-auto mb-12 text-center md:text-left">
+    <div class="max-w-7xl mx-auto mb-8 text-center md:text-left">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold tracking-widest uppercase mb-4">
             <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
             Audit Engine v3.0
@@ -39,8 +38,19 @@
             IMMUTABLE <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">DECISION LOGIC</span>
         </h1>
         <p class="text-gray-400 max-w-2xl text-lg font-light">
-            Securely anchor AI insurance decisions to the blockchain. Create a tamper-evident audit trail for regulatory compliance.
+            Create an immutable "snapshot" of your AI's decision-making process. By logging the inputs and outcomes here, you generate a tamper-evident record that proves exactly what the AI decided at this specific moment.
         </p>
+    </div>
+
+    <div class="max-w-7xl mx-auto mb-8 glass-panel border-l-4 border-yellow-500 p-4 rounded-r-xl bg-yellow-500/5 flex items-start gap-4">
+        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+        <div>
+            <h4 class="text-yellow-500 font-bold text-sm uppercase tracking-wider">Demo Environment – No Real Personal Data</h4>
+            <p class="text-gray-400 text-xs mt-1">
+                Please do not enter real PII (Personally Identifiable Information), PHI, or actual policy numbers. 
+                This is a demonstration environment; data entered here is visible to the system administrator.
+            </p>
+        </div>
     </div>
 
     <div class="max-w-7xl mx-auto glass-panel p-1 rounded-xl shadow-2xl backdrop-blur-xl border-t border-l border-white/20">
@@ -108,6 +118,11 @@
                 </button>
             </div>
         </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 text-center md:text-left text-[10px] text-gray-600 leading-relaxed">
+        <p class="uppercase font-bold mb-1">Disclaimer: Evaluation Prototype</p>
+        <p>Obrioxia Audit Engine is provided "as is" for evaluation purposes only. Usage does not constitute compliance with the EU AI Act, GDPR, or insurance regulations. This instance is not SOC2 or HIPAA compliant. Do not use for production data.</p>
     </div>
 </div>
 
