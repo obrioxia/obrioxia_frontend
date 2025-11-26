@@ -10,77 +10,83 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./submit.component.css']
 })
 export class SubmitComponent {
+  
+  // --- CONFIGURATION ---
+  // ✅ API KEY INSERTED FROM YOUR SCREENSHOT
+  private readonly API_KEY = "c919848182e3e4250082ea7bacd14e170";
+  
+  // Your Render Backend URL
+  private readonly API_URL = "https://obrioxia-backend-pkrp.onrender.com";
 
-  // UI Models
+  // --- DATA MODELS ---
   formData = {
     policyNumber: '',
-    incidentType: 'CLAIM_SUBMITTED',
-    claimAmount: null as number | null,
-    decisionNotes: '',
+    incidentType: 'Claim Submitted',
+    claimAmount: 5000,
     aiConfidenceScore: 0.98,
-    agentId: ''
+    agentId: 'AI-CORE-01',
+    decisionNotes: ''
   };
 
+  // --- UI STATE ---
+  jsonPreview: string = '';
   isLoading = false;
-  successData: any = null;
+  successData: any = null; // Stores the receipt if successful
   errorMessage: string = '';
 
-  async submit() {
+  constructor() {
+    this.updateJson(); // Initialize the preview box
+  }
+
+  // Updates the live JSON box on the right
+  updateJson() {
+    this.jsonPreview = JSON.stringify(this.formData, null, 2);
+  }
+
+  // --- SUBMISSION ENGINE ---
+  async forceLog() {
+    // 1. Basic Validation
+    if (!this.formData.policyNumber) {
+      alert("Please enter a Policy Number");
+      return;
+    }
+
+    // 2. Set Loading State
     this.isLoading = true;
     this.errorMessage = '';
     this.successData = null;
 
-    const API_URL = 'https://obrioxia-backend-pkrp.onrender.com/api/incidents';
-    const API_KEY = 'c919848182e3e4250082ea7bacd14e170';
-
-    // --- HYBRID PAYLOAD FIX ---
-    // Sends both snake_case and camelCase to ensure backend acceptance
-    const payload = {
-      // Snake Case (Python Standard)
-      policy_number: this.formData.policyNumber || 'DEMO-POL-001',
-      incident_type: this.formData.incidentType,
-      claim_amount: Number(this.formData.claimAmount) || 5000,
-      decision_notes: this.formData.decisionNotes || 'Automated Demo Submission',
-      ai_confidence_score: Number(this.formData.aiConfidenceScore),
-      agent_id: this.formData.agentId || 'DEMO_AGENT',
-
-      // Camel Case (JS Standard)
-      policyNumber: this.formData.policyNumber || 'DEMO-POL-001',
-      incidentType: this.formData.incidentType,
-      claimAmount: Number(this.formData.claimAmount) || 5000,
-      decisionNotes: this.formData.decisionNotes || 'Automated Demo Submission',
-      aiConfidenceScore: Number(this.formData.aiConfidenceScore),
-      agentId: this.formData.agentId || 'DEMO_AGENT'
-    };
-
     try {
-      console.log('🚀 Sending Hybrid Payload:', JSON.stringify(payload));
-
-      const response = await fetch(API_URL, {
+      // 3. Send Data to Render Backend
+      const response = await fetch(`${this.API_URL}/api/incidents`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': API_KEY
+          'x-api-key': this.API_KEY
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(this.formData)
       });
 
+      // 4. Handle Errors
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Server Error Details:', errorText);
-        throw new Error(`Server Error (${response.status}): ${errorText}`);
+        throw new Error(`Server Error: ${response.status}`);
       }
 
+      // 5. Success!
       const result = await response.json();
-      this.successData = result;
-      this.isLoading = false;
-
-    } catch (error: any) {
-      console.error('💥 Crash:', error);
-      this.errorMessage = error.message;
+      this.successData = result; 
+      
+    } catch (error) {
+      console.error(error);
+      this.errorMessage = "Connection Failed. Check Console for details.";
+    } finally {
       this.isLoading = false;
     }
   }
+
+  // Closes the popup modals
+  closeModal() {
+    this.successData = null;
+    this.errorMessage = '';
+  }
 }
-
-

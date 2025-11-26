@@ -1,336 +1,67 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Obrioxia | Audit Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Orbitron', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        obrioxia: {
-                            black: '#050505',
-                            dark: '#0a0a0a',
-                            gray: '#1f1f1f',
-                            accent: '#3b82f6', 
-                            success: '#10b981',
-                            error: '#ef4444'
-                        }
-                    },
-                    animation: {
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'glow': 'glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        glow: {
-                            '0%': { boxShadow: '0 0 5px #3b82f6' },
-                            '100%': { boxShadow: '0 0 20px #3b82f6, 0 0 10px #3b82f6' },
-                        }
-                    }
-                }
+  <meta charset="utf-8">
+  <title>Obrioxia | Elite Audit Engine</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Orbitron', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obrioxia: { 
+              black: '#050505', 
+              dark: '#0a0a0a', 
+              accent: '#3b82f6', 
+              success: '#10b981', 
+              error: '#ef4444' 
             }
+          },
+          animation: {
+            'glow': 'glow 2s ease-in-out infinite alternate',
+          }
         }
-    </script>
-    <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+      }
+    }
+  </script>
 
-        /* Glassmorphism */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .input-glass {
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(4px);
-            color: white;
-        }
-        
-        .input-glass:focus {
-            border-color: #3b82f6;
-            outline: none;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
-        }
-
-        /* JSON Code Box Styling */
-        .json-box {
-            background-color: #0d0d0d;
-            border: 1px solid #333;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            line-height: 1.5;
-            color: #a5b3ce;
-        }
-        .json-key { color: #7dd3fc; } /* Light Blue */
-        .json-string { color: #a7f3d0; } /* Light Green */
-        .json-number { color: #fca5a5; } /* Light Red */
-        .json-boolean { color: #fcd34d; } /* Amber */
-
-        /* Animations */
-        .fade-in-up {
-            animation: fadeInUp 0.8s ease-out forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Logo Inverter for Dark Mode compatibility */
-        .logo-invert {
-            filter: invert(1) brightness(2);
-        }
-    </style>
+  <style>
+      body { background-color: #050505; color: #d1d5db; }
+      
+      /* Glassmorphism Classes */
+      .glass-panel {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* Input Styling */
+      .input-glass {
+          background: rgba(0, 0, 0, 0.6);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+          outline: none;
+      }
+      .input-glass:focus {
+          border-color: #3b82f6;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+      }
+  </style>
 </head>
-<body class="bg-obrioxia-black text-gray-300 font-sans antialiased overflow-x-hidden selection:bg-obrioxia-accent selection:text-white">
-
-    <nav class="fixed w-full z-50 bg-obrioxia-black/90 backdrop-blur-md border-b border-white/5 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                <div class="flex-shrink-0 flex items-center gap-3">
-                    <img src="image.png" alt="Obrioxia Logo" class="h-10 logo-invert"> 
-                </div>
-                
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-8">
-                        <a href="#logger" class="text-white hover:text-obrioxia-accent transition-colors duration-300 px-3 py-2 text-sm font-medium">Log Event</a>
-                        <a href="#verify" class="hover:text-white transition-colors duration-300 px-3 py-2 text-sm font-medium">Verify Chain</a>
-                        <button class="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-4 py-2 rounded-sm text-xs font-mono transition-all duration-300 flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> SYSTEM ONLINE
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        <div class="absolute inset-0 z-0">
-            <div class="absolute inset-0 bg-obrioxia-black/80 z-10"></div>
-            <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop" alt="Data Network" class="w-full h-full object-cover grayscale opacity-40">
-            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTTAgNDBMMDQwIDAiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjAyIiBmaWxsPSJub25lIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20 z-10"></div>
-        </div>
-
-        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col md:flex-row items-start gap-12 pt-10">
-            
-            <div class="md:w-5/12 text-center md:text-left pt-10">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-obrioxia-accent/10 border border-obrioxia-accent/20 text-obrioxia-accent text-xs font-bold tracking-widest uppercase mb-6 fade-in-up">
-                    <span class="w-2 h-2 rounded-full bg-obrioxia-accent animate-pulse"></span>
-                    Audit Engine v3.0
-                </div>
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-black text-white mb-6 fade-in-up delay-100 leading-tight">
-                    IMMUTABLE <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">DECISION LOGIC</span>
-                </h1>
-                <p class="text-lg text-gray-400 mb-8 font-light fade-in-up delay-200">
-                    Securely anchor AI insurance decisions to the blockchain. Create a tamper-evident audit trail for regulatory compliance.
-                </p>
-                
-                <div class="grid grid-cols-2 gap-4 fade-in-up delay-300">
-                    <div class="glass-panel p-4 rounded text-left">
-                        <div class="text-xs text-gray-500 uppercase">Nodes Active</div>
-                        <div class="text-xl font-mono text-white">12,402</div>
-                    </div>
-                    <div class="glass-panel p-4 rounded text-left">
-                        <div class="text-xs text-gray-500 uppercase">Hash Rate</div>
-                        <div class="text-xl font-mono text-obrioxia-accent">402 TH/s</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="logger" class="md:w-7/12 w-full fade-in-up delay-300">
-                <div class="glass-panel p-1 rounded-xl shadow-2xl backdrop-blur-xl border-t border-l border-white/20">
-                    <div class="bg-black/40 px-6 py-4 rounded-t-lg flex justify-between items-center border-b border-white/5">
-                        <h3 class="text-lg font-display text-white font-bold tracking-wide">Log Insurance Event</h3>
-                        <div class="flex gap-2">
-                            <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
-                            <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
-                        </div>
-                    </div>
-
-                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-[10px] uppercase tracking-widest text-obrioxia-accent font-bold mb-1 block">Policy Number</label>
-                                <input type="text" id="policyInput" placeholder="OBX-2025-..." class="input-glass w-full px-4 py-2 text-sm rounded-sm font-mono border-l-2 border-l-obrioxia-accent" onkeyup="updateJson()">
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Event Type</label>
-                                <select id="typeInput" class="input-glass w-full px-4 py-2 text-sm rounded-sm" onchange="updateJson()">
-                                    <option value="Claim Submitted">Claim Submitted</option>
-                                    <option value="Claim Approved">Claim Approved</option>
-                                    <option value="Claim Rejected">Claim Rejected</option>
-                                    <option value="Policy Renewal">Policy Renewal</option>
-                                </select>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">AI Confidence</label>
-                                    <input type="number" id="confidenceInput" value="0.98" step="0.01" max="1.0" class="input-glass w-full px-4 py-2 text-sm rounded-sm font-mono" onkeyup="updateJson()">
-                                </div>
-                                <div>
-                                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Agent ID</label>
-                                    <input type="text" id="agentInput" value="AI-CORE-01" class="input-glass w-full px-4 py-2 text-sm rounded-sm font-mono" onkeyup="updateJson()">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Decision Notes</label>
-                                <textarea id="notesInput" rows="2" class="input-glass w-full px-4 py-2 text-sm rounded-sm" placeholder="Reasoning..." onkeyup="updateJson()"></textarea>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col h-full">
-                            <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block flex justify-between">
-                                <span>Payload Preview</span>
-                                <span class="text-obrioxia-accent">JSON</span>
-                            </label>
-                            
-                            <div class="json-box flex-grow rounded p-4 overflow-hidden relative shadow-inner">
-                                <div class="absolute top-2 right-2 text-[10px] text-gray-600 font-mono">READ-ONLY</div>
-                                <pre><code id="jsonOutput">
-{
-  <span class="json-key">"policy_id"</span>: <span class="json-string">""</span>,
-  <span class="json-key">"event"</span>: <span class="json-string">"Claim Submitted"</span>,
-  <span class="json-key">"timestamp"</span>: <span class="json-number">1716304...</span>,
-  <span class="json-key">"ai_confidence"</span>: <span class="json-number">0.98</span>,
-  <span class="json-key">"agent"</span>: <span class="json-string">"AI-CORE-01"</span>
-}
-                                </code></pre>
-                            </div>
-
-                            <button onclick="forceLog()" id="logButton" class="mt-4 w-full bg-obrioxia-accent hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-sm transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)] hover:shadow-[0_0_30px_rgba(59,130,246,0.8)] border border-blue-400 flex items-center justify-center gap-2 group">
-                                <i class="fas fa-cube group-hover:rotate-12 transition-transform"></i>
-                                LOG INSURANCE EVENT
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div id="successModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center px-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" onclick="closeModal()"></div>
-        <div class="relative bg-gray-900 border border-green-500/30 p-8 rounded-xl max-w-sm w-full text-center shadow-2xl transform transition-all scale-100 animate-[fadeInUp_0.3s_ease-out]">
-            <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 text-3xl text-green-500 border border-green-500/50 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-                <i class="fas fa-link"></i>
-            </div>
-            <h3 class="text-xl font-display font-bold text-white mb-2">Block Anchored</h3>
-            <p class="text-gray-400 mb-6 text-sm">The event has been cryptographically sealed and added to the audit chain.</p>
-            <div class="bg-black p-3 rounded text-xs font-mono text-gray-500 mb-6 break-all border border-white/10">
-                Hash: 0x7f83...9a2b
-            </div>
-            <button onclick="closeModal()" class="bg-white hover:bg-gray-200 text-obrioxia-black font-bold py-2 px-6 rounded-sm transition-colors w-full">Close Receipt</button>
-        </div>
-    </div>
-
-    <script>
-        // Initialize JSON box
-        updateJson();
-
-        function updateJson() {
-            const policy = document.getElementById('policyInput').value || "";
-            const type = document.getElementById('typeInput').value;
-            const confidence = document.getElementById('confidenceInput').value;
-            const agent = document.getElementById('agentInput').value;
-            const notes = document.getElementById('notesInput').value || null;
-            const timestamp = Date.now();
-
-            // Construct Object
-            const data = {
-                policy_id: policy,
-                event: type,
-                timestamp: timestamp,
-                ai_confidence: parseFloat(confidence),
-                agent: agent,
-                metadata: {
-                    notes: notes,
-                    version: "v3.0"
-                }
-            };
-
-            // Syntax Highlight HTML generation
-            const jsonStr = JSON.stringify(data, null, 2);
-            const coloredJson = syntaxHighlight(jsonStr);
-            document.getElementById('jsonOutput').innerHTML = coloredJson;
-        }
-
-        // Helper to colorize JSON
-        function syntaxHighlight(json) {
-            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-                let cls = 'json-number';
-                if (/^"/.test(match)) {
-                    if (/:$/.test(match)) {
-                        cls = 'json-key';
-                    } else {
-                        cls = 'json-string';
-                    }
-                } else if (/true|false/.test(match)) {
-                    cls = 'json-boolean';
-                } else if (/null/.test(match)) {
-                    cls = 'json-boolean';
-                }
-                return '<span class="' + cls + '">' + match + '</span>';
-            });
-        }
-
-        function forceLog() {
-            const btn = document.getElementById('logButton');
-            const originalContent = btn.innerHTML;
-            
-            // Loading State
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> HASHING DATA...';
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
-
-            // Simulate Network Request
-            setTimeout(() => {
-                btn.innerHTML = originalContent;
-                btn.classList.remove('opacity-80', 'cursor-not-allowed');
-                document.getElementById('successModal').classList.remove('hidden');
-            }, 1500);
-        }
-
-        function closeModal() {
-            document.getElementById('successModal').classList.add('hidden');
-        }
-
-        // Navbar Scroll Effect
-        window.addEventListener('scroll', function() {
-            const nav = document.getElementById('navbar');
-            if (window.scrollY > 50) {
-                nav.classList.add('bg-obrioxia-black', 'shadow-lg');
-                nav.classList.remove('bg-obrioxia-black/90');
-            } else {
-                nav.classList.remove('bg-obrioxia-black', 'shadow-lg');
-                nav.classList.add('bg-obrioxia-black/90');
-            }
-        });
-    </script>
+<body class="bg-obrioxia-black">
+  <app-root></app-root>
 </body>
 </html>
