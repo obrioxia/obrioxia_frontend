@@ -1,136 +1,102 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { PublicVerifyService } from './public-verify.service';
-import { LogEntry } from './public-verify.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-public-verify',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './public-verify.component.html',
   styleUrls: ['./public-verify.component.css']
 })
 export class PublicVerifyComponent {
-  private service = inject(PublicVerifyService);
-  private http = inject(HttpClient);
+  
+  private readonly API_URL = "https://obrioxia-backend-pkrp.onrender.com";
 
-  isDragging = signal(false);
-  isProcessing = signal(false);
-  verificationResult = signal<{ valid: boolean; count: number; error?: string; isEmpty?: boolean } | null>(null);
-  chainData = signal<LogEntry[]>([]);
-  fileName = signal<string>('');
+  // State
+  isLoading = false;
+  results: any[] | null = null;
+  errorMessage = '';
+  isDragging = false;
 
-  private readonly API_URL =
-    'https://obrioxia-backend-pkrp.onrender.com/api';
-
+  // --- FILE HANDLING ---
+  
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging.set(true);
+    this.isDragging = true;
   }
 
   onDragLeave(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging.set(false);
+    this.isDragging = false;
   }
 
   onDrop(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    this.isDragging.set(false);
-    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
-      this.processFile(event.dataTransfer.files[0]);
+    this.isDragging = false;
+    
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.processFile(files[0]);
     }
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.processFile(input.files[0]);
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.processFile(file);
     }
   }
 
-  private processFile(file: File) {
-    if (file.type !== 'application/json' && !file.name.toLowerCase().endsWith('.json')) {
-      alert('Only .json files are supported.');
-      return;
-    }
-
-    this.fileName.set(file.name);
-    this.isProcessing.set(true);
-    this.verificationResult.set(null);
-
+  // Read the JSON file and send to Backend
+  processFile(file: File) {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    
+    reader.onload = async (e: any) => {
       try {
-        const text = e.target?.result as string;
-        if (!text.trim()) throw new Error('File is empty');
-        
-        const jsonContent = JSON.parse(text);
-        let logsToSend: any[] = [];
-
-        if (Array.isArray(jsonContent)) {
-            logsToSend = jsonContent;
-        } else if (jsonContent.logs && Array.isArray(jsonContent.logs)) {
-            logsToSend = jsonContent.logs;
-        } else {
-            const fallback = Object.values(jsonContent).find(v => Array.isArray(v));
-            if (fallback) logsToSend = fallback as any[];
-            else throw new Error("Could not find a list of logs in this JSON file.");
-        }
-
-        this.verifyWithBackend(logsToSend);
-
-      } catch (err: any) {
-        this.isProcessing.set(false);
-        this.verificationResult.set({ 
-            valid: false, 
-            count: 0, 
-            error: err.message || 'Invalid JSON', 
-            isEmpty: true 
-        });
+        const jsonContent = JSON.parse(e.target.result);
+        await this.verifyChain(jsonContent);
+      } catch (err) {
+        this.errorMessage = "Invalid JSON file. Please upload a valid Obrioxia receipt.";
       }
     };
-
+    
     reader.readAsText(file);
   }
 
-  private verifyWithBackend(logs: any[]) {
-    const url = `${this.API_URL}/verify`;
+  // --- API LOGIC ---
+  async verifyChain(data: any) {
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.results = null;
 
-    this.http.post<any>(url, { logs }).subscribe({
-      next: (res) => {
-        this.isProcessing.set(false);
-        if (res.valid) {
-          this.verificationResult.set({
-            valid: true,
-            count: res.checked || logs.length
-          });
-        } else {
-          this.verificationResult.set({
-            valid: false,
-            count: res.checked || 0,
-            error: res.error || 'Broken Chain Detected'
-          });
-        }
-      },
-      error: (err: HttpErrorResponse) => {
-        this.isProcessing.set(false);
-        this.verificationResult.set({
-          valid: false,
-          count: 0,
-          error: err.error?.detail || err.message || 'Server Error'
-        });
-      }
-    });
+    // Ensure data is an array
+    const payload = Array.isArray(data) ? data : [data];
+
+    try {
+      const response = await fetch(`${this.API_URL}/api/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) throw new Error("Verification Server Error");
+
+      this.results = await response.json();
+
+    } catch (error) {
+      console.error(error);
+      this.errorMessage = "Could not connect to the Audit Node.";
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  get resultClass() {
-    const res = this.verificationResult();
-    if (!res) return '';
-    if (res.isEmpty) return 'empty-result';
-    return res.valid ? 'valid-result' : 'invalid-result';
+  reset() {
+    this.results = null;
+    this.errorMessage = '';
   }
 }

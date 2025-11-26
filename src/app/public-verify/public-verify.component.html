@@ -1,81 +1,92 @@
-<div class="verify-container">
+<nav class="fixed w-full z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/5 top-0 left-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <div class="flex-shrink-0 flex items-center gap-3">
+                <img src="assets/logo.png" alt="Obrioxia" class="h-10 logo-invert">
+            </div>
+            <div class="hidden md:flex items-center gap-2 text-xs font-mono text-gray-500 border border-white/10 px-3 py-1 rounded-full">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                SYSTEM ONLINE
+            </div>
+        </div>
+    </div>
+</nav>
 
-  <!-- Header -->
-  <div class="header">
-    <h1>Verify Evidence Chain</h1>
-    <p>Drop a JSON file exported from Obrioxia to check integrity.</p>
-  </div>
-
-  <!-- Drop Zone -->
-  <div 
-    class="drop-zone"
-    [class.dragging]="isDragging()"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave($event)"
-    (drop)="onDrop($event)"
-  >
-    <p *ngIf="!fileName()">Drop JSON file here or click to select</p>
-    <p *ngIf="fileName()">File: {{ fileName() }}</p>
-    <input type="file" accept=".json" (change)="onFileSelected($event)">
-  </div>
-
-  <!-- Status -->
-  <div *ngIf="isProcessing()" class="loading">
-    Processing file...
-  </div>
-
-  <!-- Result Section -->
-  <div *ngIf="verificationResult()" [class]="resultClass">
-
-    <!-- VALID RESULT -->
-    <div *ngIf="verificationResult()?.valid">
-      <h2 class="valid-title">INTEGRITY VERIFIED</h2>
-      <p class="valid-sub">All {{ verificationResult()?.count }} blocks are valid and untampered.</p>
+<div class="min-h-screen bg-[#050505] text-white font-sans pt-32 pb-20 px-4">
+    
+    <div class="max-w-4xl mx-auto text-center mb-12">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold tracking-widest uppercase mb-4">
+            <i class="fas fa-shield-alt"></i> Public Validator Node
+        </div>
+        <h1 class="text-4xl md:text-5xl font-[Orbitron] font-black mb-4">
+            VERIFY <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">CHAIN INTEGRITY</span>
+        </h1>
+        <p class="text-gray-400 text-lg font-light">
+            Upload a policy receipt (.json) to cryptographically verify its authenticity against the immutable ledger.
+        </p>
     </div>
 
-    <!-- INVALID RESULT -->
-    <div *ngIf="!verificationResult()?.valid && !verificationResult()?.isEmpty">
-      <h2 class="invalid-title">CHAIN BROKEN</h2>
-      <p class="invalid-sub">{{ verificationResult()?.error }}</p>
-    </div>
-
-    <!-- EMPTY FILE -->
-    <div *ngIf="verificationResult()?.isEmpty">
-      <h2 class="invalid-title">INVALID FILE</h2>
-      <p class="invalid-sub">{{ verificationResult()?.error }}</p>
-    </div>
-
-  </div>
-
-  <!-- Chain Preview -->
-  <div class="chain-preview" *ngIf="chainData().length > 0">
-    <h3>Chain Preview</h3>
-
-    <div class="chain-item" *ngFor="let block of chainData()">
-
-      <div class="seq">#{{ block.sequence }}</div>
-
-      <div class="details">
-        <div class="type">{{ block.event_type }}</div>
-        <div class="actor">{{ block.actor_id }}</div>
-        <div class="time">{{ block.timestamp | date:'medium' }}</div>
-
-        <div class="hash-block">
-          <span class="label">Chain Hash:</span>
-          <span class="hash" [title]="block.chain_hash">
-            {{ block.chain_hash | slice:0:12 }}...
-          </span>
+    <div class="max-w-2xl mx-auto">
+        
+        <div *ngIf="!results && !isLoading" 
+             (dragover)="onDragOver($event)" 
+             (dragleave)="onDragLeave($event)" 
+             (drop)="onDrop($event)"
+             [class.border-blue-500]="isDragging"
+             [class.bg-blue-500-10]="isDragging"
+             class="glass-panel border-2 border-dashed border-white/10 rounded-xl p-12 text-center transition-all duration-300 hover:border-blue-500/50 hover:bg-white/5 relative group cursor-pointer">
+            
+            <input type="file" (change)="onFileSelected($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".json">
+            
+            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500 text-3xl group-hover:scale-110 transition-transform duration-300">
+                <i class="fas fa-cloud-upload-alt"></i>
+            </div>
+            
+            <h3 class="text-xl font-bold text-white mb-2">Drop Verification File Here</h3>
+            <p class="text-gray-500 text-sm mb-6">or click to browse your device</p>
+            
+            <div class="inline-block bg-white/5 px-4 py-2 rounded text-xs font-mono text-gray-400 border border-white/5">
+                Supports: .JSON Receipts
+            </div>
         </div>
 
-        <div class="hash-block">
-          <span class="label">Prev Hash:</span>
-          <span class="hash" [title]="block.prev_chain_hash">
-            {{ block.prev_chain_hash | slice:0:12 }}...
-          </span>
+        <div *ngIf="isLoading" class="text-center py-20 animate-pulse">
+            <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h3 class="text-xl font-[Orbitron] font-bold">Verifying Hash...</h3>
+            <p class="text-gray-500 text-sm">Querying distributed ledger</p>
         </div>
-      </div>
+
+        <div *ngIf="results" class="space-y-4">
+            <div *ngFor="let res of results" 
+                 [class.border-green-500]="res.valid" 
+                 [class.border-red-500]="!res.valid"
+                 class="glass-panel border-l-4 p-6 rounded-lg flex items-center justify-between animate-[fadeIn_0.5s_ease-out]">
+                
+                <div>
+                    <div class="text-xs uppercase tracking-widest mb-1" 
+                         [class.text-green-500]="res.valid" 
+                         [class.text-red-500]="!res.valid">
+                        {{ res.valid ? 'Cryptographically Verified' : 'Integrity Failure' }}
+                    </div>
+                    <div class="text-white font-mono text-sm">Sequence #{{ res.sequence }}</div>
+                    <div class="text-gray-500 text-xs">{{ res.timestamp | date:'medium' }}</div>
+                </div>
+
+                <div class="text-3xl" [class.text-green-500]="res.valid" [class.text-red-500]="!res.valid">
+                    <i class="fas" [class.fa-check-circle]="res.valid" [class.fa-times-circle]="!res.valid"></i>
+                </div>
+            </div>
+
+            <button (click)="reset()" class="w-full mt-6 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-sm transition-colors">
+                Verify Another File
+            </button>
+        </div>
+
+        <div *ngIf="errorMessage" class="mt-6 glass-panel border-l-4 border-red-500 p-4 rounded text-center">
+            <p class="text-red-400 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Error</p>
+            <p class="text-gray-400 text-sm">{{ errorMessage }}</p>
+            <button (click)="reset()" class="text-xs underline text-white mt-2">Try Again</button>
+        </div>
 
     </div>
-  </div>
-
 </div>
