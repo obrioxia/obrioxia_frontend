@@ -51,13 +51,33 @@ export class PublicVerifyComponent {
     }
   }
 
+  // ✅ SMART READER LOGIC
   processFile(file: File) {
     const reader = new FileReader();
     
     reader.onload = async (e: any) => {
       try {
         const jsonContent = JSON.parse(e.target.result);
-        await this.verifyChain(jsonContent);
+        
+        // Logic to handle different file formats
+        let payloadToSend = [];
+
+        // Case 1: It's a "Submission Receipt" (Complex Wrapper)
+        // We need to extract the 'original_payload' to get the policy number
+        if (jsonContent.original_payload) {
+           payloadToSend = [ jsonContent.original_payload ];
+        }
+        // Case 2: It's a standard List (Simple Key)
+        else if (Array.isArray(jsonContent)) {
+           payloadToSend = jsonContent;
+        }
+        // Case 3: It's a single object (Simple Key)
+        else {
+           payloadToSend = [ jsonContent ];
+        }
+
+        await this.verifyChain(payloadToSend);
+
       } catch (err) {
         this.errorMessage = "Invalid JSON file. Please upload a valid Obrioxia receipt.";
       }
@@ -72,14 +92,11 @@ export class PublicVerifyComponent {
     this.errorMessage = '';
     this.results = null;
 
-    // Ensure data is an array
-    const payload = Array.isArray(data) ? data : [data];
-
     try {
       const response = await fetch(`${this.API_URL}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(data)
       });
 
       if (!response.ok) throw new Error("Verification Server Error");
@@ -94,7 +111,7 @@ export class PublicVerifyComponent {
     }
   }
 
-  // --- PROOF GENERATION (IMPROVED) ---
+  // --- PROOF GENERATION ---
   downloadProof() {
     if (!this.results) return;
 
