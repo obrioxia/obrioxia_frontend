@@ -12,10 +12,8 @@ import { FormsModule } from '@angular/forms';
 export class SubmitComponent {
   
   // --- CONFIGURATION ---
-  // ✅ API KEY INSERTED FROM YOUR SCREENSHOT
+  // API Key is required for submission
   private readonly API_KEY = "c919848182e3e4250082ea7bacd14e170";
-  
-  // Your Render Backend URL
   private readonly API_URL = "https://obrioxia-backend-pkrp.onrender.com";
 
   // --- DATA MODELS ---
@@ -31,11 +29,11 @@ export class SubmitComponent {
   // --- UI STATE ---
   jsonPreview: string = '';
   isLoading = false;
-  successData: any = null; // Stores the receipt if successful
+  successData: any = null; // Stores the backend response
   errorMessage: string = '';
 
   constructor() {
-    this.updateJson(); // Initialize the preview box
+    this.updateJson(); 
   }
 
   // Updates the live JSON box on the right
@@ -45,19 +43,16 @@ export class SubmitComponent {
 
   // --- SUBMISSION ENGINE ---
   async forceLog() {
-    // 1. Basic Validation
     if (!this.formData.policyNumber) {
       alert("Please enter a Policy Number");
       return;
     }
 
-    // 2. Set Loading State
     this.isLoading = true;
     this.errorMessage = '';
     this.successData = null;
 
     try {
-      // 3. Send Data to Render Backend
       const response = await fetch(`${this.API_URL}/api/incidents`, {
         method: 'POST',
         headers: {
@@ -67,12 +62,10 @@ export class SubmitComponent {
         body: JSON.stringify(this.formData)
       });
 
-      // 4. Handle Errors
       if (!response.ok) {
         throw new Error(`Server Error: ${response.status}`);
       }
 
-      // 5. Success!
       const result = await response.json();
       this.successData = result; 
       
@@ -84,7 +77,39 @@ export class SubmitComponent {
     }
   }
 
-  // Closes the popup modals
+  // --- RECEIPT GENERATION (NEW) ---
+  downloadReceipt() {
+    if (!this.successData) return;
+
+    // 1. Combine Input Data + Backend Confirmation
+    const receiptData = {
+      recordType: "OBRIOXIA_SUBMISSION_RECEIPT",
+      timestamp_generated: new Date().toISOString(),
+      integrity_data: {
+        sequence: this.successData.sequence,
+        chain_hash: this.successData.current_hash,
+        prev_hash: this.successData.prev_hash,
+        timestamp_anchored: this.successData.timestamp
+      },
+      original_payload: this.formData
+    };
+
+    // 2. Trigger Download
+    const filename = `receipt_submission_${this.successData.sequence}.json`;
+    this.triggerDownload(receiptData, filename);
+  }
+
+  // Helper function for browser downloads
+  private triggerDownload(data: any, filename: string) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
+
   closeModal() {
     this.successData = null;
     this.errorMessage = '';

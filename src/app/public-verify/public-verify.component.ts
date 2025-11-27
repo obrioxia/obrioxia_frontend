@@ -51,7 +51,6 @@ export class PublicVerifyComponent {
     }
   }
 
-  // Read the JSON file and send to Backend
   processFile(file: File) {
     const reader = new FileReader();
     
@@ -93,6 +92,31 @@ export class PublicVerifyComponent {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  // --- PROOF GENERATION (NEW) ---
+  downloadProof() {
+    if (!this.results) return;
+
+    const proofData = {
+      recordType: "OBRIOXIA_VERIFICATION_PROOF",
+      timestamp_verified: new Date().toISOString(),
+      integrity_check: "COMPLETE",
+      verification_results: this.results
+    };
+
+    const filename = `receipt_verification_${new Date().getTime()}.json`;
+    this.triggerDownload(proofData, filename);
+  }
+
+  private triggerDownload(data: any, filename: string) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
   }
 
   reset() {
