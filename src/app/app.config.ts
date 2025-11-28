@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
 import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
@@ -11,9 +11,8 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    importProvidersFrom(
-      provideFirebaseApp(() => initializeApp(environment.firebase)),
-      provideAuth(() => getAuth())
-    )
+    // CHANGED: Removed importProvidersFrom wrapper
+    provideFirebaseApp(() => initializeApp(environment.firebase)),
+    provideAuth(() => getAuth())
   ]
 };
