@@ -9,7 +9,16 @@ export const routes: Routes = [
   { path: '', redirectTo: 'submit', pathMatch: 'full' },
   { path: 'submit', component: SubmitComponent },
   { path: 'verify', component: PublicVerifyComponent },
+  
+  // Public Login Page
   { path: 'login', component: LoginComponent },
-  { path: 'admin', component: AdminDashboardComponent, canActivate: [AuthGuard] },
+  
+  // PROTECTED DASHBOARD (Requires Login)
+  { 
+    path: 'admin', 
+    component: AdminDashboardComponent,
+    canActivate: [AuthGuard] 
+  },
+
   { path: '**', redirectTo: 'submit' }
 ];
