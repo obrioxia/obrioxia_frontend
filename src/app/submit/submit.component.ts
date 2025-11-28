@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// ✅ IMPORT ENVIRONMENT
 import { environment } from '../../environments/environment';
+import { HealthService } from '../services/health.service'; // Import Service
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-submit',
@@ -11,14 +12,15 @@ import { environment } from '../../environments/environment';
   templateUrl: './submit.component.html',
   styleUrls: ['./submit.component.css']
 })
-export class SubmitComponent {
+export class SubmitComponent implements OnInit, OnDestroy {
   
-  // --- CONFIGURATION ---
-  // ✅ LOAD FROM ENVIRONMENT (No hardcoded secrets)
   private readonly API_KEY = environment.apiKey; 
   private readonly API_URL = environment.apiUrl;
 
-  // --- DATA MODELS ---
+  // --- HEALTH STATE ---
+  isSystemOnline = false; // Default to offline/checking
+  private healthSub: Subscription | null = null;
+
   formData = {
     policyNumber: '',
     incidentType: 'Claim Submitted',
@@ -28,14 +30,30 @@ export class SubmitComponent {
     decisionNotes: ''
   };
 
-  // --- UI STATE ---
   jsonPreview: string = '';
   isLoading = false;
   successData: any = null;
   errorMessage: string = '';
 
-  constructor() {
+  // Inject HealthService
+  constructor(private healthService: HealthService) {
     this.updateJson(); 
+  }
+
+  ngOnInit() {
+    this.checkHealth();
+    // Poll every 10 seconds
+    this.healthSub = interval(10000).subscribe(() => this.checkHealth());
+  }
+
+  ngOnDestroy() {
+    if (this.healthSub) this.healthSub.unsubscribe();
+  }
+
+  checkHealth() {
+    this.healthService.checkBackendStatus().subscribe(status => {
+      this.isSystemOnline = status;
+    });
   }
 
   updateJson() {
@@ -62,7 +80,6 @@ export class SubmitComponent {
         body: JSON.stringify(this.formData)
       });
 
-      // Handle Rate Limiting specifically
       if (response.status === 429) {
         throw new Error("⚠️ Demo Limit Reached (5 requests/minute). Please wait a moment.");
       }
@@ -82,7 +99,6 @@ export class SubmitComponent {
     }
   }
 
-  // --- RECEIPT DOWNLOAD LOGIC ---
   downloadReceipt() {
     if (!this.successData) return;
 
@@ -117,3 +133,4 @@ export class SubmitComponent {
     this.errorMessage = '';
   }
 }
+

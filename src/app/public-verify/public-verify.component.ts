@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HealthService } from '../services/health.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-public-verify',
@@ -9,18 +11,35 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './public-verify.component.html',
   styleUrls: ['./public-verify.component.css']
 })
-export class PublicVerifyComponent {
+export class PublicVerifyComponent implements OnInit, OnDestroy {
   
   private readonly API_URL = "https://obrioxia-backend-pkrp.onrender.com";
 
-  // State
   isLoading = false;
   results: any[] | null = null;
   errorMessage = '';
   isDragging = false;
 
-  // --- FILE HANDLING ---
-  
+  isSystemOnline = false;
+  private healthSub: Subscription | null = null;
+
+  constructor(private healthService: HealthService) {}
+
+  ngOnInit() {
+    this.checkHealth();
+    this.healthSub = interval(10000).subscribe(() => this.checkHealth());
+  }
+
+  ngOnDestroy() {
+    if (this.healthSub) this.healthSub.unsubscribe();
+  }
+
+  checkHealth() {
+    this.healthService.checkBackendStatus().subscribe(status => {
+      this.isSystemOnline = status;
+    });
+  }
+
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
@@ -51,7 +70,6 @@ export class PublicVerifyComponent {
     }
   }
 
-  // ✅ SMART READER LOGIC
   processFile(file: File) {
     const reader = new FileReader();
     
@@ -59,20 +77,13 @@ export class PublicVerifyComponent {
       try {
         const jsonContent = JSON.parse(e.target.result);
         
-        // Logic to handle different file formats
-        let payloadToSend = [];
+        let payloadToSend: any[] = [];
 
-        // Case 1: It's a "Submission Receipt" (Complex Wrapper)
-        // We need to extract the 'original_payload' to get the policy number
         if (jsonContent.original_payload) {
            payloadToSend = [ jsonContent.original_payload ];
-        }
-        // Case 2: It's a standard List (Simple Key)
-        else if (Array.isArray(jsonContent)) {
+        } else if (Array.isArray(jsonContent)) {
            payloadToSend = jsonContent;
-        }
-        // Case 3: It's a single object (Simple Key)
-        else {
+        } else {
            payloadToSend = [ jsonContent ];
         }
 
@@ -86,7 +97,6 @@ export class PublicVerifyComponent {
     reader.readAsText(file);
   }
 
-  // --- API LOGIC ---
   async verifyChain(data: any) {
     this.isLoading = true;
     this.errorMessage = '';
@@ -111,11 +121,9 @@ export class PublicVerifyComponent {
     }
   }
 
-  // --- PROOF GENERATION ---
   downloadProof() {
     if (!this.results) return;
 
-    // Check if any record in the results is valid
     const isVerified = this.results.some((r: any) => r.valid === true);
 
     const proofData = {
@@ -149,3 +157,5 @@ export class PublicVerifyComponent {
     this.errorMessage = '';
   }
 }
+
+
