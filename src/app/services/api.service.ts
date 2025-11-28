@@ -26,6 +26,13 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${environment.apiUrl}/incidents`, data, { headers }));
   }
 
+  async uploadBatch(file: File) {
+    const headers = await this.getHeaders(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    return firstValueFrom(this.http.post(`${environment.apiUrl}/batch-upload`, formData, { headers }));
+  }
+
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${environment.apiUrl}/verify`, receipt));
   }
