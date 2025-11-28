@@ -1,0 +1,37 @@
+<div class="min-h-screen bg-[#0a0a0a] text-gray-200 p-8">
+  <div class="max-w-7xl mx-auto flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+    <h1 class="text-3xl font-bold text-white font-orbitron tracking-wide">SYSTEM LEDGER</h1>
+    <button (click)="auth.logout()" class="text-red-400 border border-red-900/50 px-4 py-2 rounded">LOGOUT</button>
+  </div>
+
+  <div class="max-w-7xl mx-auto mb-6 flex gap-4">
+    <input [(ngModel)]="filter" (keyup.enter)="page=1; loadData()" placeholder="Search Policy #" class="bg-[#111] border border-gray-700 text-white px-4 py-2 rounded w-64">
+    <button (click)="page=1; loadData()" class="bg-gray-800 text-white px-4 py-2 rounded">Search</button>
+  </div>
+
+  <div class="max-w-7xl mx-auto bg-[#111] border border-gray-800 rounded-lg overflow-hidden shadow-xl">
+    <table class="w-full text-left text-sm text-gray-400">
+      <thead class="bg-black text-gray-200 uppercase font-mono text-xs">
+        <tr>
+          <th class="px-6 py-4">Seq</th>
+          <th class="px-6 py-4">Timestamp</th>
+          <th class="px-6 py-4">Policy Number</th>
+          <th class="px-6 py-4">Hash</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of rows" class="hover:bg-gray-900 transition-colors border-b border-gray-800">
+          <td class="px-6 py-4 text-cyan-500">{{ row.sequence }}</td>
+          <td class="px-6 py-4">{{ row.timestamp }}</td>
+          <td class="px-6 py-4 text-white">{{ row.policy_number }}</td>
+          <td class="px-6 py-4 text-xs font-mono">{{ row.current_hash | slice:0:16 }}...</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="bg-black px-6 py-4 flex justify-between">
+      <button (click)="changePage(-1)" [disabled]="page === 1" class="text-gray-400 hover:text-white disabled:opacity-30">← PREV</button>
+      <span>Page {{ page }}</span>
+      <button (click)="changePage(1)" class="text-gray-400 hover:text-white">NEXT →</button>
+    </div>
+  </div>
+</div>

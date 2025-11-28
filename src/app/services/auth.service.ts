@@ -1,42 +1,34 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
+import { Injectable, inject } from '@angular/core';
+import { Auth, signInWithEmailAndPassword, signOut, user, User } from '@angular/fire/auth';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
-@Component({
-  selector: 'app-admin-dashboard',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './admin-dashboard.component.html'
+@Injectable({
+  providedIn: 'root'
 })
-export class AdminDashboardComponent implements OnInit {
-  rows: any[] = [];
-  page = 1;
-  pageSize = 20;
-  filter = '';
-  isLoading = false;
+export class AuthService {
+  private auth = inject(Auth);
+  private router = inject(Router);
+  
+  user$: Observable<User | null> = user(this.auth);
 
-  constructor(public auth: AuthService, private api: ApiService) {}
-
-  ngOnInit() {
-    this.loadData();
-  }
-
-  async loadData() {
-    this.isLoading = true;
+  async login(email: string, pass: string) {
     try {
-      const res: any = await this.api.getAdminIncidents(this.page, this.pageSize, this.filter);
-      this.rows = res.data;
-    } catch (e) {
-      console.error(e);
-    } finally {
-      this.isLoading = false;
+      await signInWithEmailAndPassword(this.auth, email, pass);
+      this.router.navigate(['/admin']);
+    } catch (err) {
+      console.error("Login Failed", err);
+      throw err;
     }
   }
 
-  changePage(delta: number) {
-    this.page += delta;
-    this.loadData();
+  async logout() {
+    await signOut(this.auth);
+    this.router.navigate(['/login']);
+  }
+
+  async getToken(): Promise<string | null> {
+    const u = this.auth.currentUser;
+    return u ? u.getIdToken() : null;
   }
 }
