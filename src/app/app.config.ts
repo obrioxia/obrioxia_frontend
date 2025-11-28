@@ -11,7 +11,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    // CHANGED: Removed importProvidersFrom wrapper
+    // Unwrap the providers to fix Angular 17 compatibility
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth())
   ]

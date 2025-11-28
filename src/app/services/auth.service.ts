@@ -10,6 +10,7 @@ export class AuthService {
   private auth = inject(Auth);
   private router = inject(Router);
   
+  // Observable of the current user
   user$: Observable<User | null> = user(this.auth);
 
   async login(email: string, pass: string) {
@@ -17,7 +18,7 @@ export class AuthService {
       await signInWithEmailAndPassword(this.auth, email, pass);
       this.router.navigate(['/admin']);
     } catch (err) {
-      console.error("Login Failed", err);
+      console.error("Login Error:", err);
       throw err;
     }
   }
