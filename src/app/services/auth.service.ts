@@ -1,82 +1,42 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { AuthService } from './auth.service';
-import { firstValueFrom } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
+@Component({
+  selector: 'app-admin-dashboard',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './admin-dashboard.component.html'
 })
-export class ApiService {
-  constructor(private http: HttpClient, private auth: AuthService) {}
+export class AdminDashboardComponent implements OnInit {
+  rows: any[] = [];
+  page = 1;
+  pageSize = 20;
+  filter = '';
+  isLoading = false;
 
-  // Helper: Get headers with Public Key OR Firebase Token
-  private async getHeaders(requiresAuth: boolean = false) {
-    let headers = new HttpHeaders();
-    
-    if (requiresAuth) {
-      // For Admin routes: Use Firebase Token
-      const token = await this.auth.getToken();
-      if (token) {
-        headers = headers.set('Authorization', `Bearer ${token}`);
-      }
-    } else {
-      // For Public routes: Use Demo Key
-      headers = headers.set('x-api-key', environment.apiKey);
+  constructor(public auth: AuthService, private api: ApiService) {}
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  async loadData() {
+    this.isLoading = true;
+    try {
+      const res: any = await this.api.getAdminIncidents(this.page, this.pageSize, this.filter);
+      this.rows = res.data;
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.isLoading = false;
     }
-    return headers;
   }
 
-  // --- PUBLIC ENDPOINTS ---
-
-  async submitIncident(data: any) {
-    // Uses API Key
-    const headers = await this.getHeaders(false);
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/incidents`, data, { headers }));
-  }
-
-  async verifyReceipt(receipt: any) {
-    // Public, no special headers needed usually, but we stick to pattern
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/verify`, receipt));
-  }
-
-  // --- ADMIN / PROTECTED ENDPOINTS ---
-
-  async uploadBatch(file: File) {
-    // Batch upload can be switched to Firebase Auth now, or keep using Admin API Key.
-    // Let's use Firebase Auth for the dashboard context.
-    const headers = await this.getHeaders(true);
-    const formData = new FormData();
-    formData.append('file', file);
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/batch-upload`, formData, { headers }));
-  }
-
-  async getAdminIncidents(page: number, pageSize: number, filter: string) {
-    const headers = await this.getHeaders(true);
-    let params = new HttpParams()
-      .set('page', page)
-      .set('page_size', pageSize);
-    
-    if (filter) {
-      params = params.set('policy_filter', filter);
-    }
-
-    return firstValueFrom(this.http.get<any>(`${environment.apiUrl}/admin/incidents`, { headers, params }));
-  }
-
-  // --- PDF GENERATION ---
-  
-  async downloadSubmissionPdf(receipt: any) {
-    // Public
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/pdf/submission`, receipt, { 
-      responseType: 'blob' 
-    }));
-  }
-
-  async downloadVerificationPdf(proof: any) {
-    // Public
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/pdf/verification`, proof, { 
-      responseType: 'blob' 
-    }));
+  changePage(delta: number) {
+    this.page += delta;
+    this.loadData();
   }
 }
