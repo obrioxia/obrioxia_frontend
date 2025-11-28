@@ -9,7 +9,9 @@ import { interval, Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './public-verify.component.html',
-  styleUrls: ['./public-verify.component.css']
+  styles: [`
+    :host { display: block; }
+  `]
 })
 export class PublicVerifyComponent implements OnInit, OnDestroy {
   
@@ -157,5 +159,3 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
   }
 }
-
-
