@@ -1,48 +1,43 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../environments/environment';
-import { HealthService } from '../services/health.service'; // Import Service
-import { interval, Subscription } from 'rxjs';
+import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
+import { HealthService } from '../services/health.service';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-submit',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './submit.component.html',
-  styleUrls: ['./submit.component.css']
+  templateUrl: './submit.component.html'
 })
 export class SubmitComponent implements OnInit, OnDestroy {
-  
-  private readonly API_KEY = environment.apiKey; 
-  private readonly API_URL = environment.apiUrl;
-
-  // --- HEALTH STATE ---
-  isSystemOnline = false; // Default to offline/checking
-  private healthSub: Subscription | null = null;
-
   formData = {
     policyNumber: '',
-    incidentType: 'Claim Submitted',
-    claimAmount: 5000,
-    aiConfidenceScore: 0.98,
-    agentId: 'AI-CORE-01',
+    incidentType: 'Auto',
+    claimAmount: 0,
+    aiConfidenceScore: 0.95,
+    agentId: 'AGENT-001',
     decisionNotes: ''
   };
 
-  jsonPreview: string = '';
+  latestReceipt: any = null;
   isLoading = false;
-  successData: any = null;
-  errorMessage: string = '';
+  uploadStatus = '';
+  isSystemOnline = false;
+  
+  private healthSub: Subscription | null = null;
+  user$ = this.auth.user$;
 
-  // Inject HealthService
-  constructor(private healthService: HealthService) {
-    this.updateJson(); 
-  }
+  constructor(
+    private api: ApiService, 
+    public auth: AuthService,
+    private healthService: HealthService
+  ) {}
 
   ngOnInit() {
     this.checkHealth();
-    // Poll every 10 seconds
     this.healthSub = interval(10000).subscribe(() => this.checkHealth());
   }
 
@@ -51,86 +46,61 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   checkHealth() {
-    this.healthService.checkBackendStatus().subscribe(status => {
+    // Added explicit type boolean to fix build error
+    this.healthService.checkBackendStatus().subscribe((status: boolean) => {
       this.isSystemOnline = status;
     });
   }
 
-  updateJson() {
-    this.jsonPreview = JSON.stringify(this.formData, null, 2);
-  }
-
-  async forceLog() {
-    if (!this.formData.policyNumber) {
-      alert("Please enter a Policy Number");
-      return;
-    }
-
+  async onSubmit() {
     this.isLoading = true;
-    this.errorMessage = '';
-    this.successData = null;
-
     try {
-      const response = await fetch(`${this.API_URL}/api/incidents`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': this.API_KEY
-        },
-        body: JSON.stringify(this.formData)
-      });
-
-      if (response.status === 429) {
-        throw new Error("⚠️ Demo Limit Reached (5 requests/minute). Please wait a moment.");
-      }
-
-      if (!response.ok) {
-        throw new Error(`Server Error: ${response.status}`);
-      }
-
-      const result = await response.json();
-      this.successData = result; 
-      
-    } catch (error: any) {
+      const res: any = await this.api.submitIncident(this.formData);
+      this.latestReceipt = res.receipt;
+    } catch (error) {
       console.error(error);
-      this.errorMessage = error.message || "Connection Failed.";
+      alert('Submission Failed.');
     } finally {
       this.isLoading = false;
     }
   }
 
-  downloadReceipt() {
-    if (!this.successData) return;
+  async onBatchUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    const receiptData = {
-      recordType: "OBRIOXIA_SUBMISSION_RECEIPT",
-      timestamp_generated: new Date().toISOString(),
-      integrity_data: {
-        sequence: this.successData.sequence,
-        chain_hash: this.successData.current_hash,
-        prev_hash: this.successData.prev_hash,
-        timestamp_anchored: this.successData.timestamp
-      },
-      original_payload: this.formData
-    };
-
-    const filename = `receipt_submission_${this.successData.sequence}.json`;
-    this.triggerDownload(receiptData, filename);
+    this.isLoading = true;
+    this.uploadStatus = 'Uploading...';
+    try {
+      const res: any = await this.api.uploadBatch(file);
+      this.uploadStatus = `Batch Complete! ID: ${res.batch_id}`;
+    } catch (error) {
+      this.uploadStatus = 'Batch Failed.';
+      console.error(error);
+    } finally {
+      this.isLoading = false;
+    }
   }
 
-  private triggerDownload(data: any, filename: string) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
+  downloadJSON() {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt, null, 2));
+    const anchor = document.createElement('a');
+    anchor.setAttribute("href", dataStr);
+    anchor.setAttribute("download", `receipt_${this.latestReceipt.receipt_id || 'new'}.json`);
+    anchor.click();
   }
 
-  closeModal() {
-    this.successData = null;
-    this.errorMessage = '';
+  async downloadPDF() {
+    if (!this.latestReceipt) return;
+    try {
+      const blob = await this.api.downloadSubmissionPdf(this.latestReceipt);
+      const url = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `Certificate.pdf`;
+      anchor.click();
+    } catch (e) {
+      console.error("PDF Download failed", e);
+    }
   }
 }
-

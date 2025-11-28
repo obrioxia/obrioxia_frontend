@@ -20,17 +20,16 @@ import { Observable } from 'rxjs';
 export class AppComponent implements OnInit {
   status = 'Checking...';
   statusColor = 'text-gray-500';
-  user$: Observable<any>; // Declare property first
+  user$: Observable<any>; 
 
   constructor(private health: HealthService, public auth: AuthService) {
-    // Initialize inside constructor
     this.user$ = this.auth.user$;
   }
 
   ngOnInit() {
-    // Explicitly type 'res' as any to satisfy strict mode
-    this.health.checkStatus().subscribe((res: any) => {
-      if (res && res.status === 'operational') {
+    // CHANGED: checkStatus -> checkBackendStatus
+    this.health.checkBackendStatus().subscribe((isOnline: boolean) => {
+      if (isOnline) {
         this.status = 'ONLINE';
         this.statusColor = 'text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.5)]';
       } else {
