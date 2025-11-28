@@ -1,6 +1,5 @@
 [build]
   command = "npm install && npm run build"
-  # CRITICAL FIX: Point to the 'browser' subfolder
   publish = "dist/obrioxia-frontend/browser"
 
 [build.environment]
