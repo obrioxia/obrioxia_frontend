@@ -1,5 +1,6 @@
 [build]
-  command = "npm install && npm run build"
+  # Force legacy peer deps to ignore any remaining version warnings
+  command = "npm install --legacy-peer-deps && npm run build"
   publish = "dist/obrioxia-frontend/browser"
 
 [build.environment]
