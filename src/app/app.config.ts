@@ -1,9 +1,12 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { initializeApp, provideFirebaseApp } from '@angular/fire/app';
+import { getAuth, provideAuth } from '@angular/fire/auth';
 
-// Your web app's Firebase configuration
+import { routes } from './app.routes';
+
+// DIRECT COPY FROM FIREBASE CONSOLE (Exact Match)
 const firebaseConfig = {
   apiKey: "AIzaSyDuhcvj5JS_8bCtF5K6i3DlVlEuYEKMDuM",
   authDomain: "obrioxia-audit-engine.firebaseapp.com",
@@ -13,5 +16,11 @@ const firebaseConfig = {
   appId: "1:233336301606:web:6a6305d2226511ddc61ee7"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(),
+    provideFirebaseApp(() => initializeApp(firebaseConfig)),
+    provideAuth(() => getAuth())
+  ]
+};
