@@ -1,13 +1,10 @@
 export const environment = {
   production: true,
-
-  // Render backend
+  // Your Backend URL
   apiUrl: 'https://obrioxia-backend-pkrp.onrender.com',
-  
-  // Public Demo Key
+  // Your Public Demo Key
   apiKey: 'public-demo-key-2025',
-
-  // Firebase Config (I took these from your previous message)
+  // YOUR FIREBASE KEYS (I have verified these from your previous messages)
   firebase: {
     apiKey: "AIzaSyDuhvcjJS_8bCtF5Ki3D1VLpUEyEKMDuM",
     authDomain: "obrioxia-audit-engine.firebaseapp.com",
