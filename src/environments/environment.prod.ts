@@ -1,5 +1,19 @@
 export const environment = {
-  production: false,
+  production: true,
+
+  // Render backend
   apiUrl: 'https://obrioxia-backend-pkrp.onrender.com',
-  apiKey: 'public-demo-key-2025' // ✅ SECURE: Uses the rate-limited public key
+  
+  // Public Demo Key (Rate Limited)
+  apiKey: 'public-demo-key-2025',
+
+  // Firebase Config (YOUR REAL KEYS)
+  firebase: {
+    apiKey: "AIzaSyDuhvcjJS_8bCtF5Ki3D1VLpUEyEKMDuM",
+    authDomain: "obrioxia-audit-engine.firebaseapp.com",
+    projectId: "obrioxia-audit-engine",
+    storageBucket: "obrioxia-audit-engine.appspot.com",
+    messagingSenderId: "23333631066",
+    appId: "1:23333631066:web:6a6305d2226511ddc61ee7"
+  }
 };
