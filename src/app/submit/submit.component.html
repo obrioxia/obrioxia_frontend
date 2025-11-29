@@ -1,202 +1,119 @@
-<!-- NAVIGATION BAR -->
-<nav class="fixed w-full z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/5 top-0 left-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-            <!-- LEFT: LOGO -->
-            <div class="flex-shrink-0 flex items-center gap-3">
-                <div class="w-9 h-9 bg-white rounded-sm flex items-center justify-center shadow-[0_0_15px_rgba(255,255,255,0.2)]">
-                    <i class="fas fa-cube text-black text-lg"></i>
-                </div>
-                <span class="font-[Orbitron] font-bold text-xl tracking-[0.2em] text-white">OBRIOXIA</span>
-            </div>
-
-            <!-- CENTER: NAVIGATION LINKS -->
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-8">
-                    <a href="/submit" class="text-white border-b-2 border-blue-500 px-1 py-5 text-sm font-bold tracking-wider transition-all">
-                        LOG EVENT
-                    </a>
-                    <a href="/verify" class="text-gray-400 hover:text-white px-1 py-5 text-sm font-bold tracking-wider transition-all hover:border-b-2 hover:border-gray-500">
-                        VERIFY CHAIN
-                    </a>
-                </div>
-            </div>
-            
-            <!-- RIGHT: DYNAMIC STATUS INDICATOR -->
-            <div class="hidden md:flex items-center">
-                <!-- ONLINE STATE -->
-                <div *ngIf="isSystemOnline" class="flex items-center gap-2 px-3 py-1 rounded bg-green-500/10 border border-green-500/50 text-green-400 text-xs font-bold animate-pulse">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    SYSTEM OPERATIONAL
-                </div>
-                <!-- OFFLINE STATE -->
-                <div *ngIf="!isSystemOnline" class="flex items-center gap-2 px-3 py-1 rounded bg-red-500/10 border border-red-500/50 text-red-400 text-xs font-bold">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                    SYSTEM OFFLINE
-                </div>
-            </div>
-        </div>
+<div class="pb-20">
+  <div class="relative overflow-hidden mb-8 py-10 border-b border-gray-800 bg-gradient-to-b from-[#111] to-transparent">
+    <div class="relative z-10 px-4">
+      <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tighter" style="font-family: 'Orbitron', sans-serif;">
+        <span class="text-gray-100">IMMUTABLE</span> 
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600 ml-2 md:ml-4">DECISION LOGIC</span>
+      </h1>
+      <p class="text-gray-400 max-w-2xl text-sm md:text-base leading-relaxed">
+        Create an immutable "snapshot" of your AI's decision-making process. By logging the inputs and outcomes here, you generate a tamper-evident record that proves exactly what the AI decided at this specific moment.
+      </p>
     </div>
-</nav>
+  </div>
 
-<!-- MAIN CONTAINER -->
-<div class="min-h-screen bg-[#050505] text-white font-sans pt-28 pb-20 px-4">
+  <div class="mb-8 border border-yellow-600/30 bg-yellow-900/10 rounded p-4 mx-4 md:mx-0">
+    <h3 class="text-yellow-500 font-bold text-sm uppercase tracking-wider mb-1">⚠ DEMO ENVIRONMENT = NO REAL PERSONAL DATA</h3>
+    <p class="text-yellow-500/70 text-xs">
+      Please do not enter real PII (Personally Identifiable Information), PHI, or actual policy numbers. This is a demonstration environment; data entered here is visible to the system administrator.
+    </p>
+  </div>
 
-    <!-- HERO HEADER -->
-    <div class="max-w-7xl mx-auto mb-8 text-center md:text-left">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold tracking-widest uppercase mb-4">
-            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-            Audit Engine v3.0
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <div class="bg-[#111] p-6 rounded-lg border border-gray-800 shadow-xl">
+      <h2 class="text-xl font-bold text-white mb-6 flex items-center gap-2 border-b border-gray-800 pb-4">
+        <span class="text-cyan-500">►</span> Log Insurance Event
+      </h2>
+
+      <form (ngSubmit)="onSubmit()" class="space-y-5">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-mono text-gray-400 mb-1">POLICY NUMBER</label>
+            <input [(ngModel)]="formData.policyNumber" name="pol" type="text" class="w-full bg-black border border-gray-700 rounded p-2 text-white focus:border-cyan-500 outline-none transition-colors" placeholder="OBX-2025-..." required>
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-gray-400 mb-1">CLAIM TYPE</label>
+            <select [(ngModel)]="formData.incidentType" name="type" class="w-full bg-black border border-gray-700 rounded p-2 text-white focus:border-cyan-500 outline-none">
+              <option>Auto</option>
+              <option>Home</option>
+              <option>Cyber</option>
+              <option>Liability</option>
+            </select>
+          </div>
         </div>
-        <h1 class="text-4xl md:text-6xl font-[Orbitron] font-black mb-4">
-            IMMUTABLE <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">DECISION LOGIC</span>
-        </h1>
-        <p class="text-gray-400 max-w-2xl text-lg font-light">
-            Create an immutable "snapshot" of your AI's decision-making process. By logging the inputs and outcomes here, you generate a tamper-evident record that proves exactly what the AI decided at this specific moment.
-        </p>
-    </div>
 
-    <!-- YELLOW DISCLAIMER BOX -->
-    <div class="max-w-7xl mx-auto mb-2 glass-panel border-l-4 border-yellow-500 p-4 rounded-r-xl bg-yellow-500/5 flex items-start gap-4">
-        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-mono text-gray-400 mb-1">AMOUNT (£)</label>
+            <input [(ngModel)]="formData.claimAmount" name="amt" type="number" class="w-full bg-black border border-gray-700 rounded p-2 text-white focus:border-cyan-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-mono text-gray-400 mb-1">AI CONFIDENCE (0-1.0)</label>
+            <input [(ngModel)]="formData.aiConfidenceScore" name="conf" type="number" step="0.01" class="w-full bg-black border border-gray-700 rounded p-2 text-white focus:border-cyan-500 outline-none">
+          </div>
+        </div>
+
         <div>
-            <h4 class="text-yellow-500 font-bold text-sm uppercase tracking-wider">Demo Environment – No Real Personal Data</h4>
-            <p class="text-gray-400 text-xs mt-1">
-                Please do not enter real PII (Personally Identifiable Information), PHI, or actual policy numbers. 
-                This is a demonstration environment; data entered here is visible to the system administrator.
-            </p>
-        </div>
-    </div>
-
-    <!-- BRIGHT LINE DISCLAIMER -->
-    <div class="max-w-7xl mx-auto mb-8 px-1">
-        <p class="text-[11px] text-gray-500 italic">
-            * Note: This verification engine validates the integrity of logged data, not the correctness or fairness of the underlying AI decision.
-        </p>
-    </div>
-
-    <!-- THE LOGGER INTERFACE -->
-    <div class="max-w-7xl mx-auto glass-panel p-1 rounded-xl shadow-2xl backdrop-blur-xl border-t border-l border-white/20">
-        
-        <!-- HEADER BAR -->
-        <div class="bg-black/40 px-6 py-4 rounded-t-lg flex justify-between items-center border-b border-white/5">
-            <h3 class="text-lg font-[Orbitron] font-bold tracking-wide">Log Insurance Event</h3>
+          <label class="block text-xs font-mono text-gray-400 mb-1">DECISION NOTES</label>
+          <textarea [(ngModel)]="formData.decisionNotes" name="notes" rows="3" class="w-full bg-black border border-gray-700 rounded p-2 text-white focus:border-cyan-500 outline-none"></textarea>
         </div>
 
-        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            <!-- LEFT COLUMN: INPUT FORM -->
-            <div class="space-y-5">
-                
-                <!-- Policy ID -->
-                <div>
-                    <label class="text-[10px] uppercase tracking-widest text-blue-400 font-bold mb-1 block">Policy Number</label>
-                    <input type="text" [(ngModel)]="formData.policyNumber" (keyup)="updateJson()" placeholder="OBX-2025-..." 
-                           class="input-glass w-full px-4 py-3 text-sm rounded-sm font-mono border-l-2 border-l-blue-500 focus:bg-white/5 transition-all">
-                </div>
-
-                <!-- Event Type -->
-                <div>
-                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Event Type</label>
-                    <select [(ngModel)]="formData.incidentType" (change)="updateJson()" class="input-glass w-full px-4 py-3 text-sm rounded-sm text-gray-300">
-                        <option value="Claim Submitted">Claim Submitted</option>
-                        <option value="Claim Approved">Claim Approved</option>
-                        <option value="Claim Rejected">Claim Rejected</option>
-                        <option value="Policy Renewal">Policy Renewal</option>
-                    </select>
-                </div>
-
-                <!-- Amount -->
-                <div>
-                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Claim Amount ($)</label>
-                    <input type="number" [(ngModel)]="formData.claimAmount" (keyup)="updateJson()" class="input-glass w-full px-4 py-3 text-sm rounded-sm font-mono">
-                </div>
-
-                <!-- Split Row -->
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">AI Confidence</label>
-                        <input type="number" [(ngModel)]="formData.aiConfidenceScore" (keyup)="updateJson()" step="0.01" max="1.0" class="input-glass w-full px-4 py-3 text-sm rounded-sm font-mono">
-                    </div>
-                    <div>
-                        <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Agent ID</label>
-                        <input type="text" [(ngModel)]="formData.agentId" (keyup)="updateJson()" class="input-glass w-full px-4 py-3 text-sm rounded-sm font-mono">
-                    </div>
-                </div>
-
-                <!-- Notes -->
-                <div>
-                    <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block">Decision Notes</label>
-                    <textarea [(ngModel)]="formData.decisionNotes" (keyup)="updateJson()" rows="3" class="input-glass w-full px-4 py-3 text-sm rounded-sm" placeholder="Reasoning..."></textarea>
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN: PREVIEW & ACTION -->
-            <div class="flex flex-col h-full">
-                <label class="text-[10px] uppercase tracking-widest text-gray-500 font-bold mb-1 block flex justify-between">
-                    <span>Payload Preview</span>
-                    <span class="text-blue-500 animate-pulse">LIVE</span>
-                </label>
-                
-                <!-- JSON Box -->
-                <div class="bg-[#0d0d0d] border border-[#333] font-mono text-xs p-4 rounded flex-grow overflow-auto shadow-inner text-gray-400">
-                    <pre>{{ jsonPreview }}</pre>
-                </div>
-
-                <!-- Action Button -->
-                <button (click)="forceLog()" [disabled]="isLoading" 
-                        class="mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-4 rounded-sm transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.5)] border border-blue-400 flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span *ngIf="!isLoading">LOG INSURANCE EVENT</span>
-                    <span *ngIf="isLoading"><i class="fas fa-circle-notch fa-spin"></i> HASHING & UPLOADING...</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FOOTER WITH CONTACT BUTTON -->
-    <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 leading-relaxed">
-        <div class="mb-4 md:mb-0 text-center md:text-left">
-            <p class="uppercase font-bold mb-1">Disclaimer: Evaluation Prototype</p>
-            <p>Obrioxia Audit Engine is provided "as is" for evaluation purposes only. Usage does not constitute compliance with the EU AI Act, GDPR, or insurance regulations. This instance is not SOC2 or HIPAA compliant. Do not use for production data.</p>
-        </div>
-        <!-- CONTACT BUTTON -->
-        <a href="mailto:j.obrien@obrioxia.com?subject=Obrioxia%20Inquiry" class="bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white px-4 py-2 rounded-sm border border-white/10 transition-colors flex items-center gap-2 font-bold uppercase tracking-wider">
-            <i class="fas fa-envelope"></i> Contact Us
-        </a>
-    </div>
-</div>
-
-<!-- SUCCESS MODAL (RECEIPT) -->
-<div *ngIf="successData" class="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-[fadeIn_0.2s_ease-out]">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" (click)="closeModal()"></div>
-    <div class="relative bg-gray-900 border border-green-500/30 p-8 rounded-xl max-w-sm w-full text-center shadow-2xl">
-        <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4 text-3xl text-green-500 border border-green-500/50 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-            <i class="fas fa-link"></i>
-        </div>
-        <h3 class="text-xl font-[Orbitron] font-bold text-white mb-2">Block Anchored</h3>
-        <p class="text-gray-400 mb-6 text-sm">Event cryptographically sealed.</p>
-        <div class="bg-black p-3 rounded text-[10px] font-mono text-gray-500 mb-6 break-all border border-white/10">
-            Hash: {{ successData.current_hash }}
-        </div>
-        
-        <!-- DOWNLOAD BUTTON -->
-        <button (click)="downloadReceipt()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded-sm w-full mb-3 flex items-center justify-center gap-2">
-            <i class="fas fa-download"></i> Download Submission Receipt
+        <button [disabled]="isLoading" type="submit" class="w-full bg-gradient-to-r from-cyan-600 to-blue-700 hover:from-cyan-500 hover:to-blue-600 text-white font-bold py-3 rounded shadow-lg shadow-cyan-900/20 transition-all transform active:scale-95 disabled:opacity-50 mt-4">
+          {{ isLoading ? 'HASHING & ANCHORING...' : 'COMMIT TO LEDGER' }}
         </button>
 
-        <button (click)="closeModal()" class="bg-white/10 hover:bg-white/20 text-white font-bold py-2 px-6 rounded-sm w-full transition-colors">Close</button>
-    </div>
-</div>
-
-<!-- ERROR MODAL -->
-<div *ngIf="errorMessage" class="fixed inset-0 z-[60] flex items-center justify-center px-4">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" (click)="closeModal()"></div>
-    <div class="relative bg-gray-900 border border-red-500/30 p-8 rounded-xl max-w-sm w-full text-center">
-        <div class="w-16 h-16 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4 text-3xl text-red-500">
-            <i class="fas fa-times"></i>
+        <div class="pt-6 mt-6 border-t border-gray-800">
+          <label class="block text-xs font-mono text-gray-500 mb-2">OR BATCH UPLOAD (CSV)</label>
+          <input type="file" (change)="onBatchUpload($event)" accept=".csv" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-cyan-400 hover:file:bg-gray-700 cursor-pointer"/>
+          <p class="text-xs text-green-400 mt-2 font-mono" *ngIf="uploadStatus">{{ uploadStatus }}</p>
         </div>
-        <h3 class="text-xl font-bold text-white mb-2">Failed</h3>
-        <p class="text-gray-400 mb-6 text-sm">{{ errorMessage }}</p>
-        <button (click)="closeModal()" class="bg-white text-black font-bold py-2 px-6 rounded-sm w-full">Dismiss</button>
+      </form>
     </div>
+
+    <div class="bg-[#111] p-6 rounded-lg border border-gray-800 flex flex-col h-full min-h-[400px]">
+      <div class="flex-grow flex flex-col justify-center items-center text-center">
+        
+        <div *ngIf="!latestReceipt" class="text-gray-600 animate-pulse">
+          <div class="text-6xl mb-4 opacity-20">📜</div>
+          <p class="text-sm font-mono">Awaiting Immutable Record...</p>
+        </div>
+
+        <div *ngIf="latestReceipt" class="w-full text-left space-y-4 animate-fade-in-up">
+          <div class="bg-green-500/10 border border-green-500/50 text-green-400 px-4 py-3 rounded mb-6 text-center text-sm font-bold tracking-widest">
+            ✓ BLOCK COMMITTED
+          </div>
+          
+          <div class="space-y-4 font-mono text-xs">
+            <div class="bg-black p-3 rounded border border-gray-800">
+              <span class="text-gray-500 block mb-1">Sequence ID</span>
+              <span class="text-white text-sm">{{ latestReceipt.sequence || 'GENESIS' }}</span>
+            </div>
+            <div class="bg-black p-3 rounded border border-gray-800">
+              <span class="text-gray-500 block mb-1">Timestamp</span>
+              <span class="text-white">{{ latestReceipt.timestamp }}</span>
+            </div>
+            <div class="bg-black p-3 rounded border border-gray-800 group cursor-help">
+              <span class="text-gray-500 block mb-1">Current Hash (SHA-256)</span>
+              <span class="text-cyan-500 break-all group-hover:text-white transition-colors">{{ latestReceipt.current_hash }}</span>
+            </div>
+            <div class="bg-black p-3 rounded border border-gray-800">
+              <span class="text-gray-500 block mb-1">Previous Hash (Chain Link)</span>
+              <span class="text-gray-600 break-all">{{ latestReceipt.prev_hash }}</span>
+            </div>
+          </div>
+
+          <div class="mt-8 flex gap-3">
+            <button (click)="downloadJSON()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded border border-gray-600 transition-colors text-xs uppercase font-bold">
+              Download JSON
+            </button>
+            <button (click)="downloadPDF()" class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-2 rounded border border-gray-600 transition-colors text-xs uppercase font-bold flex items-center justify-center gap-2">
+              <span>📄</span> PDF Cert
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>
