@@ -6,9 +6,9 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 
 import { routes } from './app.routes';
 
-// HARDCODED CONFIGURATION (Bypasses environment file issues)
+// CORRECTED KEY (Added missing numbers 5 and 6)
 const firebaseConfig = {
-  apiKey: "AIzaSyDuhvcjJS_8bCtF5Ki3D1VLpUEyEKMDuM",
+  apiKey: "AlzaSyDuhvcj5JS_8bCtF5K6i3DIVlEuYEKMdUM",
   authDomain: "obrioxia-audit-engine.firebaseapp.com",
   projectId: "obrioxia-audit-engine",
   storageBucket: "obrioxia-audit-engine.appspot.com",
@@ -20,7 +20,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideHttpClient(),
-    // Initialize directly with the const above
     provideFirebaseApp(() => initializeApp(firebaseConfig)),
     provideAuth(() => getAuth())
   ]

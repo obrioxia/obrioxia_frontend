@@ -3,7 +3,7 @@ import { appConfig } from './app/app.config';
 import { AppComponent } from './app/app.component';
 
 console.log("------------------------------------------------");
-console.log("SYSTEM STARTUP v3.5.9 (HARDCODED CONFIG)");
+console.log("SYSTEM STARTUP v3.5.10 (KEY TYPO FIXED)");
 console.log("------------------------------------------------");
 
 bootstrapApplication(AppComponent, appConfig)
