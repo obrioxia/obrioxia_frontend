@@ -6,9 +6,10 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 
 import { routes } from './app.routes';
 
-// CORRECTED KEY (Added missing numbers 5 and 6)
+// HARDCODED CONFIGURATION (Corrected Typo: Alza -> AIza)
 const firebaseConfig = {
-  apiKey: "AlzaSyDuhvcj5JS_8bCtF5K6i3DIVlEuYEKMdUM",
+  // FIXED: Changed first letter from 'l' (lowercase L) to 'I' (Capital i)
+  apiKey: "AIzaSyDuhvcj5JS_8bCtF5K6i3DIVlEuYEKMdUM",
   authDomain: "obrioxia-audit-engine.firebaseapp.com",
   projectId: "obrioxia-audit-engine",
   storageBucket: "obrioxia-audit-engine.appspot.com",
