@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthService } from '../services/health.service';
-import { ApiService } from '../services/api.service'; // Use the shared service
+import { ApiService } from '../services/api.service';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -18,6 +18,10 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
   
   isLoading = false;
   verificationResult: any = null; // Single object result
+  
+  // Added 'results' purely to satisfy any lingering template cache during build
+  results: any = null; 
+
   errorMessage = '';
   isDragging = false;
   isSystemOnline = false;
@@ -25,7 +29,7 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
 
   constructor(
     private healthService: HealthService,
-    private api: ApiService // Injected
+    private api: ApiService
   ) {}
 
   ngOnInit() {
@@ -78,7 +82,6 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
       try {
         const jsonContent = JSON.parse(e.target.result);
         
-        // Handle Array vs Object
         let payloadToSend: any = null;
         if (Array.isArray(jsonContent) && jsonContent.length > 0) {
            payloadToSend = jsonContent[0];
@@ -106,7 +109,6 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     this.verificationResult = null;
 
     try {
-      // Use ApiService (returns Promise)
       const response = await this.api.verifyReceipt(data);
       this.verificationResult = response;
     } catch (error) {

@@ -1,205 +1,144 @@
-<!-- NAVIGATION BAR -->
-<nav class="fixed w-full z-50 bg-[#050505]/90 backdrop-blur-md border-b border-white/5 top-0 left-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-            <!-- LEFT: LOGO -->
-            <div class="flex-shrink-0 flex items-center gap-3">
-                <div class="w-9 h-9 bg-white rounded-sm flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.3)]">
-                    <i class="fas fa-cube text-black text-sm"></i>
-                </div>
-                <span class="font-[Orbitron] font-bold text-xl tracking-[0.2em] text-white">OBRIOXIA</span>
-            </div>
+<div class="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 relative overflow-hidden selection:bg-cyan-500 selection:text-black font-sans">
+  
+  <!-- Background Effects -->
+  <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-gray-800 via-gray-900 to-black z-0"></div>
+  <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50"></div>
 
-            <!-- CENTER: NAVIGATION LINKS -->
-            <div class="hidden md:block">
-                <div class="ml-10 flex items-baseline space-x-8">
-                    <!-- Link to Submit Page (Inactive Style) -->
-                    <a href="/submit" class="text-gray-400 hover:text-white px-1 py-5 text-sm font-bold tracking-wider transition-all hover:border-b-2 hover:border-gray-500">
-                        LOG EVENT
-                    </a>
-                    <!-- Link to Verify Page (Active Style) -->
-                    <a href="/verify" class="text-white border-b-2 border-blue-500 px-1 py-5 text-sm font-bold tracking-wider transition-all">
-                        VERIFY CHAIN
-                    </a>
-                </div>
-            </div>
-            
-            <!-- RIGHT: DYNAMIC STATUS INDICATOR -->
-            <div class="hidden md:flex items-center">
-                <!-- ONLINE STATE -->
-                <div *ngIf="isSystemOnline" class="flex items-center gap-2 px-3 py-1 rounded bg-green-500/10 border border-green-500/50 text-green-400 text-xs font-bold animate-pulse">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    SYSTEM OPERATIONAL
-                </div>
-                <!-- OFFLINE STATE -->
-                <div *ngIf="!isSystemOnline" class="flex items-center gap-2 px-3 py-1 rounded bg-red-500/10 border border-red-500/50 text-red-400 text-xs font-bold">
-                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                    SYSTEM OFFLINE
-                </div>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<!-- MAIN CONTENT -->
-<div class="min-h-screen bg-[#050505] text-white font-sans pt-32 pb-20 px-4">
+  <!-- Main Container -->
+  <div class="relative z-10 w-full max-w-2xl bg-black/40 backdrop-blur-xl border border-gray-800 rounded-2xl shadow-2xl p-8 md:p-12">
     
-    <!-- HEADLINE -->
-    <div class="max-w-4xl mx-auto text-center mb-12">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-500 text-xs font-bold tracking-widest uppercase mb-4">
-            <i class="fas fa-shield-alt"></i> Public Validator Node
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="inline-block mb-4">
+        <div class="w-16 h-16 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center mx-auto relative group">
+          <div class="absolute inset-0 bg-cyan-500/20 rounded-full blur-lg group-hover:bg-cyan-500/30 transition-all duration-500"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-        <h1 class="text-4xl md:text-5xl font-[Orbitron] font-black mb-4">
-            VERIFY <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-600">CHAIN INTEGRITY</span>
-        </h1>
-        <p class="text-gray-400 text-lg font-light max-w-2xl mx-auto">
-            Upload a Policy Receipt (.json) to verify its authenticity. This checks the digital seal against our secure ledger to prove the record has not been altered or deleted since the moment it was logged.
-        </p>
+      </div>
+      <h1 class="text-3xl md:text-4xl font-bold text-white mb-2 font-orbitron tracking-wide">
+        VERIFY <span class="text-cyan-400">CHAIN</span>
+      </h1>
+      <p class="text-gray-400 text-sm md:text-base">
+        Cryptographic Proof Validation Node
+      </p>
     </div>
 
-    <!-- DROP ZONE AREA -->
-    <div class="max-w-2xl mx-auto">
+    <!-- Status Badge -->
+    <div class="flex justify-center mb-8">
+      <div class="flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800/50 border border-gray-700">
+        <div class="w-2 h-2 rounded-full" [ngClass]="isSystemOnline ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-red-500'"></div>
+        <span class="text-xs font-mono text-gray-300">
+          {{ isSystemOnline ? 'SYSTEM OPERATIONAL' : 'SYSTEM OFFLINE' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Drop Zone (Only show if no results yet) -->
+    <!-- CHANGED: Check verificationResult instead of results -->
+    <div *ngIf="!verificationResult && !isLoading" 
+         class="relative group cursor-pointer"
+         (dragover)="onDragOver($event)" 
+         (dragleave)="onDragLeave($event)" 
+         (drop)="onDrop($event)"
+         (click)="fileInput.click()">
+         
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept=".json" class="hidden" />
+      
+      <div class="border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300"
+           [ngClass]="isDragging ? 'border-cyan-400 bg-cyan-400/5' : 'border-gray-700 hover:border-gray-500 hover:bg-gray-800/30'">
         
-        <!-- File Drop Box -->
-        <div *ngIf="!results && !isLoading" 
-             (dragover)="onDragOver($event)" 
-             (dragleave)="onDragLeave($event)" 
-             (drop)="onDrop($event)"
-             (click)="fileInput.click()" 
-             [class.border-blue-500]="isDragging"
-             [class.bg-blue-500-10]="isDragging"
-             class="glass-panel border-2 border-dashed border-white/10 rounded-xl p-12 text-center transition-all duration-300 hover:border-blue-500/50 hover:bg-white/5 relative group cursor-pointer">
-            
-            <input type="file" (change)="onFileSelected($event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" accept=".json">
-            
-            <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-blue-500 text-3xl group-hover:scale-110 transition-transform duration-300">
-                <i class="fas fa-cloud-upload-alt"></i>
-            </div>
-            
-            <h3 class="text-xl font-bold text-white mb-2">Drop Verification File Here</h3>
-            <p class="text-gray-500 text-sm mb-6">or click to browse your device</p>
-            
-            <div class="inline-block bg-white/5 px-4 py-2 rounded text-xs font-mono text-gray-400 border border-white/5">
-                Supports: .JSON Receipts
-            </div>
-
-            <!-- Hidden Input moved out of the way -->
-            <input #fileInput type="file" (change)="onFileSelected($event)" class="hidden" accept=".json">
+        <div class="mb-4 text-gray-500 group-hover:text-cyan-400 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
         </div>
-
-        <!-- LOADING STATE -->
-        <div *ngIf="isLoading" class="text-center py-20 animate-pulse">
-            <div class="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <h3 class="text-xl font-[Orbitron] font-bold">Verifying Hash...</h3>
-            <p class="text-gray-500 text-sm">Querying distributed ledger</p>
-        </div>
-
-        <!-- RESULTS DISPLAY -->
-        <div *ngIf="results" class="space-y-4">
-            <div *ngFor="let res of results" 
-                 [class.border-green-500]="res.valid" 
-                 [class.border-red-500]="!res.valid"
-                 class="glass-panel border-l-4 p-6 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between animate-[fadeIn_0.5s_ease-out]">
-                
-                <div class="mb-4 md:mb-0">
-                    <div class="text-xs uppercase tracking-widest mb-1" 
-                         [class.text-green-500]="res.valid" 
-                         [class.text-red-500]="!res.valid">
-                        {{ res.valid ? 'Cryptographically Verified' : 'Integrity Failure' }}
-                    </div>
-                    <div class="text-white font-mono text-sm">Sequence #{{ res.sequence }}</div>
-                    <div class="text-gray-500 text-xs mb-2">{{ res.timestamp | date:'medium' }}</div>
-                    
-                    <div class="text-[10px] text-gray-500 italic border-t border-white/5 pt-2 mt-2 max-w-md">
-                        * Verification Scope: Confirms the log entry has not been altered since creation. Validates data integrity only, not the accuracy of the underlying decision.
-                    </div>
-                </div>
-
-                <div class="text-3xl" [class.text-green-500]="res.valid" [class.text-red-500]="!res.valid">
-                    <i class="fas" [class.fa-check-circle]="res.valid" [class.fa-times-circle]="!res.valid"></i>
-                </div>
-            </div>
-
-            <!-- DOWNLOAD PROOF BUTTON -->
-            <button (click)="downloadProof()" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-sm transition-colors flex items-center justify-center gap-2">
-                <i class="fas fa-file-contract"></i> Download Verified Proof
-            </button>
-
-            <button (click)="reset()" class="w-full mt-2 bg-white/10 hover:bg-white/20 text-white font-bold py-3 px-6 rounded-sm transition-colors">
-                Verify Another File
-            </button>
-        </div>
-
-        <!-- ERROR MESSAGE -->
-        <div *ngIf="errorMessage" class="mt-6 glass-panel border-l-4 border-red-500 p-4 rounded text-center">
-            <p class="text-red-400 font-bold"><i class="fas fa-exclamation-triangle mr-2"></i> Error</p>
-            <p class="text-gray-400 text-sm">{{ errorMessage }}</p>
-            <button (click)="reset()" class="text-xs underline text-white mt-2">Try Again</button>
-        </div>
-
+        <p class="text-lg text-gray-300 font-medium mb-1">Drop Verification File Here</p>
+        <p class="text-xs text-gray-500 font-mono">Accepts .json receipts</p>
+      </div>
     </div>
-    
-    <!-- FOOTER WITH CONTACT BUTTON -->
-    <div class="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[10px] text-gray-600 leading-relaxed">
-        <div class="mb-4 md:mb-0 text-center md:text-left">
-            <p class="uppercase font-bold mb-1">Disclaimer: Evaluation Prototype</p>
-            <p>Obrioxia Audit Engine is provided "as is" for evaluation purposes only. Usage does not constitute compliance with the EU AI Act, GDPR, or insurance regulations. This instance is not SOC2 or HIPAA compliant. Do not use for production data.</p>
-        </div>
-        <!-- CONTACT BUTTON -->
-        <a href="mailto:j.obrien@obrioxia.com?subject=Obrioxia%20Inquiry" class="bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white px-4 py-2 rounded-sm border border-white/10 transition-colors flex items-center gap-2 font-bold uppercase tracking-wider">
-            <i class="fas fa-envelope"></i> Contact Us
-        </a>
-    </div>
-</div>
 
-<!-- SUCCESS MODAL (NEW) -->
-<div *ngIf="results" class="fixed inset-0 z-[60] flex items-center justify-center px-4 animate-[fadeIn_0.2s_ease-out]">
-    <div class="absolute inset-0 bg-black/90 backdrop-blur-sm" (click)="reset()"></div>
-    <div class="relative bg-gray-900 border border-green-500/30 p-8 rounded-xl max-w-md w-full text-center shadow-2xl">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="py-12 text-center">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-4"></div>
+      <p class="text-cyan-400 font-mono text-sm animate-pulse">RUNNING INTEGRITY CHECKS...</p>
+    </div>
+
+    <!-- Results Display (Single Object) -->
+    <!-- CHANGED: Use verificationResult directly, NO LOOP -->
+    <div *ngIf="verificationResult" class="space-y-4">
+      
+      <!-- Success/Fail Banner -->
+      <div class="rounded-xl p-6 border flex items-center gap-4"
+           [ngClass]="verificationResult.valid ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'">
         
-        <!-- SUCCESS ICON -->
-        <div class="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-6 text-4xl text-green-500 border border-green-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]">
-            <i class="fas fa-check"></i>
+        <div class="p-3 rounded-full" [ngClass]="verificationResult.valid ? 'bg-green-500/20' : 'bg-red-500/20'">
+          <svg *ngIf="verificationResult.valid" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <svg *ngIf="!verificationResult.valid" xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </div>
-
-        <!-- HEADLINE -->
-        <h3 class="text-2xl font-[Orbitron] font-bold text-white mb-2 tracking-wide">
-            VERIFIED
-        </h3>
-        <p class="text-green-400 font-mono text-sm mb-6 tracking-widest uppercase">Cryptographic Match Confirmed</p>
-
-        <!-- DETAILS BOX -->
-        <div class="bg-black/50 p-4 rounded text-left border border-white/10 mb-6">
-            <div *ngFor="let res of results">
-                <div class="flex justify-between text-xs mb-2">
-                    <span class="text-gray-500">SEQUENCE</span>
-                    <span class="text-white font-mono">#{{ res.sequence }}</span>
-                </div>
-                <div class="flex justify-between text-xs mb-2">
-                    <span class="text-gray-500">TIMESTAMP</span>
-                    <span class="text-white font-mono">{{ res.timestamp | date:'short' }}</span>
-                </div>
-                <div class="flex justify-between text-xs">
-                    <span class="text-gray-500">STATUS</span>
-                    <span class="text-green-500 font-bold">INTEGRITY INTACT</span>
-                </div>
-            </div>
+        
+        <div>
+          <h3 class="text-lg font-bold text-white mb-1">
+            {{ verificationResult.valid ? 'VERIFICATION SUCCESSFUL' : 'VERIFICATION FAILED' }}
+          </h3>
+          <p class="text-sm opacity-80" [ngClass]="verificationResult.valid ? 'text-green-300' : 'text-red-300'">
+             {{ verificationResult.valid ? 'The digital signature matches the immutable ledger.' : 'Data mismatch or invalid hash.' }}
+          </p>
         </div>
+      </div>
 
-        <!-- ACTION BUTTONS -->
-        <button (click)="downloadProof()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-sm w-full mb-3 flex items-center justify-center gap-2 shadow-lg transition-all">
-            <i class="fas fa-file-contract"></i> Download Proof Certificate
+      <!-- Technical Details -->
+      <div class="bg-gray-800/50 rounded-xl p-6 border border-gray-700 font-mono text-xs md:text-sm">
+        <div class="grid grid-cols-1 gap-3">
+          <div class="flex justify-between border-b border-gray-700 pb-2">
+            <span class="text-gray-500">Integrity Check</span>
+            <span [class]="verificationResult.integrity_valid ? 'text-green-400' : 'text-red-400'">
+              {{ verificationResult.integrity_valid ? 'PASS' : 'FAIL' }}
+            </span>
+          </div>
+          <div class="flex justify-between border-b border-gray-700 pb-2">
+            <span class="text-gray-500">Anchor Check</span>
+            <span [class]="verificationResult.anchor_valid ? 'text-green-400' : 'text-red-400'">
+              {{ verificationResult.anchor_valid ? 'PASS' : 'FAIL' }}
+            </span>
+          </div>
+          <div class="flex justify-between pt-1">
+             <span class="text-gray-500">Block Sequence</span>
+             <span class="text-white">{{ verificationResult.sequence || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3 pt-4">
+        <button (click)="reset()" 
+          class="flex-1 bg-gray-800 hover:bg-gray-700 text-white py-3 rounded-lg font-semibold transition-colors border border-gray-700">
+          Verify Another
         </button>
-
-        <button (click)="reset()" class="bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white font-bold py-2 px-6 rounded-sm w-full transition-colors">
-            Verify Another File
+        <button (click)="downloadProof()" 
+          class="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white py-3 rounded-lg font-semibold transition-colors shadow-lg shadow-cyan-500/20">
+          Download Proof
         </button>
-        
-        <!-- SCOPE DISCLAIMER -->
-        <div class="mt-4 pt-4 border-t border-white/5">
-            <p class="text-[10px] text-gray-600 leading-tight">
-                * This confirms the record matches the immutable ledger. It validates data integrity, not the accuracy of the original decision.
-            </p>
-        </div>
+      </div>
+
     </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-center">
+      <p class="text-red-400 text-sm">{{ errorMessage }}</p>
+      <button (click)="reset()" class="text-xs text-red-300 underline mt-2 hover:text-white">Try Again</button>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-8 text-center text-gray-600 text-xs">
+    <p>SECURE • IMMUTABLE • TRANSPARENT</p>
+    <p class="mt-1">© 2025 Obrioxia Engine v3.6</p>
+  </footer>
 </div>

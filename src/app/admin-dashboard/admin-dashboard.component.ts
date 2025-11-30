@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
+// FIXED IMPORT PATH: Changed from '../../' to '../'
+import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 
@@ -41,7 +42,6 @@ export class AdminDashboardComponent implements OnInit {
     this.loadData();
   }
 
-  // CHANGED: Uses async/await because ApiService returns Promises now
   async loadData() {
     this.isLoading = true;
     try {
@@ -50,7 +50,10 @@ export class AdminDashboardComponent implements OnInit {
       this.totalRecords = res.total || 0;
     } catch (err: any) {
       console.error("Dashboard Load Error:", err);
-      if (err.status === 401) this.router.navigate(['/admin/login']);
+      // Redirect to login if unauthorized
+      if (err.status === 401 || err.status === 403) {
+         this.router.navigate(['/']); 
+      }
     } finally {
       this.isLoading = false;
     }
@@ -72,7 +75,6 @@ export class AdminDashboardComponent implements OnInit {
     input.click();
   }
 
-  // CHANGED: Uses async/await
   async handleCsvUpload(event: any) {
     const file = event.target.files[0];
     if (!file) return;
