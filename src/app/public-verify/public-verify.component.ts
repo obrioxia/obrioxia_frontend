@@ -15,13 +15,16 @@ import { interval, Subscription } from 'rxjs';
 })
 export class PublicVerifyComponent implements OnInit, OnDestroy {
   
+  // Backend URL
   private readonly API_URL = "https://obrioxia-backend-pkrp.onrender.com";
 
   isLoading = false;
-  results: any[] | null = null;
+  
+  // CHANGED: We now expect a Single Result, not an Array
+  verificationResult: any = null;
+  
   errorMessage = '';
   isDragging = false;
-
   isSystemOnline = false;
   private healthSub: Subscription | null = null;
 
@@ -41,6 +44,8 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
       this.isSystemOnline = status;
     });
   }
+
+  // --- Drag & Drop Handlers ---
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
@@ -72,6 +77,8 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     }
   }
 
+  // --- Logic Fix ---
+
   processFile(file: File) {
     const reader = new FileReader();
     
@@ -79,65 +86,74 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
       try {
         const jsonContent = JSON.parse(e.target.result);
         
-        let payloadToSend: any[] = [];
+        // CRITICAL FIX: The backend expects ONE object.
+        // If the file contains an Array (old format), we take the first item.
+        // If the file contains an Object (standard format), we use it directly.
+        
+        let payloadToSend: any = null;
 
-        if (jsonContent.original_payload) {
-           payloadToSend = [ jsonContent.original_payload ];
-        } else if (Array.isArray(jsonContent)) {
-           payloadToSend = jsonContent;
+        if (Array.isArray(jsonContent) && jsonContent.length > 0) {
+           payloadToSend = jsonContent[0];
         } else {
-           payloadToSend = [ jsonContent ];
+           payloadToSend = jsonContent;
+        }
+
+        // Safety Check: Does it have a hash?
+        if(!payloadToSend || !payloadToSend.current_hash) {
+            this.errorMessage = "Invalid JSON: File is missing cryptographic hash.";
+            return;
         }
 
         await this.verifyChain(payloadToSend);
 
       } catch (err) {
-        this.errorMessage = "Invalid JSON file. Please upload a valid Obrioxia receipt.";
+        this.errorMessage = "Invalid File. Please upload a valid Obrioxia JSON receipt.";
+        console.error(err);
       }
     };
-    
     reader.readAsText(file);
   }
 
   async verifyChain(data: any) {
     this.isLoading = true;
     this.errorMessage = '';
-    this.results = null;
+    this.verificationResult = null;
 
     try {
+      // We send the single object directly to the API
       const response = await fetch(`${this.API_URL}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
 
-      if (!response.ok) throw new Error("Verification Server Error");
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status}`);
+      }
 
-      this.results = await response.json();
+      // We expect a single response object back
+      this.verificationResult = await response.json();
 
     } catch (error) {
       console.error(error);
-      this.errorMessage = "Could not connect to the Audit Node.";
+      this.errorMessage = "Could not connect to the Audit Node. Verification failed.";
     } finally {
       this.isLoading = false;
     }
   }
 
   downloadProof() {
-    if (!this.results) return;
+    if (!this.verificationResult) return;
 
-    const isVerified = this.results.some((r: any) => r.valid === true);
+    // Logic updated for Single Object response
+    const isVerified = this.verificationResult.valid;
 
     const proofData = {
       recordType: "OBRIOXIA_VERIFICATION_PROOF",
       timestamp_verified: new Date().toISOString(),
       status: isVerified ? "VERIFIED" : "FAILED",
-      integrity_check: "COMPLETE",
-      verification_details: {
-        total_records_checked: this.results.length,
-        valid_records_found: this.results.filter((r: any) => r.valid).length
-      },
-      raw_results: this.results
+      // Include the full details from the backend response
+      details: this.verificationResult
     };
 
     const filename = `proof_${isVerified ? 'valid' : 'failed'}_${new Date().getTime()}.json`;
@@ -155,7 +171,7 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
   }
 
   reset() {
-    this.results = null;
+    this.verificationResult = null;
     this.errorMessage = '';
   }
 }
