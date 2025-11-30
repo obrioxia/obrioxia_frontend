@@ -35,8 +35,7 @@
       </div>
     </div>
 
-    <!-- Drop Zone (Only show if no results yet) -->
-    <!-- CHANGED: Check verificationResult instead of results -->
+    <!-- Drop Zone -->
     <div *ngIf="!verificationResult && !isLoading" 
          class="relative group cursor-pointer"
          (dragover)="onDragOver($event)" 
@@ -65,8 +64,7 @@
       <p class="text-cyan-400 font-mono text-sm animate-pulse">RUNNING INTEGRITY CHECKS...</p>
     </div>
 
-    <!-- Results Display (Single Object) -->
-    <!-- CHANGED: Use verificationResult directly, NO LOOP -->
+    <!-- Results Display -->
     <div *ngIf="verificationResult" class="space-y-4">
       
       <!-- Success/Fail Banner -->
