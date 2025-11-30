@@ -23,11 +23,23 @@
          Verify Chain
       </a>
 
-      <!-- Agent Button -->
-      <a routerLink="/admin/login" 
-         class="text-xs md:text-sm font-mono bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-700 hover:border-cyan-500/50 transition-all uppercase tracking-wide cursor-pointer no-underline">
-         Agent Login
-      </a>
+      <!-- Conditional Auth Button -->
+      <!-- If User is Logged In: Show Dashboard Link -->
+      <ng-container *ngIf="user$ | async; else loginButton">
+        <a routerLink="/admin/dashboard" 
+           class="text-xs md:text-sm font-mono bg-cyan-900/30 hover:bg-cyan-900/50 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded transition-all uppercase tracking-wide cursor-pointer no-underline flex items-center gap-2">
+           <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+           Dashboard
+        </a>
+      </ng-container>
+
+      <!-- If User is Logged Out: Show Login Link -->
+      <ng-template #loginButton>
+        <a routerLink="/admin/login" 
+           class="text-xs md:text-sm font-mono bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-700 hover:border-cyan-500/50 transition-all uppercase tracking-wide cursor-pointer no-underline">
+           Agent Login
+        </a>
+      </ng-template>
     </div>
 
   </div>

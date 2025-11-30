@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; // Added Router
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -57,13 +58,16 @@ export class LoginComponent {
   isLoading = false;
   errorMessage = '';
 
-  constructor(private auth: AuthService) {}
+  // Inject Router here
+  constructor(private auth: AuthService, private router: Router) {}
 
   async onLogin() {
     this.isLoading = true;
     this.errorMessage = '';
     try {
       await this.auth.login(this.email, this.password);
+      // FIXED: Redirect to Dashboard on success
+      this.router.navigate(['/admin/dashboard']);
     } catch (e: any) {
       this.errorMessage = "Access Denied: Invalid credentials.";
       console.error(e);
