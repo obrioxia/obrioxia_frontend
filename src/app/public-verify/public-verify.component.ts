@@ -77,6 +77,12 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
   }
 
   processFile(file: File) {
+    // 1. Explicitly check for PDF to give a helpful error
+    if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+      this.errorMessage = "You uploaded a PDF. Please upload the .json receipt file to verify.";
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       try {
@@ -97,7 +103,7 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
         await this.verifyChain(payloadToSend);
 
       } catch (err) {
-        this.errorMessage = "Invalid JSON file.";
+        this.errorMessage = "Invalid JSON file. Ensure you are uploading the receipt.";
       }
     };
     reader.readAsText(file);
@@ -145,3 +151,5 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
   }
 }
+
+
