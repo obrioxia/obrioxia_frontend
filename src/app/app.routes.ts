@@ -1,12 +1,14 @@
 import { Routes } from '@angular/router';
 import { SubmitComponent } from './submit/submit.component';
 import { PublicVerifyComponent } from './public-verify/public-verify.component';
-import { LoginComponent } from './admin/login/login.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
 import { TermsComponent } from './legal/terms.component';
 import { PrivacyComponent } from './legal/privacy.component';
 import { DisclaimerComponent } from './legal/disclaimer.component';
 import { AuthGuard } from './guards/auth.guard';
+
+// Login is in src/app/login/ based on your screenshot
+import { LoginComponent } from './login/login.component'; 
 
 export const routes: Routes = [
   { path: '', component: SubmitComponent },
@@ -23,4 +25,5 @@ export const routes: Routes = [
 
   { path: '**', redirectTo: '' }
 ];
+
 
