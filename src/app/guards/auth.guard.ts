@@ -1,25 +1,28 @@
-import { Injectable, inject } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router, UrlTree } from '@angular/router';
+import { Auth, authState } from '@angular/fire/auth';
+import { Observable } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-  private auth = inject(AuthService);
-  private router = inject(Router);
+  constructor(private auth: Auth, private router: Router) {}
 
-  canActivate() {
-    return this.auth.user$.pipe(
+  canActivate(): Observable<boolean | UrlTree> {
+    return authState(this.auth).pipe(
       take(1),
       map(user => {
-        if (user) return true;
-        
-        // Not logged in -> go to login
-        this.router.navigate(['/login']);
-        return false;
+        // If user exists, allow access
+        if (user) {
+          return true;
+        }
+        // If NO user, redirect specifically to /login
+        // This fixes the "flash/loop" by giving a valid target
+        return this.router.createUrlTree(['/login']);
       })
     );
   }
 }
+

@@ -2,7 +2,7 @@
 <nav class="border-b border-gray-800 bg-black/80 backdrop-blur-md sticky top-0 z-50">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     
-    <!-- Logo (Links to Home) -->
+    <!-- Logo -->
     <a routerLink="/" class="flex items-center gap-2 cursor-pointer no-underline group">
       <div class="w-3 h-3 bg-cyan-500 rounded-full group-hover:shadow-[0_0_10px_#06b6d4] transition-all"></div>
       <span class="text-xl font-orbitron font-bold text-white tracking-wider group-hover:text-cyan-400 transition-colors">OBRIOXIA</span>
@@ -23,7 +23,7 @@
          Verify Chain
       </a>
 
-      <!-- Conditional Auth Button -->
+      <!-- AUTH BUTTONS -->
       <!-- If User is Logged In: Show Dashboard Link -->
       <ng-container *ngIf="user$ | async; else loginButton">
         <a routerLink="/admin/dashboard" 
@@ -33,9 +33,9 @@
         </a>
       </ng-container>
 
-      <!-- If User is Logged Out: Show Login Link -->
+      <!-- If User is Logged Out: Show Login Link pointing to /login -->
       <ng-template #loginButton>
-        <a routerLink="/admin/login" 
+        <a routerLink="/login" 
            class="text-xs md:text-sm font-mono bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-700 hover:border-cyan-500/50 transition-all uppercase tracking-wide cursor-pointer no-underline">
            Agent Login
         </a>
