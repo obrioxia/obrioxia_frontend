@@ -24,7 +24,6 @@
       </a>
 
       <!-- AUTH BUTTONS -->
-      <!-- If User is Logged In: Show Dashboard Link -->
       <ng-container *ngIf="user$ | async; else loginButton">
         <a routerLink="/admin/dashboard" 
            class="text-xs md:text-sm font-mono bg-cyan-900/30 hover:bg-cyan-900/50 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded transition-all uppercase tracking-wide cursor-pointer no-underline flex items-center gap-2">
@@ -33,7 +32,6 @@
         </a>
       </ng-container>
 
-      <!-- If User is Logged Out: Show Login Link pointing to /login -->
       <ng-template #loginButton>
         <a routerLink="/login" 
            class="text-xs md:text-sm font-mono bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-700 hover:border-cyan-500/50 transition-all uppercase tracking-wide cursor-pointer no-underline">
@@ -52,14 +50,12 @@
 <footer class="bg-black border-t border-gray-900 text-gray-500 py-8 mt-auto">
   <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
     
-    <!-- Branding -->
     <div class="text-sm">
       <span class="text-cyan-500 font-orbitron font-bold">OBRIOXIA</span> 
       <span class="mx-2">|</span>
       <span>Immutable Audit Engine v3.6</span>
     </div>
 
-    <!-- Legal & Contact Links -->
     <div class="flex gap-6 text-xs font-mono uppercase tracking-wide">
       <a routerLink="/terms" class="hover:text-cyan-400 transition-colors cursor-pointer">Terms</a>
       <a routerLink="/privacy" class="hover:text-cyan-400 transition-colors cursor-pointer">Privacy</a>
@@ -68,7 +64,6 @@
       <a href="mailto:j.obrien@obrioxia.com" class="hover:text-cyan-400 transition-colors cursor-pointer">Contact</a>
     </div>
 
-    <!-- Copyright -->
     <div class="text-xs">
       &copy; 2025 Obrioxia. All rights reserved.
     </div>

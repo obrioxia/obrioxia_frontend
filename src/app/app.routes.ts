@@ -9,16 +9,16 @@ import { DisclaimerComponent } from './legal/disclaimer.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  // Public Routes
-  { path: '', component: SubmitComponent },
+  // FIXED: Added pathMatch: 'full' so this doesn't swallow other routes
+  { path: '', component: SubmitComponent, pathMatch: 'full' },
+  
   { path: 'verify', component: PublicVerifyComponent },
   
-  // RESTORED: The explicit login route
+  // Login Route
   { path: 'login', component: LoginComponent },
-  
-  // Admin Routes (Protected)
-  // Note: We map /admin/login to the same component just in case, but primary is /login
   { path: 'admin/login', redirectTo: 'login', pathMatch: 'full' },
+  
+  // Protected Dashboard
   { 
     path: 'admin/dashboard', 
     component: AdminDashboardComponent, 
@@ -30,7 +30,7 @@ export const routes: Routes = [
   { path: 'privacy', component: PrivacyComponent },
   { path: 'disclaimer', component: DisclaimerComponent },
 
-  // Fallback
+  // Wildcard (Must be last)
   { path: '**', redirectTo: '' }
 ];
 
