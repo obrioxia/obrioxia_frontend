@@ -1,38 +1,118 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
+import { ApiService } from '../../services/api.service';
+import { Router } from '@angular/router';
+import { Auth } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './admin-dashboard.component.html'
+  templateUrl: './admin-dashboard.component.html',
+  styles: [`
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #111; }
+    ::-webkit-scrollbar-thumb { background: #0ea5e9; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0284c7; }
+  `]
 })
 export class AdminDashboardComponent implements OnInit {
-  rows: any[] = [];
-  page = 1;
-  pageSize = 20;
-  filter = '';
 
-  constructor(public auth: AuthService, private api: ApiService) {}
+  incidents: any[] = [];
+  totalRecords = 0;
+  isLoading = false;
+  isUploading = false;
+  
+  searchQuery = '';
+  currentPage = 1;
+  pageSize = 20;
+
+  selectedIncident: any = null;
+  showModal = false;
+
+  constructor(
+    private api: ApiService, 
+    private router: Router,
+    private auth: Auth
+  ) {}
 
   ngOnInit() {
     this.loadData();
   }
 
+  // CHANGED: Uses async/await because ApiService returns Promises now
   async loadData() {
+    this.isLoading = true;
     try {
-      const res: any = await this.api.getAdminIncidents(this.page, this.pageSize, this.filter);
-      this.rows = res.data;
-    } catch (e) {
-      console.error(e);
+      const res: any = await this.api.getAdminIncidents(this.currentPage, this.pageSize, this.searchQuery);
+      this.incidents = res.data;
+      this.totalRecords = res.total || 0;
+    } catch (err: any) {
+      console.error("Dashboard Load Error:", err);
+      if (err.status === 401) this.router.navigate(['/admin/login']);
+    } finally {
+      this.isLoading = false;
     }
   }
 
-  changePage(delta: number) {
-    this.page += delta;
+  onSearch() {
+    this.currentPage = 1; 
     this.loadData();
+  }
+
+  changePage(delta: number) {
+    const newPage = this.currentPage + delta;
+    if (newPage < 1) return;
+    this.currentPage = newPage;
+    this.loadData();
+  }
+
+  triggerUpload(input: HTMLInputElement) {
+    input.click();
+  }
+
+  // CHANGED: Uses async/await
+  async handleCsvUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    this.isUploading = true;
+    try {
+      const res: any = await this.api.uploadBatch(file);
+      alert(`Batch Complete: ${res.processed} records processed.`);
+      this.loadData();
+    } catch (e) {
+      alert("Upload failed. Check CSV format.");
+    } finally {
+      this.isUploading = false;
+    }
+  }
+
+  openModal(incident: any) {
+    this.selectedIncident = incident;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedIncident = null;
+  }
+
+  logout() {
+    this.auth.signOut().then(() => this.router.navigate(['/']));
+  }
+
+  formatHash(hash: string): string {
+    if (!hash) return '---';
+    return hash.substring(0, 8) + '...' + hash.substring(hash.length - 8);
+  }
+
+  getPolicy(incident: any): string {
+    return incident.data?.policy_number || 'N/A';
+  }
+
+  getAmount(incident: any): string {
+    return incident.data?.claim_amount ? `$${incident.data.claim_amount}` : '$0';
   }
 }

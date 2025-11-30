@@ -1,74 +1,76 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Auth } from '@angular/fire/auth';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { Auth } from '@angular/fire/auth'; 
+
+// We use direct Auth injection to be safe, or your existing AuthService if preferred.
+// To guarantee this works without seeing your AuthService, I will use AngularFire Auth directly 
+// but keep the Promise-based signature you are used to.
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   
-  // Render Backend URL
+  // Hardcoded to ensure connection to your Live Backend
   private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com/api';
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  // --- Public Headers ---
-  private getPublicHeaders() {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'x-api-key': 'public-demo-key-2025'
-    });
-  }
-
-  // --- Authenticated Headers (Async) ---
-  private async getAuthHeaders(): Promise<HttpHeaders> {
+  // Helper to get token
+  private async getHeaders() {
     const token = await this.auth.currentUser?.getIdToken();
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
-  }
-
-  // --- PUBLIC ENDPOINTS ---
-
-  logIncident(incidentData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/incidents`, incidentData, {
-      headers: this.getPublicHeaders()
-    });
-  }
-
-  downloadPDF(receipt: any): Observable<Blob> {
-    return this.http.post(`${this.apiUrl}/pdf/submission`, receipt, {
-      headers: this.getPublicHeaders(),
-      responseType: 'blob' 
-    });
-  }
-
-  // --- ADMIN ENDPOINTS ---
-
-  async getAdminIncidents(page: number = 1, search: string = ''): Promise<Observable<any>> {
-    const headers = await this.getAuthHeaders();
-    let url = `${this.apiUrl}/admin/incidents?page=${page}`;
-    if (search) {
-      url += `&search=${encodeURIComponent(search)}`;
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
+    } else {
+      headers = headers.set('x-api-key', 'public-demo-key-2025');
     }
-    return this.http.get(url, { headers });
+    return headers;
   }
 
-  async uploadBatchCSV(file: File): Promise<Observable<any>> {
-    const headers = await this.getAuthHeaders();
-    
-    // Angular handles Content-Type boundary automatically for FormData
+  // --- ORIGINAL METHODS (Restored for SubmitComponent) ---
+
+  async submitIncident(data: any) {
+    const headers = await this.getHeaders();
+    // Maps to the new backend endpoint
+    return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
+  }
+
+  async uploadBatch(file: File) {
+    const headers = await this.getHeaders();
     const formData = new FormData();
     formData.append('file', file);
-    
-    // Create headers specifically excluding Content-Type (to let browser set boundary)
-    const uploadHeaders = new HttpHeaders({
-        'Authorization': `Bearer ${await this.auth.currentUser?.getIdToken()}`
-    });
+    // Maps to the new backend CSV endpoint
+    return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
+  }
 
-    return this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { 
-      headers: uploadHeaders 
-    });
+  async downloadSubmissionPdf(receipt: any) {
+    const headers = await this.getHeaders();
+    return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
+      headers, 
+      responseType: 'blob' 
+    }));
+  }
+
+  // --- NEW METHODS (For Admin & Verify) ---
+
+  async verifyReceipt(receipt: any) {
+    // Public endpoint, no auth needed usually, but headers won't hurt
+    return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
+  }
+
+  // Signature matches what your Admin Dashboard expects
+  async getAdminIncidents(page: number, pageSize: number, filter: string) {
+    const headers = await this.getHeaders();
+    let params = new HttpParams()
+      .set('page', page)
+      .set('page_size', pageSize);
+    
+    if (filter) {
+      params = params.set('search', filter);
+    }
+
+    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 }
