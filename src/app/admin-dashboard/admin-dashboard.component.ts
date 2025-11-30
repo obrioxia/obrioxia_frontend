@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// FIXED IMPORT PATH: Changed from '../../' to '../'
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
@@ -24,6 +23,7 @@ export class AdminDashboardComponent implements OnInit {
   totalRecords = 0;
   isLoading = false;
   isUploading = false;
+  errorMessage = ''; // Added error state
   
   searchQuery = '';
   currentPage = 1;
@@ -44,15 +44,19 @@ export class AdminDashboardComponent implements OnInit {
 
   async loadData() {
     this.isLoading = true;
+    this.errorMessage = '';
     try {
       const res: any = await this.api.getAdminIncidents(this.currentPage, this.pageSize, this.searchQuery);
       this.incidents = res.data;
       this.totalRecords = res.total || 0;
     } catch (err: any) {
       console.error("Dashboard Load Error:", err);
-      // Redirect to login if unauthorized
+      // FIXED: STOPPED THE REDIRECT LOOP
+      // Instead of kicking user out, show the error on screen so we can debug or re-login
       if (err.status === 401 || err.status === 403) {
-         this.router.navigate(['/']); 
+         this.errorMessage = "Session Expired or Unauthorized. Please log in again.";
+      } else {
+         this.errorMessage = "Connection Error. Could not load ledger.";
       }
     } finally {
       this.isLoading = false;
