@@ -1,54 +1,74 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { environment } from '../../environments/environment';
-import { AuthService } from './auth.service';
-import { firstValueFrom } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Auth } from '@angular/fire/auth';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  
+  // Render Backend URL
+  private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com/api';
 
-  private async getHeaders(requiresAuth: boolean = false) {
-    let headers = new HttpHeaders();
-    if (requiresAuth) {
-      const token = await this.auth.getToken();
-      if (token) headers = headers.set('Authorization', `Bearer ${token}`);
-    } else {
-      headers = headers.set('x-api-key', environment.apiKey);
+  constructor(private http: HttpClient, private auth: Auth) {}
+
+  // --- Public Headers ---
+  private getPublicHeaders() {
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'x-api-key': 'public-demo-key-2025'
+    });
+  }
+
+  // --- Authenticated Headers (Async) ---
+  private async getAuthHeaders(): Promise<HttpHeaders> {
+    const token = await this.auth.currentUser?.getIdToken();
+    return new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  // --- PUBLIC ENDPOINTS ---
+
+  logIncident(incidentData: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/incidents`, incidentData, {
+      headers: this.getPublicHeaders()
+    });
+  }
+
+  downloadPDF(receipt: any): Observable<Blob> {
+    return this.http.post(`${this.apiUrl}/pdf/submission`, receipt, {
+      headers: this.getPublicHeaders(),
+      responseType: 'blob' 
+    });
+  }
+
+  // --- ADMIN ENDPOINTS ---
+
+  async getAdminIncidents(page: number = 1, search: string = ''): Promise<Observable<any>> {
+    const headers = await this.getAuthHeaders();
+    let url = `${this.apiUrl}/admin/incidents?page=${page}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
     }
-    return headers;
+    return this.http.get(url, { headers });
   }
 
-  async submitIncident(data: any) {
-    const headers = await this.getHeaders(false);
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/incidents`, data, { headers }));
-  }
-
-  async uploadBatch(file: File) {
-    const headers = await this.getHeaders(true);
+  async uploadBatchCSV(file: File): Promise<Observable<any>> {
+    const headers = await this.getAuthHeaders();
+    
+    // Angular handles Content-Type boundary automatically for FormData
     const formData = new FormData();
     formData.append('file', file);
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/batch-upload`, formData, { headers }));
-  }
+    
+    // Create headers specifically excluding Content-Type (to let browser set boundary)
+    const uploadHeaders = new HttpHeaders({
+        'Authorization': `Bearer ${await this.auth.currentUser?.getIdToken()}`
+    });
 
-  async verifyReceipt(receipt: any) {
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/verify`, receipt));
-  }
-
-  async getAdminIncidents(page: number, pageSize: number, filter: string) {
-    const headers = await this.getHeaders(true);
-    let params = new HttpParams().set('page', page).set('page_size', pageSize);
-    if (filter) params = params.set('policy_filter', filter);
-    return firstValueFrom(this.http.get<any>(`${environment.apiUrl}/admin/incidents`, { headers, params }));
-  }
-
-  async downloadSubmissionPdf(receipt: any) {
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/pdf/submission`, receipt, { responseType: 'blob' }));
-  }
-
-  async downloadVerificationPdf(proof: any) {
-    return firstValueFrom(this.http.post(`${environment.apiUrl}/pdf/verification`, proof, { responseType: 'blob' }));
+    return this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { 
+      headers: uploadHeaders 
+    });
   }
 }
