@@ -27,7 +27,6 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    // CHANGED: checkStatus -> checkBackendStatus
     this.health.checkBackendStatus().subscribe((isOnline: boolean) => {
       if (isOnline) {
         this.status = 'ONLINE';
@@ -39,3 +38,5 @@ export class AppComponent implements OnInit {
     });
   }
 }
+
+
