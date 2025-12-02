@@ -1,71 +1,56 @@
-<!-- Global Navigation -->
-<nav class="border-b border-gray-800 bg-black/80 backdrop-blur-md sticky top-0 z-50">
-  <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-    
-    <!-- Logo -->
-    <a routerLink="/" class="flex items-center gap-2 cursor-pointer no-underline group">
-      <div class="w-3 h-3 bg-cyan-500 rounded-full group-hover:shadow-[0_0_10px_#06b6d4] transition-all"></div>
-      <span class="text-xl font-orbitron font-bold text-white tracking-wider group-hover:text-cyan-400 transition-colors">OBRIOXIA</span>
-    </a>
+<div class="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-cyan-500 selection:text-black flex flex-col">
+  <!-- Nav -->
+  <nav class="border-b border-gray-800 bg-[#111] bg-opacity-90 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center">
+          <!-- LOGO (UPDATED STYLE) -->
+          <a routerLink="/" class="group flex items-center gap-0.5 text-2xl font-bold tracking-wider cursor-pointer select-none" style="font-family: 'Orbitron', sans-serif;">
+            <!-- Part 1: White text -->
+            <span class="text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] transition-colors group-hover:text-gray-200">
+              OBRI
+            </span>
+            <!-- Part 2: Cyan text with heavy neon glow -->
+            <span class="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-colors group-hover:text-cyan-300">
+              OXIA
+            </span>
+          </a>
+          
+          <!-- NAVIGATION LINKS -->
+          <div class="ml-10 flex items-baseline space-x-4">
+            <a routerLink="/submit" routerLinkActive="text-cyan-400" class="hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">Log Event</a>
+            <a routerLink="/verify" routerLinkActive="text-cyan-400" class="hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer">Verify Chain</a>
+          </div>
+        </div>
 
-    <!-- Menu Links -->
-    <div class="flex items-center gap-4 md:gap-8">
-      <a routerLink="/" 
-         class="text-xs md:text-sm font-mono text-gray-400 hover:text-cyan-400 transition-colors uppercase tracking-wide cursor-pointer decoration-0"
-         routerLinkActive="text-cyan-400 font-bold" 
-         [routerLinkActiveOptions]="{exact: true}">
-         Log Event
-      </a>
-      
-      <a routerLink="/verify" 
-         class="text-xs md:text-sm font-mono text-gray-400 hover:text-cyan-400 transition-colors uppercase tracking-wide cursor-pointer decoration-0"
-         routerLinkActive="text-cyan-400 font-bold">
-         Verify Chain
-      </a>
-
-      <!-- AUTH BUTTONS -->
-      <ng-container *ngIf="user$ | async; else loginButton">
-        <a routerLink="/admin/dashboard" 
-           class="text-xs md:text-sm font-mono bg-cyan-900/30 hover:bg-cyan-900/50 text-cyan-400 border border-cyan-500/30 px-4 py-2 rounded transition-all uppercase tracking-wide cursor-pointer no-underline flex items-center gap-2">
-           <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-           Dashboard
-        </a>
-      </ng-container>
-
-      <ng-template #loginButton>
-        <a routerLink="/login" 
-           class="text-xs md:text-sm font-mono bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded border border-gray-700 hover:border-cyan-500/50 transition-all uppercase tracking-wide cursor-pointer no-underline">
-           Agent Login
-        </a>
-      </ng-template>
+        <!-- RIGHT SIDE ADMIN MENU -->
+        <div class="flex items-center gap-3">
+          <a routerLink="/login" class="text-gray-400 hover:text-white text-xs uppercase tracking-wider cursor-pointer border border-transparent hover:border-gray-700 px-2 py-1 rounded transition-all">
+            Agent Login
+          </a>
+          
+          <a routerLink="/admin" class="bg-cyan-900/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-900/40 px-3 py-1.5 rounded text-xs font-bold transition-all cursor-pointer">
+            DASHBOARD
+          </a>
+        </div>
+      </div>
     </div>
+  </nav>
 
-  </div>
-</nav>
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <router-outlet></router-outlet>
+  </main>
 
-<!-- Page Content -->
-<router-outlet></router-outlet>
-
-<!-- Global Footer -->
-<footer class="bg-black border-t border-gray-900 text-gray-500 py-8 mt-auto">
-  <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
-    
-    <div class="text-sm">
-      <span class="text-cyan-500 font-orbitron font-bold">OBRIOXIA</span> 
-      <span class="mx-2">|</span>
-      <span>Immutable Audit Engine v3.6</span>
+  <!-- Footer -->
+  <footer class="border-t border-gray-800 bg-[#111] py-8 mt-12">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <p class="text-xs text-cyan-500 mb-2 font-mono">OBRIOXIA AUDIT ENGINE v3.6.0</p>
+      <div class="flex justify-center gap-6 text-[10px] text-gray-600 uppercase tracking-widest">
+        <span>Terms & Conditions</span>
+        <span>Privacy Policy</span>
+        <span>Data Disclaimer</span>
+      </div>
     </div>
-
-    <div class="flex gap-6 text-xs font-mono uppercase tracking-wide">
-      <a routerLink="/terms" class="hover:text-cyan-400 transition-colors cursor-pointer">Terms</a>
-      <a routerLink="/privacy" class="hover:text-cyan-400 transition-colors cursor-pointer">Privacy</a>
-      <a routerLink="/disclaimer" class="hover:text-cyan-400 transition-colors cursor-pointer">Data Disclaimer</a>
-      <span class="text-gray-700">|</span>
-      <a href="mailto:j.obrien@obrioxia.com" class="hover:text-cyan-400 transition-colors cursor-pointer">Contact</a>
-    </div>
-
-    <div class="text-xs">
-      &copy; 2025 Obrioxia. All rights reserved.
-    </div>
-  </div>
-</footer>
+  </footer>
+</div>
