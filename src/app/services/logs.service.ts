@@ -3,9 +3,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
-// We don't even need the environment import anymore for this emergency fix
-// import { environment } from 'src/environments/environment';
-
 export interface InsuranceLogData {
   policyNumber: string;
   incidentType: string;
@@ -21,16 +18,11 @@ export interface InsuranceLogData {
 export class LogsService {
   private http = inject(HttpClient);
 
-  // 1. HARDCODED URL (Bypasses environment.ts issues)
+  // Hardcoded as per your previous setup
   private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com';
-  
-  // 2. HARDCODED KEY (Bypasses Netlify env var issues)
   private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
-    // This log PROVES you have the new code
-    console.log('Attaching API Key:', this.HARD_CODED_KEY); 
-
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'x-api-key': this.HARD_CODED_KEY 
@@ -40,12 +32,12 @@ export class LogsService {
   // SUBMIT INCIDENT
   submitInsuranceEvent(data: InsuranceLogData): Observable<any> {
     const payload = {
-      policy_number: data.policyNumber,
-      incident_type: data.incidentType,
-      claim_amount: data.claimAmount,
-      decision_notes: data.decisionNotes,
-      ai_confidence_score: data.aiConfidenceScore,
-      agent_id: data.agentId
+      policyNumber: data.policyNumber,
+      incidentType: data.incidentType,
+      claimAmount: data.claimAmount,
+      decisionNotes: data.decisionNotes,
+      aiConfidenceScore: data.aiConfidenceScore,
+      agentId: data.agentId
     };
 
     return this.http.post<any>(
@@ -55,10 +47,11 @@ export class LogsService {
     ).pipe(
       map(res => ({
         success: true,
-        id: res.id,
-        sequence: res.sequence,
-        current_hash: res.current_hash,
-        prev_hash: res.prev_hash
+        id: res.receipt.sequence, 
+        sequence: res.receipt.sequence,
+        current_hash: res.receipt.current_hash,
+        prev_hash: res.receipt.prev_hash,
+        timestamp: res.receipt.timestamp
       })),
       catchError(err => {
         console.error('Submission Error:', err);
@@ -70,21 +63,32 @@ export class LogsService {
   // GET CHAIN
   getChain(): Observable<any[]> {
     return this.http.get<any[]>(
-      `${this.apiUrl}/api/chain`,
+      `${this.apiUrl}/api/admin/incidents?page_size=100`, 
+      { headers: this.getHeaders() }
+    ).pipe(
+      map((res: any) => res.data),
+      catchError(err => throwError(() => err))
+    );
+  }
+
+  // VERIFY POLICY
+  verifyPolicy(hash: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/api/verify`,
+      { current_hash: hash }, 
       { headers: this.getHeaders() }
     ).pipe(
       catchError(err => throwError(() => err))
     );
   }
 
-  // VERIFY POLICY
-  verifyPolicy(policyNumber: string): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/api/verify`,
-      { policyNumber: policyNumber },
+  // SHRED USER (New Admin Feature)
+  shredUser(policyNumber: string): Observable<any> {
+    return this.http.delete<any>(
+      `${this.apiUrl}/api/admin/shred/${policyNumber}`,
       { headers: this.getHeaders() }
-    ).pipe(
-      catchError(err => throwError(() => err))
     );
   }
 }
+
+
