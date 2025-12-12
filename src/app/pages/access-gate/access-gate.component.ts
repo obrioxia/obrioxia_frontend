@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-access-gate',
@@ -21,13 +22,44 @@ import { CommonModule } from '@angular/common';
           The Obrioxia Demo Environment is invite-only. You must request access via our main portal to obtain a session key.
         </p>
 
-        <a href="https://obrioxia.com" class="block w-full py-4 bg-obrioxia-cyan hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)]">
-          Go to Obrioxia.com to Sign Up
+        <a href="https://obrioxia.com/demo-signup" class="block w-full py-4 bg-obrioxia-cyan hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+          Get Session Key
         </a>
 
-        <p class="text-xs text-gray-600 uppercase tracking-widest pt-4">Session Token Missing</p>
+        <div class="mt-8 pt-8 border-t border-white/10">
+          <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Already have a key?</p>
+          
+          <div class="flex gap-2">
+            <input 
+              #keyInput 
+              type="text" 
+              (keyup.enter)="submitKey(keyInput.value)"
+              placeholder="Paste UUID Key Here" 
+              class="flex-1 bg-black/50 border border-gray-700 rounded px-3 py-2 text-white font-mono text-sm focus:border-cyan-500 outline-none transition-colors"
+            >
+            <button 
+              (click)="submitKey(keyInput.value)" 
+              class="px-4 py-2 bg-gray-800 hover:bg-gray-700 hover:text-cyan-400 text-gray-300 text-xs font-bold rounded border border-gray-600 transition-all uppercase tracking-wider">
+              Unlock
+            </button>
+          </div>
+          
+          <p *ngIf="errorMsg" class="text-red-400 text-xs mt-2">{{ errorMsg }}</p>
+        </div>
+
       </div>
     </div>
   `
 })
-export class AccessGateComponent {}
+export class AccessGateComponent {
+  router = inject(Router);
+  errorMsg = '';
+
+  submitKey(key: string) {
+    if (!key.trim()) return;
+    
+    // We simply reload the page with the key in the URL.
+    // The Guard checks the URL, calls the API, and lets you in if valid.
+    window.location.href = `/?access=${key.trim()}`;
+  }
+}
