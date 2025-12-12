@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
         
         <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
 
@@ -32,10 +32,10 @@ import { Router } from '@angular/router';
         <div class="mt-8 pt-8 border-t border-white/10">
           <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Have a key?</p>
           
-          <form (submit)="$event.preventDefault(); verifyAndUnlock()" class="flex gap-2">
+          <div class="flex gap-2">
             <input 
               [(ngModel)]="inputKey"
-              name="accessKey" 
+              (keyup.enter)="verifyAndUnlock()" 
               type="text" 
               placeholder="Enter UUID Key" 
               autocomplete="off"
@@ -49,7 +49,7 @@ import { Router } from '@angular/router';
               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer disabled:opacity-50">
               {{ isLoading ? 'Checking...' : 'Unlock' }}
             </button>
-          </form>
+          </div>
           
           <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold animate-pulse">
             {{ errorMessage }}
@@ -74,24 +74,30 @@ export class AccessGateComponent {
 
     this.isLoading = true;
     this.errorMessage = '';
-    console.log('Verifying key:', key); // Debug check
-
+    
+    // 1. Verify with Backend
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
-        console.log('Response:', res);
         if (res.valid) {
-          // Success! Store key and reload
+          // 2. Success - Save to LocalStorage
           localStorage.setItem('obrioxia_demo_key', key);
-          window.location.href = `/?access=${key}`;
+          
+          // 3. USE ANGULAR ROUTER (Prevents Server 404)
+          // We navigate to home, passing the access key in query params just in case guards need it
+          this.router.navigate(['/'], { queryParams: { access: key } }).then(() => {
+             // Optional: Force a reload ONLY if the router navigation didn't trigger the component updates you needed
+             // window.location.reload(); 
+          });
+
         } else {
           this.isLoading = false;
-          this.errorMessage = '❌ Invalid or Expired Session Key';
+          this.errorMessage = '❌ Invalid Session Key';
         }
       },
       error: (err) => {
         this.isLoading = false;
         console.error(err);
-        this.errorMessage = '❌ Connection Error';
+        this.errorMessage = '❌ Connection Failed';
       }
     });
   }
