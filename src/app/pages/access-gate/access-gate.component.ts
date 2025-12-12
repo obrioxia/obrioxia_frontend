@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
         
         <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
           </svg>
         </div>
 
@@ -69,38 +69,29 @@ export class AccessGateComponent {
   errorMessage = '';
 
   verifyAndUnlock() {
-    // 1. Validate Input
     const key = this.inputKey.trim();
     if (!key) return;
 
-    console.log('Attempting to unlock with key:', key); // Debug Log
     this.isLoading = true;
     this.errorMessage = '';
+    console.log('Verifying key:', key); // Debug check
 
-    // 2. Call Backend
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
-        console.log('Backend Response:', res); // Debug Log
-        
+        console.log('Response:', res);
         if (res.valid) {
-          // 3. Success! Set storage and GO.
-          console.log('Key is valid. Redirecting...');
+          // Success! Store key and reload
           localStorage.setItem('obrioxia_demo_key', key);
-          
-          // Force a hard navigation to the root with the access token
           window.location.href = `/?access=${key}`;
         } else {
-          // 4. Invalid Key
           this.isLoading = false;
           this.errorMessage = '❌ Invalid or Expired Session Key';
-          console.warn('Backend rejected the key.');
         }
       },
       error: (err) => {
-        // 5. Network Error
         this.isLoading = false;
-        console.error('Network Error:', err);
-        this.errorMessage = '❌ Server Connection Error';
+        console.error(err);
+        this.errorMessage = '❌ Connection Error';
       }
     });
   }
