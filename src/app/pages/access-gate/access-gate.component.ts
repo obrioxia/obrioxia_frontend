@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
 @Component({
@@ -41,14 +42,19 @@ import { Router } from '@angular/router';
               class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none"
             >
             <button 
-              (click)="submitKey()" 
-              class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer">
-              Unlock
+              (click)="verifyAndUnlock()" 
+              [disabled]="isLoading"
+              class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer disabled:opacity-50">
+              {{ isLoading ? 'Checking...' : 'Unlock' }}
             </button>
           </div>
           
+          <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold animate-pulse">
+            ❌ {{ errorMessage }}
+          </p>
+
           <p class="text-[10px] text-gray-600 mt-2">
-            Tip: Use CMD+V / CTRL+V to paste if right-click is disabled.
+            Tip: Use CMD+V / CTRL+V to paste.
           </p>
         </div>
 
@@ -57,14 +63,39 @@ import { Router } from '@angular/router';
   `
 })
 export class AccessGateComponent {
+  http = inject(HttpClient);
   router = inject(Router);
+  
   inputKey = '';
+  isLoading = false;
+  errorMessage = '';
 
-  submitKey() {
-    const cleanKey = this.inputKey.trim();
-    if (!cleanKey) return;
-    
-    // Redirect to reload the app with the access token in URL
-    window.location.href = `/?access=${cleanKey}`;
+  verifyAndUnlock() {
+    const key = this.inputKey.trim();
+    if (!key) return;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // DIRECT VERIFICATION: Check with backend first
+    this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
+      next: (res: any) => {
+        if (res.valid) {
+          // Success! Save to storage and reload to bypass Guard
+          localStorage.setItem('obrioxia_demo_key', key);
+          window.location.href = `/?access=${key}`;
+        } else {
+          // Backend says key is wrong
+          this.isLoading = false;
+          this.errorMessage = 'Invalid or Expired Session Key';
+        }
+      },
+      error: (err) => {
+        // Network or Server error
+        this.isLoading = false;
+        console.error(err);
+        this.errorMessage = 'Connection Error. Try again.';
+      }
+    });
   }
 }
