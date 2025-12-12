@@ -8,9 +8,9 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule, FormsModule], 
   template: `
-    <div class="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative z-0">
+    <div class="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative">
       
-      <div class="relative z-10 max-w-md w-full text-center space-y-8 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl">
+      <div class="max-w-md w-full text-center space-y-8 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl relative z-10">
         
         <div class="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -24,20 +24,21 @@ import { Router } from '@angular/router';
           The Obrioxia Demo Environment is invite-only.
         </p>
 
-        <a href="https://obrioxia.com/demo-signup" class="block w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron">
+        <a href="https://obrioxia.com/demo-signup" class="block w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)]">
           Get Session Key
         </a>
 
         <div class="mt-8 pt-8 border-t border-white/10">
-          <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Already have a key?</p>
+          <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Have a key?</p>
           
-          <div class="flex gap-2 relative z-20">
+          <div class="flex gap-2">
             <input 
               [(ngModel)]="inputKey"
               type="text" 
-              placeholder="Paste UUID Key Here" 
-              style="user-select: text !important; -webkit-user-select: text !important;"
-              class="flex-1 bg-black border border-gray-700 rounded px-3 py-2 text-white font-mono text-sm focus:border-cyan-500 outline-none transition-colors"
+              placeholder="Enter UUID Key" 
+              autocomplete="off"
+              style="user-select: text !important; -webkit-user-select: text !important; background-color: #000 !important; color: #fff !important;"
+              class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none"
             >
             <button 
               (click)="submitKey()" 
@@ -45,6 +46,10 @@ import { Router } from '@angular/router';
               Unlock
             </button>
           </div>
+          
+          <p class="text-[10px] text-gray-600 mt-2">
+            Tip: Use CMD+V / CTRL+V to paste if right-click is disabled.
+          </p>
         </div>
 
       </div>
@@ -56,7 +61,10 @@ export class AccessGateComponent {
   inputKey = '';
 
   submitKey() {
-    if (!this.inputKey.trim()) return;
-    window.location.href = `/?access=${this.inputKey.trim()}`;
+    const cleanKey = this.inputKey.trim();
+    if (!cleanKey) return;
+    
+    // Redirect to reload the app with the access token in URL
+    window.location.href = `/?access=${cleanKey}`;
   }
 }
