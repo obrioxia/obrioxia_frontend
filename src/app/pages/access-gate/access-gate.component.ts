@@ -32,9 +32,10 @@ import { Router } from '@angular/router';
         <div class="mt-8 pt-8 border-t border-white/10">
           <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Have a key?</p>
           
-          <div class="flex gap-2">
+          <form (submit)="$event.preventDefault(); verifyAndUnlock()" class="flex gap-2">
             <input 
               [(ngModel)]="inputKey"
+              name="accessKey" 
               type="text" 
               placeholder="Enter UUID Key" 
               autocomplete="off"
@@ -42,19 +43,16 @@ import { Router } from '@angular/router';
               class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none"
             >
             <button 
+              type="button" 
               (click)="verifyAndUnlock()" 
               [disabled]="isLoading"
               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer disabled:opacity-50">
               {{ isLoading ? 'Checking...' : 'Unlock' }}
             </button>
-          </div>
+          </form>
           
           <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold animate-pulse">
-            ❌ {{ errorMessage }}
-          </p>
-
-          <p class="text-[10px] text-gray-600 mt-2">
-            Tip: Use CMD+V / CTRL+V to paste.
+            {{ errorMessage }}
           </p>
         </div>
 
@@ -71,30 +69,38 @@ export class AccessGateComponent {
   errorMessage = '';
 
   verifyAndUnlock() {
+    // 1. Validate Input
     const key = this.inputKey.trim();
     if (!key) return;
 
+    console.log('Attempting to unlock with key:', key); // Debug Log
     this.isLoading = true;
     this.errorMessage = '';
 
-    // DIRECT VERIFICATION: Check with backend first
+    // 2. Call Backend
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
+        console.log('Backend Response:', res); // Debug Log
+        
         if (res.valid) {
-          // Success! Save to storage and reload to bypass Guard
+          // 3. Success! Set storage and GO.
+          console.log('Key is valid. Redirecting...');
           localStorage.setItem('obrioxia_demo_key', key);
+          
+          // Force a hard navigation to the root with the access token
           window.location.href = `/?access=${key}`;
         } else {
-          // Backend says key is wrong
+          // 4. Invalid Key
           this.isLoading = false;
-          this.errorMessage = 'Invalid or Expired Session Key';
+          this.errorMessage = '❌ Invalid or Expired Session Key';
+          console.warn('Backend rejected the key.');
         }
       },
       error: (err) => {
-        // Network or Server error
+        // 5. Network Error
         this.isLoading = false;
-        console.error(err);
-        this.errorMessage = 'Connection Error. Try again.';
+        console.error('Network Error:', err);
+        this.errorMessage = '❌ Server Connection Error';
       }
     });
   }
