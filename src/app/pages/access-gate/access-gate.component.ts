@@ -75,28 +75,34 @@ export class AccessGateComponent {
     this.isLoading = true;
     this.errorMessage = '';
     
-    // 1. Verify with Backend
+    console.log("Starting verification...");
+
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
+        console.log("Backend response received:", res);
+        
         if (res.valid) {
-          // 2. Success - Save to LocalStorage
+          // SUCCESS:
+          // 1. Save Key
           localStorage.setItem('obrioxia_demo_key', key);
           
-          // 3. USE ANGULAR ROUTER (Prevents Server 404)
-          // We navigate to home, passing the access key in query params just in case guards need it
-          this.router.navigate(['/'], { queryParams: { access: key } }).then(() => {
-             // Optional: Force a reload ONLY if the router navigation didn't trigger the component updates you needed
-             // window.location.reload(); 
-          });
-
+          // 2. Force Browser to Load Home Page (Bypassing Router and Query Params)
+          console.log("Access Granted. Loading Dashboard...");
+          
+          // Using assign('/') ensures we go to the root path without confusing query params
+          // The Guard on the home page will read the localStorage we just set.
+          window.location.assign('/'); 
+          
         } else {
+          // FAILURE:
           this.isLoading = false;
           this.errorMessage = '❌ Invalid Session Key';
+          console.warn("Key rejected by backend.");
         }
       },
       error: (err) => {
         this.isLoading = false;
-        console.error(err);
+        console.error("Verification error:", err);
         this.errorMessage = '❌ Connection Failed';
       }
     });
