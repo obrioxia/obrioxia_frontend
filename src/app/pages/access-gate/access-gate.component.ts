@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // Added back for stability
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,22 +31,20 @@ import { Router } from '@angular/router';
         <div class="mt-8 pt-8 border-t border-white/10">
           <p class="text-xs text-gray-500 mb-3 uppercase tracking-widest">Already have a key?</p>
           
-          <div class="flex gap-2 relative z-20"> <input 
+          <div class="flex gap-2 relative z-20">
+            <input 
               [(ngModel)]="inputKey"
               type="text" 
               placeholder="Paste UUID Key Here" 
-              class="flex-1 bg-black border border-gray-700 rounded px-3 py-2 text-white font-mono text-sm focus:border-cyan-500 outline-none transition-colors select-text"
+              style="user-select: text !important; -webkit-user-select: text !important;"
+              class="flex-1 bg-black border border-gray-700 rounded px-3 py-2 text-white font-mono text-sm focus:border-cyan-500 outline-none transition-colors"
             >
             <button 
               (click)="submitKey()" 
-              class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase">
+              class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer">
               Unlock
             </button>
           </div>
-          
-          <p class="text-[10px] text-gray-600 mt-2">
-            Tip: If you can't paste, try using CTRL+V (Windows) or CMD+V (Mac).
-          </p>
         </div>
 
       </div>
