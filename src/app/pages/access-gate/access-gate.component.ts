@@ -40,7 +40,7 @@ import { Router } from '@angular/router';
               placeholder="Enter UUID Key" 
               autocomplete="off"
               style="user-select: text !important; -webkit-user-select: text !important; background-color: #000 !important; color: #fff !important;"
-              class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none"
+              class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none text-white bg-black"
             >
             
             <button 
@@ -69,7 +69,6 @@ export class AccessGateComponent {
   isLoading = false;
   errorMessage = '';
 
-  // Added optional 'event' parameter to handle the Enter key correctly
   verifyAndUnlock(event?: Event) {
     // 1. STOP THE GHOST REFRESH
     if (event) {
@@ -90,23 +89,20 @@ export class AccessGateComponent {
         console.log("Backend response received:", res);
         
         if (res.valid) {
-          // SUCCESS:
-          // 1. Save Key (Matched to your existing logic)
-          localStorage.setItem('obrioxia_demo_key', key);
+          // --- THE CRITICAL FIX IS HERE ---
+          // Changed 'obrioxia_demo_key' to 'obrioxia_demo_token' to match your Guard
+          localStorage.setItem('obrioxia_demo_token', key);
           
-          // Optional: Save user name if backend sends it
           if (res.user) {
              localStorage.setItem('demo_user_name', res.user);
           }
           
-          console.log("Access Granted. Loading Dashboard...");
+          console.log("Access Granted. Redirecting to Audit Ledger...");
           
-          // 2. Redirect to Home/Dashboard
-          // Using window.location.href ensures a clean slate, solving any router state bugs
-          window.location.href = '/'; 
+          // Redirecting specifically to /audit-ledger to ensure we bypass the gate
+          window.location.href = '/audit-ledger'; 
           
         } else {
-          // FAILURE:
           this.isLoading = false;
           this.errorMessage = '❌ Invalid Session Key';
           console.warn("Key rejected by backend.");
