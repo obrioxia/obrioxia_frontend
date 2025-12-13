@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
               type="button" 
               (click)="verifyAndUnlock()" 
               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer">
-              {{ isLoading ? '...' : 'ENTER' }} 
+              {{ isLoading ? '...' : 'UNLOCK' }} 
             </button>
           </div>
           <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold">{{ errorMessage }}</p>
@@ -46,7 +46,10 @@ export class AccessGateComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit() {
-    // Optional: Auto-check logic removed to keep it simple for now
+    // If we already have the "true" flag, go straight to ledger
+    if (localStorage.getItem('obrioxia_demo_access') === 'true') {
+      this.router.navigate(['/ledger']);
+    }
   }
 
   verifyAndUnlock(event?: Event) {
@@ -61,14 +64,17 @@ export class AccessGateComponent implements OnInit {
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
         if (res.valid) {
-          // 1. Save Token (Matches your Guard)
-          localStorage.setItem('obrioxia_demo_token', key);
           
-          // 2. Success Alert
-          alert("✅ ACCESS GRANTED. Welcome to Obrioxia.");
+          // 1. THE CRITICAL FIX: Set the exact flag your Guard wants
+          localStorage.setItem('obrioxia_demo_access', 'true');
+          
+          // 2. Also save the token for API calls
+          localStorage.setItem('obrioxia_demo_token', key);
 
-          // 3. THE FIX: Redirect to the route that actually exists ('ledger')
-          window.location.href = '/ledger'; 
+          alert("✅ Access Granted.");
+
+          // 3. Use Angular Router to move smoothly to the ledger
+          this.router.navigate(['/ledger']); 
           
         } else {
           this.isLoading = false;
