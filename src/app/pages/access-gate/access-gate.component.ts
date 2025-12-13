@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core'; // Added OnInit
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -27,7 +27,7 @@ import { Router } from '@angular/router';
               type="button" 
               (click)="verifyAndUnlock()" 
               class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-xs font-bold rounded border border-gray-600 uppercase cursor-pointer">
-              {{ isLoading ? '...' : 'TRY UNLOCK' }} 
+              {{ isLoading ? '...' : 'ENTER' }} 
             </button>
           </div>
           <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold">{{ errorMessage }}</p>
@@ -45,12 +45,8 @@ export class AccessGateComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
 
-  // 1. AUTO-CHECK: If I already have a key, let me in!
   ngOnInit() {
-    if (localStorage.getItem('obrioxia_demo_token')) {
-      console.log("Token found! Attempting auto-login...");
-      // Don't redirect automatically yet, let's wait for the user to try manually so we can debug
-    }
+    // Optional: Auto-check logic removed to keep it simple for now
   }
 
   verifyAndUnlock(event?: Event) {
@@ -65,23 +61,23 @@ export class AccessGateComponent implements OnInit {
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
         if (res.valid) {
-          // 2. SUCCESS
+          // 1. Save Token (Matches your Guard)
           localStorage.setItem('obrioxia_demo_token', key);
           
-          // 3. THE POPUP TEST
-          alert("✅ LOGIN SUCCESS!\n\nI am about to redirect you to '/audit-ledger'.\n\nIf the page goes blank or returns here, that route does not exist.");
+          // 2. Success Alert
+          alert("✅ ACCESS GRANTED. Welcome to Obrioxia.");
 
-          // 4. ATTEMPT REDIRECT
-          window.location.href = '/audit-ledger'; 
+          // 3. THE FIX: Redirect to the route that actually exists ('ledger')
+          window.location.href = '/ledger'; 
           
         } else {
           this.isLoading = false;
-          alert("❌ Key Rejected. Check console.");
+          alert("❌ Invalid Key");
         }
       },
       error: (err) => {
         this.isLoading = false;
-        alert("❌ Network Error.");
+        alert("❌ Network Error");
       }
     });
   }
