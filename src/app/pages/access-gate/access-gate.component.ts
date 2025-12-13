@@ -25,7 +25,7 @@ import { Router } from '@angular/router';
           The Obrioxia Demo Environment is invite-only.
         </p>
 
-        <a href="https://obrioxia.com/demo-signup" class="block w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+        <a href="https://obrioxia.com/demo-signup" target="_blank" class="block w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)]">
           Get Session Key
         </a>
 
@@ -35,13 +35,14 @@ import { Router } from '@angular/router';
           <div class="flex gap-2">
             <input 
               [(ngModel)]="inputKey"
-              (keyup.enter)="verifyAndUnlock()" 
+              (keyup.enter)="verifyAndUnlock($event)" 
               type="text" 
               placeholder="Enter UUID Key" 
               autocomplete="off"
               style="user-select: text !important; -webkit-user-select: text !important; background-color: #000 !important; color: #fff !important;"
               class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none"
             >
+            
             <button 
               type="button" 
               (click)="verifyAndUnlock()" 
@@ -68,14 +69,21 @@ export class AccessGateComponent {
   isLoading = false;
   errorMessage = '';
 
-  verifyAndUnlock() {
+  // Added optional 'event' parameter to handle the Enter key correctly
+  verifyAndUnlock(event?: Event) {
+    // 1. STOP THE GHOST REFRESH
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
     const key = this.inputKey.trim();
     if (!key) return;
 
     this.isLoading = true;
     this.errorMessage = '';
     
-    console.log("Starting verification...");
+    console.log("Starting verification for:", key);
 
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
@@ -83,15 +91,19 @@ export class AccessGateComponent {
         
         if (res.valid) {
           // SUCCESS:
-          // 1. Save Key
+          // 1. Save Key (Matched to your existing logic)
           localStorage.setItem('obrioxia_demo_key', key);
           
-          // 2. Force Browser to Load Home Page (Bypassing Router and Query Params)
+          // Optional: Save user name if backend sends it
+          if (res.user) {
+             localStorage.setItem('demo_user_name', res.user);
+          }
+          
           console.log("Access Granted. Loading Dashboard...");
           
-          // Using assign('/') ensures we go to the root path without confusing query params
-          // The Guard on the home page will read the localStorage we just set.
-          window.location.assign('/'); 
+          // 2. Redirect to Home/Dashboard
+          // Using window.location.href ensures a clean slate, solving any router state bugs
+          window.location.href = '/'; 
           
         } else {
           // FAILURE:
