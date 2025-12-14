@@ -1,21 +1,23 @@
 import { Routes } from '@angular/router';
-import { demoAccessGuard } from './guards/demo-access.guard'; // Updated guard import
+import { demoAccessGuard } from './guards/demo-access.guard'; 
 
 // Components
 import { SubmitComponent } from './submit/submit.component';
 import { PublicVerifyComponent } from './public-verify/public-verify.component';
-import { AuditLedgerComponent } from './pages/audit-ledger/audit-ledger.component'; // New Component
-import { AccessGateComponent } from './pages/access-gate/access-gate.component';   // New Component
+import { AuditLedgerComponent } from './pages/audit-ledger/audit-ledger.component'; 
+import { AccessGateComponent } from './pages/access-gate/access-gate.component';   
 
 export const routes: Routes = [
-  // 1. The Public Gate (No Guard)
-  { path: 'access-denied', component: AccessGateComponent },
+  // 1. The Public Gate (Unprotected)
+  // 👇 CHANGED 'access-denied' TO 'demo-gate' TO MATCH YOUR GUARD
+  { path: 'demo-gate', component: AccessGateComponent },
 
   // 2. Protected Routes (Wrapped in Guard)
   { 
     path: '', 
-    canActivate: [demoAccessGuard],
+    canActivate: [demoAccessGuard], // 🔒 Checks for 'demo_key' in localStorage
     children: [
+      // If they pass the guard, default to the 'log' page
       { path: '', redirectTo: 'log', pathMatch: 'full' },
       
       // The 3 Core Tools
@@ -25,6 +27,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Catch-all: Send lost users back to root (which triggers the guard)
+  // Catch-all: Send lost users back to root
+  // (Root triggers the Guard -> Guard checks key -> Sends to Demo Gate if missing)
   { path: '**', redirectTo: '' }
 ];
