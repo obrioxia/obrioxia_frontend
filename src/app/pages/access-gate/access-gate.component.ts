@@ -33,7 +33,7 @@ import { Router } from '@angular/router';
               [(ngModel)]="inputKey"
               (keyup.enter)="verifyAndUnlock($event)" 
               type="text" 
-              placeholder="Enter UUID Key" 
+              placeholder="Enter Key" 
               class="flex-1 border border-gray-700 rounded px-3 py-2 font-mono text-xs focus:border-cyan-500 outline-none text-white bg-black"
             >
             <button 
@@ -63,9 +63,9 @@ export class AccessGateComponent implements OnInit {
   errorMessage = '';
 
   ngOnInit() {
-    // If user is already verified, just go in
-    if (localStorage.getItem('obrioxia_demo_access') === 'true') {
-      this.router.navigate(['/ledger']);
+    // 1. Check correct key name (demo_key)
+    if (localStorage.getItem('demo_key')) {
+      this.router.navigate(['/log']); // Send to main protected page
     }
   }
 
@@ -78,22 +78,24 @@ export class AccessGateComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
+    // IMPORTANT: This calls the backend. The backend MUST have this endpoint.
     this.http.post('https://obrioxia-backend-pkrp.onrender.com/api/demo/verify', { key }).subscribe({
       next: (res: any) => {
         if (res.valid) {
-          // Success! Set the flags silently and redirect
-          localStorage.setItem('obrioxia_demo_access', 'true');
-          localStorage.setItem('obrioxia_demo_token', key);
+          // 2. SAVE AS 'demo_key' TO MATCH THE GUARD
+          localStorage.setItem('demo_key', key);
           
-          this.router.navigate(['/ledger']); 
+          // 3. Navigate to default route (Guard will now let you in)
+          this.router.navigate(['/']); 
         } else {
           this.isLoading = false;
           this.errorMessage = '❌ Invalid or Expired Key';
         }
       },
       error: (err) => {
+        console.error(err);
         this.isLoading = false;
-        this.errorMessage = '⚠️ Network Error. Please try again.';
+        this.errorMessage = '⚠️ Network Error. Check Console.';
       }
     });
   }
