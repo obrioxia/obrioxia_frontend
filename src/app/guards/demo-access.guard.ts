@@ -4,23 +4,18 @@ import { CanActivateFn, Router, ActivatedRouteSnapshot, RouterStateSnapshot } fr
 export const demoAccessGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
   const router = inject(Router);
 
-  // 1. Check URL for access token (e.g. ?access=1)
-  const urlAccess = route.queryParams['access'];
-
-  if (urlAccess === '1') {
-    // Grant access
-    localStorage.setItem('obrioxia_demo_access', 'true');
-    // Allow navigation
+  // 1. Safety Check: If going to the gate, allow it immediately
+  if (state.url.includes('demo-gate')) {
     return true;
   }
 
-  // 2. Check LocalStorage for existing session
-  const hasSession = localStorage.getItem('obrioxia_demo_access');
+  // 2. Check for the Key in specific Demo storage
+  const key = localStorage.getItem('demo_key');
 
-  if (hasSession === 'true') {
+  if (key && key.length > 5) {
     return true;
   }
 
-  // 3. Deny access -> Redirect to Gate
-  return router.createUrlTree(['/access-denied']);
+  // 3. No key? Redirect to the public Gate
+  return router.createUrlTree(['/demo-gate']);
 };
