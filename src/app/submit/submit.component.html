@@ -141,3 +141,92 @@
 
   </div>
 </div>
+<div *ngIf="isDemoUser && credits <= 0" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 animate-fade-in overflow-y-auto">
+  <div class="max-w-6xl w-full bg-[#0a0a0a] border border-gray-800 rounded-2xl shadow-2xl relative my-8">
+    
+    <div class="text-center p-8 border-b border-gray-800 bg-gradient-to-b from-gray-900 to-[#0a0a0a]">
+      <div class="inline-block px-3 py-1 bg-red-900/30 border border-red-500/50 text-red-400 rounded-full text-[10px] font-bold tracking-widest uppercase mb-4">
+        Demo Credits Exhausted
+      </div>
+      <h2 class="text-3xl md:text-5xl text-white font-bold font-orbitron mb-4">Initialize Production Hub</h2>
+      <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
+        You have experienced the Logger. Now unlock the full **Obrioxia Suite**: 
+        <span class="text-cyan-400">Chain Verifier</span>, <span class="text-cyan-400">Crypto Shredder</span>, and the <span class="text-cyan-400">Analytics Dashboard</span>.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-gray-800">
+      
+      <div class="p-8 hover:bg-white/[0.02] transition-colors group flex flex-col">
+        <h3 class="text-lg text-white font-bold mb-2">Growth Pro 1</h3>
+        <div class="text-3xl text-cyan-500 font-mono font-bold mb-1">£500<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></div>
+        <div class="text-xs text-gray-500 mb-6 uppercase tracking-wider">Entry Level Compliance</div>
+        
+        <ul class="space-y-4 text-sm text-gray-400 mb-8 flex-grow">
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>**100,000** Events / Month</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>**3 Month** Retention</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>Full **Crypto Shredding**</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>PDF Evidence Packs</span></li>
+        </ul>
+        
+        <a href="https://obrioxia.com/checkout?tier=pro1" class="block w-full py-3 border border-gray-700 text-gray-300 text-center rounded hover:border-cyan-500 hover:text-white hover:bg-cyan-900/20 uppercase text-xs font-bold tracking-widest transition-all">
+          Select Tier 1
+        </a>
+      </div>
+
+      <div class="p-8 bg-gradient-to-b from-cyan-900/10 to-transparent relative group flex flex-col">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-600"></div>
+        <div class="absolute top-4 right-4 px-2 py-1 bg-cyan-500/20 text-cyan-400 text-[10px] font-bold uppercase rounded">Most Popular</div>
+        
+        <h3 class="text-lg text-white font-bold mb-2">Growth Pro 2</h3>
+        <div class="text-3xl text-white font-mono font-bold mb-1">£1,000<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></div>
+        <div class="text-xs text-gray-400 mb-6 uppercase tracking-wider">Standard Corporate</div>
+
+        <ul class="space-y-4 text-gray-300 mb-8 flex-grow">
+          <li class="flex items-start gap-3"><span class="text-cyan-400 mt-0.5">✓</span> <span>**500,000** Events / Month</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-400 mt-0.5">✓</span> <span>**6 Month** Retention</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-400 mt-0.5">✓</span> <span>Everything in Pro 1</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-400 mt-0.5">✓</span> <span>**Priority Support**</span></li>
+        </ul>
+        
+        <a href="https://obrioxia.com/checkout?tier=pro2" class="block w-full py-3 bg-cyan-600 text-white text-center rounded hover:bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.3)] uppercase text-xs font-bold tracking-widest transition-all">
+          Select Tier 2
+        </a>
+      </div>
+
+      <div class="p-8 hover:bg-white/[0.02] transition-colors group flex flex-col">
+        <h3 class="text-lg text-white font-bold mb-2">Growth Pro 3</h3>
+        <div class="text-3xl text-cyan-500 font-mono font-bold mb-1">£1,500<span class="text-sm text-gray-500 font-sans font-normal">/mo</span></div>
+        <div class="text-xs text-gray-500 mb-6 uppercase tracking-wider">High Volume Scale</div>
+
+        <ul class="space-y-4 text-sm text-gray-400 mb-8 flex-grow">
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>**1 Million** Events / Month</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>**1 Year** Retention</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>Everything in Pro 2</span></li>
+          <li class="flex items-start gap-3"><span class="text-cyan-500 mt-0.5">✓</span> <span>Dedicated Success MGR</span></li>
+        </ul>
+        
+        <a href="https://obrioxia.com/checkout?tier=pro3" class="block w-full py-3 border border-gray-700 text-gray-300 text-center rounded hover:border-cyan-500 hover:text-white hover:bg-cyan-900/20 uppercase text-xs font-bold tracking-widest transition-all">
+          Select Tier 3
+        </a>
+      </div>
+
+    </div>
+
+    <div class="p-6 bg-[#050505] border-t border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div class="text-center md:text-left">
+        <h4 class="text-white font-bold text-sm">Need Enterprise Scale?</h4>
+        <p class="text-xs text-gray-500 mt-1">Custom retention, SLA guarantees, and unlimited events.</p>
+      </div>
+      <div class="flex gap-4 justify-center md:justify-end">
+        <a href="https://obrioxia.com/contact" class="px-6 py-2 text-xs font-bold text-white uppercase border border-gray-600 rounded hover:border-white transition-colors">
+          Contact Enterprise
+        </a>
+        <a href="https://obrioxia.com/pilot" class="px-6 py-2 text-xs font-bold text-black bg-white uppercase rounded hover:bg-gray-200 transition-colors">
+          Book 1-Week Pilot (£2.5k+)
+        </a>
+      </div>
+    </div>
+    
+  </div>
+</div>
