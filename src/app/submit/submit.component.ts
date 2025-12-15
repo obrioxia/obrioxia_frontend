@@ -1,4 +1,4 @@
- import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -99,7 +99,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
     try {
       // 2. Submit with Key
       const res: any = await this.api.submitIncident(this.formData, this.demoKey);
-      this.latestReceipt = res.receipt;
+      
+      // 🟢 FIX APPLIED HERE: The response IS the receipt.
+      // We removed '.receipt' because the backend sends the object directly.
+      this.latestReceipt = res;
       
       // 3. Update Credits from Server
       if (this.isDemoUser && res.credits_remaining !== undefined) {
