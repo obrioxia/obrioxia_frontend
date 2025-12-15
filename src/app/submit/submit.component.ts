@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { HealthService } from '../services/health.service';
-import { Subscription, interval, Observable } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 
 @Component({
   selector: 'app-submit',
@@ -44,16 +44,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // 1. Load Key
     this.demoKey = localStorage.getItem('demo_key') || '';
     this.isDemoUser = !!this.demoKey;
 
-    // 2. Check Balance
     if (this.isDemoUser) {
       this.checkDemoBalance();
     }
 
-    // 3. Health Check
     this.checkHealth();
     this.healthSub = interval(10000).subscribe(() => this.checkHealth());
   }
@@ -75,7 +72,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
         if (res.valid) {
           this.credits = res.credits;
         } else {
-          // Key expired or invalid
           this.credits = 0;
           this.errorMessage = "Session Expired. Please get a new key.";
           localStorage.removeItem('demo_key');
@@ -85,11 +81,15 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
+  // 💥 NEW: SIMPLE REDIRECT
+  redirectToPricing() {
+    window.location.href = 'https://obrioxia.com/pricing';
+  }
+
   async onSubmit() {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // 1. Frontend Credit Check
     if (this.isDemoUser && this.credits <= 0) {
       this.isLoading = false;
       this.errorMessage = 'Demo credits exhausted. Upgrade to continue.';
@@ -97,14 +97,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
 
     try {
-      // 2. Submit with Key
       const res: any = await this.api.submitIncident(this.formData, this.demoKey);
+      this.latestReceipt = res; 
       
-      // 🟢 FIX APPLIED HERE: The response IS the receipt.
-      // We removed '.receipt' because the backend sends the object directly.
-      this.latestReceipt = res;
-      
-      // 3. Update Credits from Server
       if (this.isDemoUser && res.credits_remaining !== undefined) {
         this.credits = res.credits_remaining;
       }
