@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -29,27 +29,33 @@ export class SubmitComponent implements OnInit, OnDestroy {
   uploadStatus = '';
   isSystemOnline = false;
   
-  // MISSING PROPERTIES (FIXED)
-  jsonPreview = '';
-  successData: any = null;
+  // CREDIT STATE
+  credits: number = 0;
+  demoKey: string = '';
+  isDemoUser: boolean = false;
   errorMessage = '';
 
   private healthSub: Subscription | null = null;
-  user$: Observable<any>; // Fixed initialization
 
   constructor(
     private api: ApiService, 
     public auth: AuthService,
     private healthService: HealthService
-  ) {
-    // Fixed "used before initialization" error
-    this.user$ = this.auth.user$;
-  }
+  ) {}
 
   ngOnInit() {
+    // 1. Load Key
+    this.demoKey = localStorage.getItem('demo_key') || '';
+    this.isDemoUser = !!this.demoKey;
+
+    // 2. Check Balance
+    if (this.isDemoUser) {
+      this.checkDemoBalance();
+    }
+
+    // 3. Health Check
     this.checkHealth();
     this.healthSub = interval(10000).subscribe(() => this.checkHealth());
-    this.updateJson(); // Initialize preview
   }
 
   ngOnDestroy() {
@@ -62,22 +68,51 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
-  // MISSING METHODS (FIXED)
-  updateJson() {
-    this.jsonPreview = JSON.stringify(this.formData, null, 2);
+  checkDemoBalance() {
+    if (!this.demoKey) return;
+    this.api.verifyDemoKey(this.demoKey).subscribe({
+      next: (res: any) => {
+        if (res.valid) {
+          this.credits = res.credits;
+        } else {
+          // Key expired or invalid
+          this.credits = 0;
+          this.errorMessage = "Session Expired. Please get a new key.";
+          localStorage.removeItem('demo_key');
+          this.isDemoUser = false;
+        }
+      }
+    });
   }
 
   async onSubmit() {
     this.isLoading = true;
     this.errorMessage = '';
-    
+
+    // 1. Frontend Credit Check
+    if (this.isDemoUser && this.credits <= 0) {
+      this.isLoading = false;
+      this.errorMessage = 'Demo credits exhausted. Upgrade to continue.';
+      return;
+    }
+
     try {
-      const res: any = await this.api.submitIncident(this.formData);
+      // 2. Submit with Key
+      const res: any = await this.api.submitIncident(this.formData, this.demoKey);
       this.latestReceipt = res.receipt;
-      this.successData = res.receipt; // Populates success modal
-    } catch (error) {
+      
+      // 3. Update Credits from Server
+      if (this.isDemoUser && res.credits_remaining !== undefined) {
+        this.credits = res.credits_remaining;
+      }
+    } catch (error: any) {
       console.error(error);
-      this.errorMessage = 'Submission Failed. Please try again.';
+      if (error.status === 402) {
+        this.credits = 0;
+        this.errorMessage = '⛔ Demo Limit Reached. Please Upgrade.';
+      } else {
+        this.errorMessage = 'Submission Failed. Check network.';
+      }
     } finally {
       this.isLoading = false;
     }
@@ -87,11 +122,15 @@ export class SubmitComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
+    if (this.isDemoUser && this.credits <= 0) {
+        this.uploadStatus = "Credits exhausted.";
+        return;
+    }
+
     this.isLoading = true;
     this.uploadStatus = 'Uploading...';
     try {
-      // NOTE: Ensure api.service.ts has uploadBatch method!
-      const res: any = await this.api.uploadBatch(file);
+      const res: any = await this.api.uploadBatch(file, this.demoKey);
       this.uploadStatus = `Batch Complete! ID: ${res.batch_id}`;
     } catch (error) {
       this.uploadStatus = 'Batch Failed.';
@@ -101,27 +140,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Debug Helper
-  forceLog() {
-    console.log(this.formData);
-  }
-
-  // Modal Helpers
-  closeModal() {
-    this.successData = null;
-    this.errorMessage = '';
-  }
-
   downloadJSON() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt, null, 2));
     const anchor = document.createElement('a');
     anchor.setAttribute("href", dataStr);
     anchor.setAttribute("download", `receipt_${this.latestReceipt.receipt_id || 'new'}.json`);
     anchor.click();
-  }
-
-  downloadReceipt() {
-    this.downloadJSON();
   }
 
   async downloadPDF() {

@@ -12,8 +12,14 @@ export class ApiService {
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  // FIXED: Uses authState pipe to GUARANTEE we wait for the SDK to load
-  private async getHeaders() {
+  // --- HELPER: Get Headers (Mixed Auth) ---
+  private async getHeaders(demoKey: string = '') {
+    // 1. If a Demo Key is provided, use it specifically
+    if (demoKey) {
+      return new HttpHeaders().set('X-Demo-Key', demoKey);
+    }
+
+    // 2. Otherwise, try Firebase Auth (Pro Users)
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
     
@@ -21,6 +27,7 @@ export class ApiService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
+      // Fallback for public non-demo access (if any)
       headers = headers.set('x-api-key', 'public-demo-key-2025');
     }
     return headers;
@@ -28,40 +35,38 @@ export class ApiService {
 
   // --- METHODS ---
 
-  async submitIncident(data: any) {
-    const headers = await this.getHeaders();
+  // 1. CHECK BALANCE (New)
+  verifyDemoKey(key: string) {
+    return this.http.post(`${this.apiUrl}/demo/verify`, { key });
+  }
+
+  // 2. SUBMIT INCIDENT (Updated for Demo Key)
+  async submitIncident(data: any, demoKey: string = '') {
+    const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 
-  async uploadBatch(file: File) {
-    const headers = await this.getHeaders();
+  // 3. UPLOAD BATCH (Updated for Demo Key)
+  async uploadBatch(file: File, demoKey: string = '') {
+    const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
     formData.append('file', file);
-    return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
+    // Note: Ensure your backend has /api/upload/batch or /api/admin/upload-csv mapped correctly
+    return firstValueFrom(this.http.post(`${this.apiUrl}/upload/batch`, formData, { headers }));
   }
 
+  // 4. DOWNLOAD PDF
   async downloadSubmissionPdf(receipt: any) {
-    const headers = await this.getHeaders();
+    // PDF download doesn't strictly need the demo key for generation, but good practice
+    const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
       headers, 
       responseType: 'blob' 
     }));
   }
 
+  // 5. VERIFY RECEIPT (Public)
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
-  }
-
-  async getAdminIncidents(page: number, pageSize: number, filter: string) {
-    const headers = await this.getHeaders();
-    let params = new HttpParams()
-      .set('page', page)
-      .set('page_size', pageSize);
-    
-    if (filter) {
-      params = params.set('search', filter);
-    }
-
-    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 }
