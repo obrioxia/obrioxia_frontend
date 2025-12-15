@@ -12,14 +12,14 @@ export class ApiService {
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  // --- HELPER: Get Headers (Mixed Auth) ---
+  // --- HELPER: Get Headers (Handles Demo Keys + Pro Auth) ---
   private async getHeaders(demoKey: string = '') {
-    // 1. If a Demo Key is provided, use it specifically
+    // 1. If a Demo Key is passed explicitly (from Submit page), use it.
     if (demoKey) {
       return new HttpHeaders().set('X-Demo-Key', demoKey);
     }
 
-    // 2. Otherwise, try Firebase Auth (Pro Users)
+    // 2. Otherwise, check for a Firebase Pro User (for Dashboard/Admin)
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
     
@@ -33,9 +33,9 @@ export class ApiService {
     return headers;
   }
 
-  // --- METHODS ---
+  // --- DEMO / SUBMIT METHODS ---
 
-  // 1. CHECK BALANCE (New)
+  // 1. CHECK BALANCE (For the Credit Counter)
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
@@ -51,13 +51,12 @@ export class ApiService {
     const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
     formData.append('file', file);
-    // Note: Ensure your backend has /api/upload/batch or /api/admin/upload-csv mapped correctly
-    return firstValueFrom(this.http.post(`${this.apiUrl}/upload/batch`, formData, { headers }));
+    // Note: Ensure backend has /api/upload/batch or similar mapped
+    return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
   // 4. DOWNLOAD PDF
   async downloadSubmissionPdf(receipt: any) {
-    // PDF download doesn't strictly need the demo key for generation, but good practice
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
       headers, 
@@ -68,5 +67,21 @@ export class ApiService {
   // 5. VERIFY RECEIPT (Public)
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
+  }
+
+  // --- ADMIN / DASHBOARD METHODS (Restored) ---
+
+  // 6. GET ADMIN INCIDENTS (This was missing!)
+  async getAdminIncidents(page: number, pageSize: number, filter: string) {
+    const headers = await this.getHeaders(); // Uses Firebase Auth
+    let params = new HttpParams()
+      .set('page', page)
+      .set('page_size', pageSize);
+    
+    if (filter) {
+      params = params.set('search', filter);
+    }
+
+    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 }
