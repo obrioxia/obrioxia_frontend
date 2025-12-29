@@ -22,20 +22,17 @@ export class ApiService {
     return headers;
   }
 
-  // ✅ EMAIL WORKER: This replaces the broken /register call
+  // ✅ HANDSHAKE: Triggers Resend in main.py
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
   }
 
+  // ✅ AUTH: Verifies keys for the Guard
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  async submitIncident(data: any, demoKey: string = '') {
-    const headers = await this.getHeaders(demoKey);
-    return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
-  }
-
+  // ✅ ENGINE: Fixed TS2339 'uploadBatch' error
   async uploadBatch(file: File, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
@@ -43,10 +40,16 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
+  // ✅ DASHBOARD: Fixed TS2339 'getAdminIncidents' error
   async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
     const headers = await this.getHeaders(); 
     let params = new HttpParams().set('page', page.toString()).set('page_size', pageSize.toString());
     if (filter) params = params.set('search', filter);
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
+  }
+
+  async submitIncident(data: any, demoKey: string = '') {
+    const headers = await this.getHeaders(demoKey);
+    return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 }
