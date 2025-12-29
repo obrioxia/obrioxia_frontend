@@ -3,8 +3,11 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { firstValueFrom, take } from 'rxjs';
 import { Auth, authState } from '@angular/fire/auth'; 
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ApiService {
+  
   private apiUrl = 'https://obrioxia-engine.onrender.com/api';
 
   constructor(private http: HttpClient, private auth: Auth) {}
@@ -12,8 +15,10 @@ export class ApiService {
   private async getHeaders(demoKey: string = '') {
     let headers = new HttpHeaders();
     if (demoKey) return headers.set('X-Demo-Key', demoKey);
+    
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
+    
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
@@ -22,17 +27,21 @@ export class ApiService {
     return headers;
   }
 
-  // ✅ HANDSHAKE: Triggers Resend in main.py
+  // --- HANDSHAKE METHODS ---
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
   }
 
-  // ✅ AUTH: Verifies keys for the Guard
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  // ✅ ENGINE: Fixed TS2339 'uploadBatch' error
+  // --- INCIDENT & BATCH METHODS ---
+  async submitIncident(data: any, demoKey: string = '') {
+    const headers = await this.getHeaders(demoKey);
+    return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
+  }
+
   async uploadBatch(file: File, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
@@ -40,7 +49,7 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
-  // ✅ DASHBOARD: Fixed TS2339 'getAdminIncidents' error
+  // --- DASHBOARD & VERIFICATION ---
   async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
     const headers = await this.getHeaders(); 
     let params = new HttpParams().set('page', page.toString()).set('page_size', pageSize.toString());
@@ -48,8 +57,17 @@ export class ApiService {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 
-  async submitIncident(data: any, demoKey: string = '') {
-    const headers = await this.getHeaders(demoKey);
-    return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
+  // ✅ FIXED: Restored verifyReceipt for public-verify.component.ts
+  async verifyReceipt(receipt: any) {
+    return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
+  }
+
+  // ✅ FIXED: Restored downloadSubmissionPdf for submit.component.ts
+  async downloadSubmissionPdf(receipt: any) {
+    const headers = await this.getHeaders(); 
+    return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
+      headers, 
+      responseType: 'blob' 
+    }));
   }
 }
