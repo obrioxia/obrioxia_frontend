@@ -8,73 +8,54 @@ import { Auth, authState } from '@angular/fire/auth';
 })
 export class ApiService {
   
-  // ✅ PRODUCTION URL: Matches your live Render instance
   private apiUrl = 'https://obrioxia-engine.onrender.com/api';
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  /**
-   * HELPER: Get Secure Headers
-   * Synchronizes auth between Demo Keys, Firebase Tokens, and Admin API Keys.
-   */
   private async getHeaders(demoKey: string = '') {
     let headers = new HttpHeaders();
-
-    // 1. Demo Key Logic
     if (demoKey) {
       return headers.set('X-Demo-Key', demoKey);
     }
-
-    // 2. Firebase Auth Handshake
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      // 3. Static Handshake Bypass
       headers = headers.set('x-api-key', 'c919848182e3e4250082ea7bacd14e170');
     }
     return headers;
   }
 
-  // ==========================================
-  // 📧 DEMO & EMAIL METHODS
-  // ==========================================
-
-  // 1. REQUEST DEMO KEY: Triggers the Resend Email Worker
+  // --- EXISTING METHODS ---
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
   }
 
-  // 2. VERIFY KEY: Checks remaining credits for the session
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  // ==========================================
-  // 🛡️ LEDGER & INCIDENT METHODS
-  // ==========================================
-
-  // 3. SUBMIT INCIDENT: Logs event to the SHA-256 chain
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 
-  // 4. BATCH INGESTION: Bulk CSV upload for ledger auditing
-  async uploadBatch(file: File, demoKey: string = '') {
-    const headers = await this.getHeaders(demoKey);
-    const formData = new FormData();
-    formData.append('file', file);
-    return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
+  // ✅ ADDED THIS: The missing method causing the Netlify error
+  async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
+    const headers = await this.getHeaders(); 
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('page_size', pageSize.toString());
+    
+    if (filter) {
+      params = params.set('search', filter);
+    }
+
+    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 
-  // ==========================================
-  // 🔍 VERIFICATION & CERTIFICATES
-  // ==========================================
-
-  // 5. DOWNLOAD PDF: Generates the immutable audit certificate
   async downloadSubmissionPdf(receipt: any) {
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
@@ -83,7 +64,6 @@ export class ApiService {
     }));
   }
 
-  // 6. TRIPLE-CHECK VERIFY: Validates receipt integrity
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
   }
