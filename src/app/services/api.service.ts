@@ -8,54 +8,58 @@ import { Auth, authState } from '@angular/fire/auth';
 })
 export class ApiService {
   
-  private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com/api';
+  // ✅ UPDATED: Points to the new Python v4.0 Engine
+  private apiUrl = 'https://obrioxia-engine.onrender.com/api';
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  // --- HELPER: Get Headers (Handles Demo Keys + Pro Auth) ---
+  /**
+   * HELPER: Get Headers
+   * Synchronizes the authorization handshake between the demo and the Python backend.
+   */
   private async getHeaders(demoKey: string = '') {
-    // 1. If a Demo Key is passed explicitly (from Submit page), use it.
+    let headers = new HttpHeaders();
+
+    // 1. If a Demo Key is present, use the X-Demo-Key header
     if (demoKey) {
-      return new HttpHeaders().set('X-Demo-Key', demoKey);
+      return headers.set('X-Demo-Key', demoKey);
     }
 
-    // 2. Otherwise, check for a Firebase Pro User (for Dashboard/Admin)
+    // 2. Otherwise, check for Firebase Token (for Pro/Admin users)
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
     
-    let headers = new HttpHeaders();
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      // Fallback for public non-demo access (if any)
-      headers = headers.set('x-api-key', 'public-demo-key-2025');
+      // 3. Fallback public API key to prevent unauthorized 401s
+      headers = headers.set('x-api-key', 'c919848182e3e4250082ea7bacd14e170');
     }
     return headers;
   }
 
   // --- DEMO / SUBMIT METHODS ---
 
-  // 1. CHECK BALANCE (For the Credit Counter)
+  // 1. CHECK BALANCE: Verifies remaining credits for the demo user
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  // 2. SUBMIT INCIDENT (Updated for Demo Key)
+  // 2. SUBMIT INCIDENT: Logs the event to the SHA-256 chain
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 
-  // 3. UPLOAD BATCH (Updated for Demo Key)
+  // 3. UPLOAD BATCH: Sends CSV for bulk ledger ingestion
   async uploadBatch(file: File, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
     formData.append('file', file);
-    // Note: Ensure backend has /api/upload/batch or similar mapped
     return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
-  // 4. DOWNLOAD PDF
+  // 4. DOWNLOAD PDF: Generates the immutable certificate
   async downloadSubmissionPdf(receipt: any) {
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
@@ -64,19 +68,19 @@ export class ApiService {
     }));
   }
 
-  // 5. VERIFY RECEIPT (Public)
+  // 5. VERIFY RECEIPT: Uses Triple-Check (Hash/DecisionID/EntryKey)
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
   }
 
-  // --- ADMIN / DASHBOARD METHODS (Restored) ---
+  // --- ADMIN / DASHBOARD METHODS ---
 
-  // 6. GET ADMIN INCIDENTS (This was missing!)
+  // 6. GET ADMIN INCIDENTS: Fetches the central audit log
   async getAdminIncidents(page: number, pageSize: number, filter: string) {
-    const headers = await this.getHeaders(); // Uses Firebase Auth
+    const headers = await this.getHeaders(); 
     let params = new HttpParams()
-      .set('page', page)
-      .set('page_size', pageSize);
+      .set('page', page.toString())
+      .set('page_size', pageSize.toString());
     
     if (filter) {
       params = params.set('search', filter);
