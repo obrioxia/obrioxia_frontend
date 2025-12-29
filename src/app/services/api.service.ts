@@ -28,7 +28,7 @@ export class ApiService {
     return headers;
   }
 
-  // --- EXISTING METHODS ---
+  // --- CORE SYSTEM METHODS ---
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
   }
@@ -42,7 +42,15 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 
-  // ✅ ADDED THIS: The missing method causing the Netlify error
+  // ✅ RESTORED: This fixes the TS2339 'uploadBatch' error
+  async uploadBatch(file: File, demoKey: string = '') {
+    const headers = await this.getHeaders(demoKey);
+    const formData = new FormData();
+    formData.append('file', file);
+    return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
+  }
+
+  // ✅ RESTORED: This fixes the previous TS2339 'getAdminIncidents' error
   async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
     const headers = await this.getHeaders(); 
     let params = new HttpParams()
@@ -52,10 +60,10 @@ export class ApiService {
     if (filter) {
       params = params.set('search', filter);
     }
-
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 
+  // --- CERTIFICATE & VERIFICATION ---
   async downloadSubmissionPdf(receipt: any) {
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
