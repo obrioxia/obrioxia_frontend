@@ -8,50 +8,61 @@ import { Auth, authState } from '@angular/fire/auth';
 })
 export class ApiService {
   
-  // ✅ UPDATED: Points to the new Python v4.0 Engine
+  // ✅ PRODUCTION URL: Matches your live Render instance
   private apiUrl = 'https://obrioxia-engine.onrender.com/api';
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
   /**
-   * HELPER: Get Headers
-   * Synchronizes the authorization handshake between the demo and the Python backend.
+   * HELPER: Get Secure Headers
+   * Synchronizes auth between Demo Keys, Firebase Tokens, and Admin API Keys.
    */
   private async getHeaders(demoKey: string = '') {
     let headers = new HttpHeaders();
 
-    // 1. If a Demo Key is present, use the X-Demo-Key header
+    // 1. Demo Key Logic
     if (demoKey) {
       return headers.set('X-Demo-Key', demoKey);
     }
 
-    // 2. Otherwise, check for Firebase Token (for Pro/Admin users)
+    // 2. Firebase Auth Handshake
     const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
     const token = await user?.getIdToken();
     
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      // 3. Fallback public API key to prevent unauthorized 401s
+      // 3. Static Handshake Bypass
       headers = headers.set('x-api-key', 'c919848182e3e4250082ea7bacd14e170');
     }
     return headers;
   }
 
-  // --- DEMO / SUBMIT METHODS ---
+  // ==========================================
+  // 📧 DEMO & EMAIL METHODS
+  // ==========================================
 
-  // 1. CHECK BALANCE: Verifies remaining credits for the demo user
+  // 1. REQUEST DEMO KEY: Triggers the Resend Email Worker
+  requestDemoKey(email: string) {
+    return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
+  }
+
+  // 2. VERIFY KEY: Checks remaining credits for the session
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  // 2. SUBMIT INCIDENT: Logs the event to the SHA-256 chain
+  // ==========================================
+  // 🛡️ LEDGER & INCIDENT METHODS
+  // ==========================================
+
+  // 3. SUBMIT INCIDENT: Logs event to the SHA-256 chain
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
   }
 
-  // 3. UPLOAD BATCH: Sends CSV for bulk ledger ingestion
+  // 4. BATCH INGESTION: Bulk CSV upload for ledger auditing
   async uploadBatch(file: File, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     const formData = new FormData();
@@ -59,7 +70,11 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
-  // 4. DOWNLOAD PDF: Generates the immutable certificate
+  // ==========================================
+  // 🔍 VERIFICATION & CERTIFICATES
+  // ==========================================
+
+  // 5. DOWNLOAD PDF: Generates the immutable audit certificate
   async downloadSubmissionPdf(receipt: any) {
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
@@ -68,24 +83,8 @@ export class ApiService {
     }));
   }
 
-  // 5. VERIFY RECEIPT: Uses Triple-Check (Hash/DecisionID/EntryKey)
+  // 6. TRIPLE-CHECK VERIFY: Validates receipt integrity
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
-  }
-
-  // --- ADMIN / DASHBOARD METHODS ---
-
-  // 6. GET ADMIN INCIDENTS: Fetches the central audit log
-  async getAdminIncidents(page: number, pageSize: number, filter: string) {
-    const headers = await this.getHeaders(); 
-    let params = new HttpParams()
-      .set('page', page.toString())
-      .set('page_size', pageSize.toString());
-    
-    if (filter) {
-      params = params.set('search', filter);
-    }
-
-    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 }
