@@ -2,13 +2,15 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { firstValueFrom, take } from 'rxjs';
 import { Auth, authState } from '@angular/fire/auth'; 
+import { environment } from '../../environments/environment'; // ✅ Connects to your prod config
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   
-  private apiUrl = 'https://obrioxia-engine.onrender.com/api';
+  // ✅ FIXED: Dynamically pulls from environment.prod.ts during build
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
@@ -22,12 +24,14 @@ export class ApiService {
     if (token) {
       headers = headers.set('Authorization', `Bearer ${token}`);
     } else {
-      headers = headers.set('x-api-key', 'c919848182e3e4250082ea7bacd14e170');
+      // ✅ Uses the key synchronized in your environment file
+      headers = headers.set('x-api-key', environment.apiKey);
     }
     return headers;
   }
 
-  // --- HANDSHAKE METHODS ---
+  // --- 📧 ACCESS & HANDSHAKE METHODS ---
+
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/demo/request-key`, { email });
   }
@@ -36,7 +40,8 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/demo/verify`, { key });
   }
 
-  // --- INCIDENT & BATCH METHODS ---
+  // --- 📊 INCIDENT & BATCH METHODS ---
+
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/incidents`, data, { headers }));
@@ -49,7 +54,8 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/admin/upload-csv`, formData, { headers }));
   }
 
-  // --- DASHBOARD & VERIFICATION ---
+  // --- 🛡️ ADMIN & VERIFICATION ---
+
   async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
     const headers = await this.getHeaders(); 
     let params = new HttpParams().set('page', page.toString()).set('page_size', pageSize.toString());
@@ -57,12 +63,10 @@ export class ApiService {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/admin/incidents`, { headers, params }));
   }
 
-  // ✅ FIXED: Restored verifyReceipt for public-verify.component.ts
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/verify`, receipt));
   }
 
-  // ✅ FIXED: Restored downloadSubmissionPdf for submit.component.ts
   async downloadSubmissionPdf(receipt: any) {
     const headers = await this.getHeaders(); 
     return firstValueFrom(this.http.post(`${this.apiUrl}/pdf/submission`, receipt, { 
