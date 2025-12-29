@@ -69,18 +69,18 @@ export class AccessGateComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
   
-  email = ''; // ⬅️ Added for the Resend handshake
+  email = '';
   inputKey = '';
   isLoading = false;
   errorMessage = '';
 
   ngOnInit() {
     if (localStorage.getItem('demo_key')) {
-      this.router.navigate(['/log']); // Redirect to protected route
+      this.router.navigate(['/log']);
     }
   }
 
-  // ✅ NEW: This method hits the Python engine via the synchronized service
+  // ✅ HANDSHAKE: Triggers Resend through your Python backend
   onRequestKey() {
     if (!this.email) return;
     this.isLoading = true;
@@ -99,6 +99,7 @@ export class AccessGateComponent implements OnInit {
     });
   }
 
+  // ✅ AUTH: Verifies the key for the Guard
   verifyAndUnlock() {
     const key = this.inputKey.trim();
     if (!key) return;
