@@ -12,19 +12,14 @@ import { interval, Subscription } from 'rxjs';
   templateUrl: './public-verify.component.html'
 })
 export class PublicVerifyComponent implements OnInit, OnDestroy {
-  // ✅ Signal-based state for fine-grained UI updates
   isLoading = signal(false);
   verificationResult = signal<any>(null);
   errorMessage = signal('');
-  
   isDragging = false;
   isSystemOnline = false;
   private healthSub: Subscription | null = null;
 
-  constructor(
-    private healthService: HealthService,
-    private api: ApiService
-  ) {}
+  constructor(private healthService: HealthService, private api: ApiService) {}
 
   ngOnInit() {
     this.checkHealth();
@@ -41,31 +36,42 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ... drag and drop logic remains same ...
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    this.isDragging = false;
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) this.processFile(files[0]);
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) this.processFile(file);
+  }
 
   processFile(file: File) {
     if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-      this.errorMessage.set("Error: Please upload the .json receipt file, not the PDF certificate.");
+      this.errorMessage.set("Please upload the .json receipt, not the PDF.");
       return;
     }
-
     const reader = new FileReader();
     reader.onload = async (e: any) => {
       try {
-        const jsonContent = JSON.parse(e.target.result);
-        const data = Array.isArray(jsonContent) ? jsonContent[0] : jsonContent;
-
-        // ✅ TRIPLE-CHECK: We extract whatever key is available for the Python backend
-        const identityKey = data.current_hash || data.decision_id || data.entry_hash;
-
-        if(!identityKey) {
-            this.errorMessage.set("Invalid Receipt: Missing cryptographic identity key.");
-            return;
-        }
-
-        await this.verifyChain(identityKey);
-      } catch (err) {
-        this.errorMessage.set("Parsing Failed: Ensure the file is a valid Obrioxia receipt.");
+        const data = JSON.parse(e.target.result);
+        const key = data.current_hash || data.decision_id || data.entry_hash;
+        if(!key) throw new Error();
+        await this.verifyChain(key);
+      } catch {
+        this.errorMessage.set("Invalid Receipt File.");
       }
     };
     reader.readAsText(file);
@@ -73,18 +79,24 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
 
   async verifyChain(key: string) {
     this.isLoading.set(true);
-    this.errorMessage.set('');
     this.verificationResult.set(null);
-
     try {
-      // ✅ Handshake: Sending identity key to the v4.0 verification route
-      const response = await this.api.verifyReceipt({ current_hash: key });
-      this.verificationResult.set(response);
-    } catch (error) {
-      this.errorMessage.set("Handshake Failed: Audit Node unreachable or key invalid.");
+      const res = await this.api.verifyReceipt({ current_hash: key });
+      this.verificationResult.set(res);
+    } catch {
+      this.errorMessage.set("Verification Failed.");
     } finally {
       this.isLoading.set(false);
     }
+  }
+
+  downloadProof() {
+    const blob = new Blob([JSON.stringify(this.verificationResult(), null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `verification_proof.json`;
+    a.click();
   }
 
   reset() {
