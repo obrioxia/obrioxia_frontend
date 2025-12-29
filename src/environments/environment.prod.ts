@@ -1,10 +1,11 @@
 export const environment = {
   production: true,
 
-  // FIXED: Added '/api' to the end of the URL
-  apiUrl: 'https://obrioxia-backend-pkrp.onrender.com/api',
+  // ✅ FIXED: Pointing to the active Python Engine
+  apiUrl: 'https://obrioxia-engine.onrender.com/api',
   
-  apiKey: 'public-demo-key-2025',
+  // ✅ UPDATED: Matching the key in your main.py
+  apiKey: 'c919848182e3e4250082ea7bacd14e170',
 
   firebase: {
     apiKey: "AIzaSyDuhcvj5JS_8bCtF5K6i3DlVlEuYEKMDuM",
