@@ -9,11 +9,15 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   
-  // ✅ Dynamically pulls from environment.prod.ts during build
-  private apiUrl = environment.apiUrl;
+  // ✅ Ensures no trailing slash for clean path joining
+  private apiUrl = environment.apiUrl.replace(/\/$/, '');
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
+  /**
+   * Generates authorization headers.
+   * Prioritizes Demo Keys for access-gate logic, then Firebase tokens for Admin.
+   */
   private async getHeaders(demoKey: string = '') {
     let headers = new HttpHeaders();
     if (demoKey) return headers.set('X-Demo-Key', demoKey);
@@ -31,13 +35,17 @@ export class ApiService {
 
   // --- 📧 ACCESS & HANDSHAKE METHODS ---
 
+  /**
+   * Hits: https://your-backend.onrender.com/api/demo/request-key
+   */
   requestDemoKey(email: string) {
-    // ✅ FIXED: Added "/api" to match backend route
     return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
   }
 
+  /**
+   * Hits: https://your-backend.onrender.com/api/demo/verify
+   */
   verifyDemoKey(key: string) {
-    // ✅ FIXED: Added "/api" to match backend route
     return this.http.post(`${this.apiUrl}/api/demo/verify`, { key });
   }
 
@@ -45,7 +53,6 @@ export class ApiService {
 
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
-    // ✅ Note: Backend logs confirm this route works with the current path
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/incidents`, data, { headers }));
   }
 
@@ -67,6 +74,11 @@ export class ApiService {
 
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/verify`, receipt));
+  }
+
+  // ✅ New endpoint for the Public Verification tool
+  verifyHash(hash: string) {
+    return this.http.get(`${this.apiUrl}/api/verify/${hash}`);
   }
 
   async downloadSubmissionPdf(receipt: any) {

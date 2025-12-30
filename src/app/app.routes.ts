@@ -6,16 +6,16 @@ import { AuditLedgerComponent } from './pages/audit-ledger/audit-ledger.componen
 import { AccessGateComponent } from './pages/access-gate/access-gate.component';
 
 export const routes: Routes = [
-  // 1. The Gate (MUST be first and NO Guard)
+  // 1. The Gate: Public entry point (No Guard)
   { 
     path: 'demo-gate', 
     component: AccessGateComponent 
   },
 
-  // 2. The Protected App
+  // 2. The Protected App: Requires demo-key validation via demoAccessGuard
   {
     path: '',
-    canActivate: [demoAccessGuard], // The Bouncer is only here
+    canActivate: [demoAccessGuard], // Protects all children
     children: [
       { path: '', redirectTo: 'log', pathMatch: 'full' },
       { path: 'log', component: SubmitComponent },
@@ -24,7 +24,6 @@ export const routes: Routes = [
     ]
   },
 
-  // 3. Catch-All (The Loop Breaker)
-  // If the user gets lost, send them to the GATE, not the root.
+  // 3. Catch-All: Redirects any unknown URL back to the Gate to prevent dead ends
   { path: '**', redirectTo: 'demo-gate' }
 ];

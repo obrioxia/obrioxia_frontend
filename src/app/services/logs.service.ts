@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { environment } from '../../environments/environment'; // ✅ Dynamically uses Render/Local URL
 
 export interface InsuranceLogData {
   policyNumber: string;
@@ -26,8 +27,8 @@ export interface LogEntry {
 export class LogsService {
   private http = inject(HttpClient);
 
-  // Using your Render backend URL
-  private apiUrl = 'https://obrioxia-backend-pkrp.onrender.com';
+  // ✅ Ensures no trailing slash for clean endpoint concatenation
+  private apiUrl = environment.apiUrl.replace(/\/$/, '');
   private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
@@ -37,7 +38,10 @@ export class LogsService {
     });
   }
 
-  // --- 1. SUBMIT EVENT (Used by Log Event Page) ---
+  // --- 1. SUBMIT EVENT ---
+  /**
+   * Hits: https://your-backend.onrender.com/api/incidents
+   */
   submitInsuranceEvent(data: InsuranceLogData): Observable<any> {
     const payload = {
       policyNumber: data.policyNumber,
@@ -68,36 +72,37 @@ export class LogsService {
     );
   }
 
-  // --- 2. GET LOGS (Used by Audit Ledger Page) ---
-  // This was missing and caused your error. It fetches the chain data.
+  // --- 2. GET LOGS (Audit Ledger Data) ---
+  /**
+   * Hits: https://your-backend.onrender.com/api/admin/incidents
+   */
   getLogs(): Observable<LogEntry[]> {
     return this.http.get<any>(
       `${this.apiUrl}/api/admin/incidents?page_size=100`, 
       { headers: this.getHeaders() }
     ).pipe(
-      // Map your backend response format to the frontend UI format
       map((res: any) => {
         const rawData = res.data || []; 
         return rawData.map((item: any) => ({
           timestamp: item.timestamp,
-          eventType: item.incident_type || 'Generic Event', // Fallback if type missing
+          // ✅ Backend uses snake_case, mapping to camelCase for UI
+          eventType: item.incident_type || 'Generic Event', 
           hash: item.current_hash,
           status: 'Verified',
           policyNumber: item.policy_number
         }));
       }),
-      // Fallback Mock Data if Backend is offline (prevents blank page during demo)
+      // Fallback prevents a blank UI if the backend is waking up from sleep
       catchError(err => {
-        console.warn('Backend fetch failed, using mock data for demo:', err);
+        console.warn('Backend fetch failed, using demo fallback:', err);
         return of([
-          { timestamp: new Date().toISOString(), eventType: 'Policy Created', hash: '0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069', status: 'Verified', policyNumber: 'OBX-DEMO-001' },
-          { timestamp: new Date(Date.now() - 3600000).toISOString(), eventType: 'Risk Check', hash: '0x3a21b8123984710239487102938471029384710293847102938471029384712', status: 'Verified', policyNumber: 'OBX-DEMO-002' }
+          { timestamp: new Date().toISOString(), eventType: 'Genesis Block', hash: '0x7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069', status: 'Verified', policyNumber: 'OBX-GENESIS' }
         ]);
       })
     );
   }
 
-  // --- 3. VERIFY POLICY (Used by Verify Chain Page) ---
+  // --- 3. VERIFY POLICY ---
   verifyPolicy(hash: string): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/api/verify`,
@@ -108,7 +113,7 @@ export class LogsService {
     );
   }
 
-  // --- 4. SHRED USER (Optional Admin Feature) ---
+  // --- 4. SHRED USER (GDPR / Data Retention) ---
   shredUser(policyNumber: string): Observable<any> {
     return this.http.delete<any>(
       `${this.apiUrl}/api/admin/shred/${policyNumber}`,

@@ -10,19 +10,23 @@ import { map, take } from 'rxjs/operators';
 export class AuthGuard implements CanActivate {
   constructor(private auth: Auth, private router: Router) {}
 
+  /**
+   * Protects Admin routes by checking Firebase Authentication state.
+   * If the user is not logged in, they are redirected to the /demo-gate.
+   */
   canActivate(): Observable<boolean | UrlTree> {
     return authState(this.auth).pipe(
       take(1),
       map(user => {
-        // If user exists, allow access
+        // ✅ If Firebase user exists, allow access to Admin Dashboard
         if (user) {
           return true;
         }
-        // If NO user, redirect specifically to /login
-        // This fixes the "flash/loop" by giving a valid target
-        return this.router.createUrlTree(['/login']);
+
+        // ❌ If NO user, redirect specifically to the entry gate
+        // This prevents 404 errors by using a route defined in app.routes.ts
+        return this.router.createUrlTree(['/demo-gate']);
       })
     );
   }
 }
-
