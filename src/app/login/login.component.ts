@@ -1,8 +1,11 @@
 import { Component, inject } from '@angular/core';
-import { ApiService } from '../services/api.service'; // Ensure this path matches your folder structure
+import { ApiService } from '../services/api.service';
+import { FormsModule } from '@angular/forms'; // ✅ ADD THIS IMPORT
 
 @Component({
   selector: 'app-signup',
+  standalone: true, // ✅ ENSURE THIS IS SET TO TRUE
+  imports: [FormsModule], // ✅ ADD FORMSMODULE TO THE IMPORTS ARRAY
   template: `
     <div class="signup-container">
       <input 
@@ -18,9 +21,7 @@ import { ApiService } from '../services/api.service'; // Ensure this path matche
   `
 })
 export class SignupComponent {
-  // ✅ Using the centralized ApiService we just fixed
   private apiService = inject(ApiService);
-  
   email = '';
   isLoading = false;
 
@@ -28,16 +29,13 @@ export class SignupComponent {
     if (!this.email) return;
     this.isLoading = true;
 
-    // ✅ FIXED: Now calls the service method pointing to /api/demo/request-key
     this.apiService.requestDemoKey(this.email).subscribe({
       next: (response) => {
-        console.log("Success:", response);
-        alert("✓ Access Key sent! Check your inbox (Resend).");
+        alert("✓ Access Key sent! Check your inbox.");
         this.isLoading = false;
       },
       error: (err) => {
-        console.error("Signup Error:", err);
-        alert("❌ Error: Check browser console (F12) for details.");
+        alert("❌ Error: Check browser console for details.");
         this.isLoading = false;
       }
     });
