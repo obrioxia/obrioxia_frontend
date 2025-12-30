@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common'; // ✅ Required for structural directives and pipes
+import { FormsModule } from '@angular/forms'; // ✅ Required for [(ngModel)] search binding
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
@@ -8,7 +8,8 @@ import { Auth } from '@angular/fire/auth';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule], // ✅ Required for ngModel
+  // ✅ Explicitly importing modules needed to pass the Angular compiler
+  imports: [CommonModule, FormsModule], 
   templateUrl: './admin-dashboard.component.html',
   styles: [`
     ::-webkit-scrollbar { width: 8px; }
@@ -18,13 +19,14 @@ import { Auth } from '@angular/fire/auth';
   `]
 })
 export class AdminDashboardComponent implements OnInit {
+
   incidents: any[] = [];
   totalRecords = 0;
   isLoading = false;
   isUploading = false;
-  errorMessage = ''; 
+  errorMessage = '';
   
-  searchQuery = '';
+  searchQuery = ''; // Bound to [(ngModel)] in your HTML
   currentPage = 1;
   pageSize = 20;
 
@@ -45,13 +47,14 @@ export class AdminDashboardComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     try {
+      // ✅ Now hits the verified Python Render backend
       const res: any = await this.api.getAdminIncidents(this.currentPage, this.pageSize, this.searchQuery);
       this.incidents = res.data;
       this.totalRecords = res.total || 0;
     } catch (err: any) {
       console.error("Dashboard Load Error:", err);
       if (err.status === 401 || err.status === 403) {
-         this.errorMessage = "Session Expired or Unauthorized. Please log in again.";
+         this.errorMessage = "Session Expired. Please log in again.";
       } else {
          this.errorMessage = "Connection Error. Could not load ledger.";
       }
