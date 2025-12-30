@@ -1,36 +1,45 @@
 import { Component, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../services/api.service'; // Ensure this path matches your folder structure
 
 @Component({
   selector: 'app-signup',
   template: `
-    <button (click)="onRequestKey()" [disabled]="isLoading">
-      {{ isLoading ? 'SENDING...' : 'REQUEST ACCESS KEY' }}
-    </button>
+    <div class="signup-container">
+      <input 
+        type="email" 
+        [(ngModel)]="email" 
+        placeholder="Enter your email" 
+        [disabled]="isLoading"
+      />
+      <button (click)="onRequestKey()" [disabled]="isLoading || !email">
+        {{ isLoading ? 'SENDING...' : 'REQUEST ACCESS KEY' }}
+      </button>
+    </div>
   `
 })
 export class SignupComponent {
-  private http = inject(HttpClient);
+  // ✅ Using the centralized ApiService we just fixed
+  private apiService = inject(ApiService);
+  
   email = '';
   isLoading = false;
 
-  // ✅ UPDATED: Hits the new Python v4.2 Engine
   async onRequestKey() {
     if (!this.email) return;
     this.isLoading = true;
 
-    try {
-      // Use the full URL to the new Python endpoint
-      const target = 'https://obrioxia-engine.onrender.com/api/demo/request-key';
-      await firstValueFrom(this.http.post(target, { email: this.email }));
-      
-      alert("✓ Access Key sent! Check your inbox (Resend).");
-    } catch (e) {
-      console.error("Signup Error:", e);
-      alert("❌ Error: Check browser console for CORS/404 details.");
-    } finally {
-      this.isLoading = false;
-    }
+    // ✅ FIXED: Now calls the service method pointing to /api/demo/request-key
+    this.apiService.requestDemoKey(this.email).subscribe({
+      next: (response) => {
+        console.log("Success:", response);
+        alert("✓ Access Key sent! Check your inbox (Resend).");
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error("Signup Error:", err);
+        alert("❌ Error: Check browser console (F12) for details.");
+        this.isLoading = false;
+      }
+    });
   }
 }
