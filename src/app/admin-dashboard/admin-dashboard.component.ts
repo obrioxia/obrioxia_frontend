@@ -8,7 +8,7 @@ import { Auth } from '@angular/fire/auth';
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule], // ✅ Required for ngModel
   templateUrl: './admin-dashboard.component.html',
   styles: [`
     ::-webkit-scrollbar { width: 8px; }
@@ -18,12 +18,11 @@ import { Auth } from '@angular/fire/auth';
   `]
 })
 export class AdminDashboardComponent implements OnInit {
-
   incidents: any[] = [];
   totalRecords = 0;
   isLoading = false;
   isUploading = false;
-  errorMessage = ''; // Added error state
+  errorMessage = ''; 
   
   searchQuery = '';
   currentPage = 1;
@@ -51,8 +50,6 @@ export class AdminDashboardComponent implements OnInit {
       this.totalRecords = res.total || 0;
     } catch (err: any) {
       console.error("Dashboard Load Error:", err);
-      // FIXED: STOPPED THE REDIRECT LOOP
-      // Instead of kicking user out, show the error on screen so we can debug or re-login
       if (err.status === 401 || err.status === 403) {
          this.errorMessage = "Session Expired or Unauthorized. Please log in again.";
       } else {

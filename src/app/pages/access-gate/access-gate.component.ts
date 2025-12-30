@@ -7,7 +7,7 @@ import { ApiService } from '../../services/api.service';
 @Component({
   selector: 'app-access-gate',
   standalone: true,
-  imports: [CommonModule, FormsModule], 
+  imports: [CommonModule, FormsModule], // ✅ Required for ngModel
   template: `
     <div class="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative">
       <div class="max-w-md w-full text-center space-y-8 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl relative z-10">
@@ -60,7 +60,6 @@ import { ApiService } from '../../services/api.service';
             {{ errorMessage }}
           </p>
         </div>
-
       </div>
     </div>
   `
@@ -80,7 +79,6 @@ export class AccessGateComponent implements OnInit {
     }
   }
 
-  // ✅ HANDSHAKE: Triggers Resend through your Python backend
   onRequestKey() {
     if (!this.email) return;
     this.isLoading = true;
@@ -88,18 +86,17 @@ export class AccessGateComponent implements OnInit {
 
     this.api.requestDemoKey(this.email).subscribe({
       next: () => {
-        alert("✓ Success! If your email is authorized, the key is on its way (via Resend).");
+        alert("✓ Success! If authorized, your key is on its way.");
         this.isLoading = false;
       },
       error: (err) => {
         console.error("Email Worker Error:", err);
         this.isLoading = false;
-        this.errorMessage = '⚠️ Error sending key. Check your connection.';
+        this.errorMessage = '⚠️ Error sending key.';
       }
     });
   }
 
-  // ✅ AUTH: Verifies the key for the Guard
   verifyAndUnlock() {
     const key = this.inputKey.trim();
     if (!key) return;
@@ -120,7 +117,7 @@ export class AccessGateComponent implements OnInit {
       error: (err) => {
         console.error("Verification Error:", err);
         this.isLoading = false;
-        this.errorMessage = '⚠️ Connection Error. Ensure Backend is Live.';
+        this.errorMessage = '⚠️ Connection Error.';
       }
     });
   }

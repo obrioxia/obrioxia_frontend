@@ -1,11 +1,12 @@
 import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
-import { FormsModule } from '@angular/forms'; // ✅ ADD THIS IMPORT
 
 @Component({
   selector: 'app-signup',
-  standalone: true, // ✅ ENSURE THIS IS SET TO TRUE
-  imports: [FormsModule], // ✅ ADD FORMSMODULE TO THE IMPORTS ARRAY
+  standalone: true,
+  imports: [CommonModule, FormsModule], // ✅ Required for ngModel
   template: `
     <div class="signup-container">
       <input 

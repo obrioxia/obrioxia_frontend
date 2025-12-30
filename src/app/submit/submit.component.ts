@@ -9,23 +9,34 @@ import { Subscription, interval } from 'rxjs';
 @Component({
   selector: 'app-submit',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule], // ✅ Required for ngModel and structural directives
   templateUrl: './submit.component.html'
 })
 export class SubmitComponent implements OnInit, OnDestroy {
-  formData = { policyNumber: '', incidentType: 'Auto', claimAmount: 0, aiConfidenceScore: 0.95, agentId: 'AGENT-DEMO', decisionNotes: '' };
+  formData = { 
+    policyNumber: '', 
+    incidentType: 'Auto', 
+    claimAmount: 0, 
+    aiConfidenceScore: 0.95, 
+    agentId: 'AGENT-DEMO', 
+    decisionNotes: '' 
+  };
   
   latestReceipt = signal<any>(null);
   isLoading = signal(false);
   errorMessage = signal('');
   credits = signal(0);
-  uploadStatus = ''; // Template expects this string
+  uploadStatus = ''; 
   
   isDemoUser = false;
   isSystemOnline = false;
   private healthSub: Subscription | null = null;
 
-  constructor(private api: ApiService, public auth: AuthService, private healthService: HealthService) {}
+  constructor(
+    private api: ApiService, 
+    public auth: AuthService, 
+    private healthService: HealthService
+  ) {}
 
   ngOnInit() {
     const demoKey = localStorage.getItem('demo_key');
