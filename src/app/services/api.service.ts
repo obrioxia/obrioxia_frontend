@@ -32,11 +32,11 @@ export class ApiService {
   // --- METHODS ---
 
   requestDemoKey(email: string) {
-    return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
+    return this.http.post(`${this.apiUrl}/api/demo/request-key/`, { email });
   }
 
   verifyDemoKey(key: string) {
-    return this.http.post(`${this.apiUrl}/api/demo/verify`, { key });
+    return this.http.post(`${this.apiUrl}/api/demo/verify/`, { key });
   }
 
   async submitIncident(data: any, demoKey: string = '') {
