@@ -32,11 +32,14 @@ export class ApiService {
   // --- METHODS ---
 
   requestDemoKey(email: string) {
+    // Working correctly as-is (Python accepts this specific noun-endpoint without slash)
     return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
   }
 
-  verifyDemoKey(key: string) {
-    return this.http.post(`${this.apiUrl}/api/demo/verify`, { key });
+  async verifyDemoKey(key: string) {
+    // ✅ FIX: Added Trailing Slash '/' to prevent CORS Redirect block.
+    // ✅ FIX: Using firstValueFrom to match verifyReceipt pattern.
+    return firstValueFrom(this.http.post(`${this.apiUrl}/api/demo/verify/`, { key }));
   }
 
   async submitIncident(data: any, demoKey: string = '') {
