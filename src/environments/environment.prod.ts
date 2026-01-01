@@ -2,7 +2,7 @@ export const environment = {
   production: true,
 
   // ✅ FIXED: Pointing to the active Python Engine
-  apiUrl: 'https://obrioxia-engine.onrender.com/api',
+  apiUrl: 'https://obrioxia-engine.onrender.com',
   
   // ✅ UPDATED: Matching the key in your main.py
   apiKey: 'c919848182e3e4250082ea7bacd14e170',

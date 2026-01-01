@@ -9,15 +9,11 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   
-  // ✅ Ensures no trailing slash for clean path joining
-  private apiUrl = environment.apiUrl.replace(/\/$/, '');
+  // ✅ CLEANER: Removes trailing slashes AND removes '/api' so we have a clean base.
+  private apiUrl = environment.apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
 
   constructor(private http: HttpClient, private auth: Auth) {}
 
-  /**
-   * Generates authorization headers.
-   * Prioritizes Demo Keys for access-gate logic, then Firebase tokens for Admin.
-   */
   private async getHeaders(demoKey: string = '') {
     let headers = new HttpHeaders();
     if (demoKey) return headers.set('X-Demo-Key', demoKey);
@@ -33,23 +29,15 @@ export class ApiService {
     return headers;
   }
 
-  // --- 📧 ACCESS & HANDSHAKE METHODS ---
+  // --- METHODS ---
 
-  /**
-   * Hits: https://your-backend.onrender.com/api/demo/request-key
-   */
   requestDemoKey(email: string) {
     return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
   }
 
-  /**
-   * Hits: https://your-backend.onrender.com/api/demo/verify
-   */
   verifyDemoKey(key: string) {
     return this.http.post(`${this.apiUrl}/api/demo/verify`, { key });
   }
-
-  // --- 📊 INCIDENT & BATCH METHODS ---
 
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
@@ -63,8 +51,6 @@ export class ApiService {
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/admin/upload-csv`, formData, { headers }));
   }
 
-  // --- 🛡️ ADMIN & VERIFICATION ---
-
   async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
     const headers = await this.getHeaders(); 
     let params = new HttpParams().set('page', page.toString()).set('page_size', pageSize.toString());
@@ -72,11 +58,15 @@ export class ApiService {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/api/admin/incidents`, { headers, params }));
   }
 
+  /**
+   * ✅ THE FIX: 
+   * 1. Path is set to '/api/verify/' (Not demo).
+   * 2. Has the TRAILING SLASH '/' (Crucial for Python).
+   */
   async verifyReceipt(receipt: any) {
-    return firstValueFrom(this.http.post(`${this.apiUrl}/api/verify`, receipt));
+    return firstValueFrom(this.http.post(`${this.apiUrl}/api/verify/`, receipt));
   }
 
-  // ✅ New endpoint for the Public Verification tool
   verifyHash(hash: string) {
     return this.http.get(`${this.apiUrl}/api/verify/${hash}`);
   }
