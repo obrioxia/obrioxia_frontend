@@ -5,8 +5,8 @@ import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
 import { Auth } from '@angular/fire/auth';
 
-// ✅ PRODUCTION IMPORTS: These will work now that we fixed the install
-import { BaseChartDirective } from 'ng2-charts';
+// ✅ FIX: Import the Module, not the Directive
+import { NgChartsModule } from 'ng2-charts';
 import { ChartConfiguration, ChartOptions, Chart, registerables } from 'chart.js';
 
 // Register Chart components
@@ -15,8 +15,8 @@ Chart.register(...registerables);
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  // ✅ Full Imports including Charts
-  imports: [CommonModule, FormsModule, BaseChartDirective], 
+  // ✅ FIX: Use NgChartsModule here
+  imports: [CommonModule, FormsModule, NgChartsModule], 
   template: `
     <div class="dashboard-container p-6 bg-black min-h-screen text-white font-sans">
       
