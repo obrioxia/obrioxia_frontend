@@ -75,7 +75,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const demoKey = localStorage.getItem('demo_key') || '';
       const responseOrObservable = this.api.submitIncident(this.formData, demoKey);
       
-      // 1. Get the real data (Wait for it properly)
       let res: any;
       if (isObservable(responseOrObservable)) {
         res = await firstValueFrom(responseOrObservable);
@@ -83,23 +82,70 @@ export class SubmitComponent implements OnInit, OnDestroy {
         res = await responseOrObservable;
       }
 
-      console.log("✅ Success! Receipt received:", res);
+      console.log("✅ RAW BACKEND RESPONSE:", res);
 
-      // 2. Populate the UI (Fills the 'Genesis' box with real data)
-      this.latestReceipt.set(res);
+      // FIX: Map backend (snake_case) to Frontend UI (camelCase)
+      // This ensures the boxes like 'GENESIS' get replaced with real data
+      const mappedReceipt = {
+        ...res,
+        currentHash: res.current_hash || res.currentHash, // Handle both
+        timestamp: res.timestamp || res.timestamp_utc,
+        sequenceId: res._id || res.id || res.sequence_id,
+        decisionId: res._id || res.id
+      };
 
-      // 3. Update Credits
+      this.latestReceipt.set(mappedReceipt);
+
       if (res.credits_remaining !== undefined) {
         this.credits.set(res.credits_remaining);
       }
-
-      // NOTE: Auto-download removed. User can click buttons now.
 
     } catch (err) {
       console.error("Submission Error:", err);
       this.errorMessage.set("Submission Failed. Check console.");
     } finally {
       this.isLoading.set(false);
+    }
+  }
+
+  downloadJSON() {
+    if (!this.latestReceipt()) return;
+    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt(), null, 2));
+    const a = document.createElement('a');
+    a.setAttribute("href", data);
+    a.setAttribute("download", `receipt_${Date.now()}.json`);
+    document.body.appendChild(a); // Append to body to ensure click works
+    a.click();
+    document.body.removeChild(a);
+  }
+
+  async downloadPDF() {
+    if (!this.latestReceipt()) {
+        console.error("No receipt to download");
+        return;
+    }
+    
+    // UI Feedback
+    const oldLabel = this.uploadStatus;
+    this.uploadStatus = "Downloading PDF...";
+
+    try {
+      // Send the mapped receipt so backend gets all data
+      const blob = await this.api.downloadSubmissionPdf(this.latestReceipt());
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Certificate_${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("PDF Download Error:", e);
+      alert("PDF Download failed. Please try JSON instead.");
+    } finally {
+      this.uploadStatus = oldLabel;
     }
   }
 
@@ -112,29 +158,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.uploadStatus = 'Batch Complete';
     } catch {
       this.uploadStatus = 'Batch Failed';
-    }
-  }
-
-  downloadJSON() {
-    if (!this.latestReceipt()) return;
-    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt(), null, 2));
-    const a = document.createElement('a');
-    a.setAttribute("href", data);
-    a.setAttribute("download", `receipt_${Date.now()}.json`);
-    a.click();
-  }
-
-  async downloadPDF() {
-    if (!this.latestReceipt()) return;
-    try {
-      const blob = await this.api.downloadSubmissionPdf(this.latestReceipt());
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Certificate_${Date.now()}.pdf`;
-      a.click();
-    } catch (e) {
-      console.error("PDF Download Error:", e);
     }
   }
 }
