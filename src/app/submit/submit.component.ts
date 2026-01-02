@@ -53,6 +53,13 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   redirectToPricing() { window.location.href = 'https://obrioxia.com/pricing'; }
 
+  // --- NEW: Developer Reset Function ---
+  resetDemo() {
+    // Deletes the old key so the system generates a fresh one
+    localStorage.removeItem('demo_key');
+    window.location.reload();
+  }
+
   async onSubmit() {
     this.isLoading.set(true);
     this.errorMessage.set('');
@@ -64,7 +71,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
       if (isObservable(responseOrObservable)) res = await firstValueFrom(responseOrObservable);
       else res = await responseOrObservable;
 
-      // --- HYBRID FIX FOR UI AND VERIFIER ---
+      // --- HYBRID FIX FOR VERIFIER ---
       const finalHash = res.current_hash || res.currentHash || res.hash || '0x' + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('');
       const finalId = res._id || res.id || res.sequence_id || 'SEQ-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
       const finalTime = res.timestamp || res.timestamp_utc || new Date().toISOString();
