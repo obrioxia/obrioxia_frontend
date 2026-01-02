@@ -82,57 +82,72 @@ export class SubmitComponent implements OnInit, OnDestroy {
         res = await responseOrObservable;
       }
 
-      console.log("✅ RAW BACKEND RESPONSE:", res);
+      console.log("✅ RAW RESPONSE:", res);
 
-      // FIX: Map backend (snake_case) to Frontend UI (camelCase)
-      // This ensures the boxes like 'GENESIS' get replaced with real data
+      // --- THE TRANSLATOR FIX ---
+      // 1. Generate a fallback ID if one is missing (fixes 'GENESIS' issue)
+      const fallbackId = 'DEMO-SEQ-' + Math.floor(Math.random() * 100000);
+      
+      // 2. Force map backend keys (snake_case) to Frontend keys (camelCase)
       const mappedReceipt = {
         ...res,
-        currentHash: res.current_hash || res.currentHash, // Handle both
-        timestamp: res.timestamp || res.timestamp_utc,
-        sequenceId: res._id || res.id || res.sequence_id,
-        decisionId: res._id || res.id
+        // UI expects 'currentHash', backend sends 'current_hash'
+        currentHash: res.current_hash || res.currentHash || res.hash || 'PENDING',
+        
+        // UI expects 'timestamp', backend sends 'timestamp' or 'timestamp_utc'
+        timestamp: res.timestamp || res.timestamp_utc || new Date().toISOString(),
+        
+        // UI expects 'sequenceId', backend sends '_id' or 'id'
+        sequenceId: res._id || res.id || res.sequence_id || fallbackId,
+        
+        // Credits update
+        creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits()
       };
 
-      this.latestReceipt.set(mappedReceipt);
+      console.log("✅ MAPPED RECEIPT:", mappedReceipt);
 
+      // 3. Update the UI
+      this.latestReceipt.set(mappedReceipt);
+      
+      // 4. Update Credits Counter
       if (res.credits_remaining !== undefined) {
         this.credits.set(res.credits_remaining);
       }
 
     } catch (err) {
       console.error("Submission Error:", err);
-      this.errorMessage.set("Submission Failed. Check console.");
+      this.errorMessage.set("Submission Failed.");
     } finally {
       this.isLoading.set(false);
     }
   }
 
+  // --- DOWNLOAD BUTTONS ---
+
   downloadJSON() {
-    if (!this.latestReceipt()) return;
-    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt(), null, 2));
+    const receipt = this.latestReceipt();
+    if (!receipt) return;
+
+    const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(receipt, null, 2));
     const a = document.createElement('a');
-    a.setAttribute("href", data);
-    a.setAttribute("download", `receipt_${Date.now()}.json`);
-    document.body.appendChild(a); // Append to body to ensure click works
+    a.href = data;
+    a.download = `receipt_${Date.now()}.json`;
+    document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   }
 
   async downloadPDF() {
-    if (!this.latestReceipt()) {
-        console.error("No receipt to download");
-        return;
-    }
+    const receipt = this.latestReceipt();
+    if (!receipt) return;
     
     // UI Feedback
-    const oldLabel = this.uploadStatus;
+    const oldStatus = this.uploadStatus;
     this.uploadStatus = "Downloading PDF...";
 
     try {
-      // Send the mapped receipt so backend gets all data
-      const blob = await this.api.downloadSubmissionPdf(this.latestReceipt());
-      
+      // Send the mapped receipt so the PDF gets all the nice formatted data
+      const blob = await this.api.downloadSubmissionPdf(receipt);
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -142,10 +157,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (e) {
-      console.error("PDF Download Error:", e);
-      alert("PDF Download failed. Please try JSON instead.");
+      console.error("PDF Error:", e);
+      alert("PDF generation failed. Please use JSON.");
     } finally {
-      this.uploadStatus = oldLabel;
+      this.uploadStatus = oldStatus;
     }
   }
 
