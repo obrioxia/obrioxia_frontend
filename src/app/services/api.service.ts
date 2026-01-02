@@ -9,7 +9,6 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   
-  // ✅ CLEANER: Removes trailing slashes AND removes '/api' so we have a clean base.
   private apiUrl = environment.apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
 
   constructor(private http: HttpClient, private auth: Auth) {}
@@ -29,16 +28,11 @@ export class ApiService {
     return headers;
   }
 
-  // --- METHODS ---
-
   requestDemoKey(email: string) {
-    // Working correctly as-is (Python accepts this specific noun-endpoint without slash)
     return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
   }
 
   async verifyDemoKey(key: string) {
-    // ✅ FIX: Added Trailing Slash '/' to prevent CORS Redirect block.
-    // ✅ FIX: Using firstValueFrom to match verifyReceipt pattern.
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/demo/verify/`, { key }));
   }
 
@@ -61,11 +55,6 @@ export class ApiService {
     return firstValueFrom(this.http.get<any>(`${this.apiUrl}/api/admin/incidents`, { headers, params }));
   }
 
-  /**
-   * ✅ THE FIX: 
-   * 1. Path is set to '/api/verify/' (Not demo).
-   * 2. Has the TRAILING SLASH '/' (Crucial for Python).
-   */
   async verifyReceipt(receipt: any) {
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/verify/`, receipt));
   }
