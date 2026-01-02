@@ -32,8 +32,8 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
   }
 
-  async verifyDemoKey(key: string) {
-    return firstValueFrom(this.http.post(`${this.apiUrl}/api/demo/verify/`, { key }));
+  verifyDemoKey(key: string) {
+    return this.http.post(`${this.apiUrl}/api/demo/verify/`, { key });
   }
 
   async submitIncident(data: any, demoKey: string = '') {

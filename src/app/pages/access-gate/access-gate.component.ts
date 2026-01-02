@@ -89,7 +89,7 @@ export class AccessGateComponent implements OnInit {
         alert("✓ Success! If authorized, your key is on its way.");
         this.isLoading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error("Email Worker Error:", err);
         this.isLoading = false;
         this.errorMessage = '⚠️ Error sending key.';
@@ -114,7 +114,7 @@ export class AccessGateComponent implements OnInit {
           this.errorMessage = '❌ Invalid or Expired Key';
         }
       },
-      error: (err) => {
+      error: (err: any) => {
         console.error("Verification Error:", err);
         this.isLoading = false;
         this.errorMessage = '⚠️ Connection Error.';
