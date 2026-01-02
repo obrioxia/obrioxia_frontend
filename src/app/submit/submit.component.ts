@@ -64,17 +64,31 @@ export class SubmitComponent implements OnInit, OnDestroy {
       if (isObservable(responseOrObservable)) res = await firstValueFrom(responseOrObservable);
       else res = await responseOrObservable;
 
+      // --- HYBRID FIX FOR UI AND VERIFIER ---
+      const finalHash = res.current_hash || res.currentHash || res.hash || '0x' + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('');
+      const finalId = res._id || res.id || res.sequence_id || 'SEQ-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+      const finalTime = res.timestamp || res.timestamp_utc || new Date().toISOString();
+
       const mappedReceipt = {
         ...res,
-        currentHash: res.current_hash || res.currentHash || res.hash || '0x' + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join(''),
-        sequenceId: res._id || res.id || res.sequence_id || 'SEQ-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000),
-        timestamp: res.timestamp || res.timestamp_utc || new Date().toISOString()
+        // UI KEYS (CamelCase)
+        currentHash: finalHash,
+        sequenceId: finalId,
+        timestamp: finalTime,
+        creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits(),
+
+        // VERIFIER KEYS (Snake_Case)
+        current_hash: finalHash,
+        decision_id: finalId,
+        entry_hash: finalHash,
+        timestamp_utc: finalTime
       };
 
       this.latestReceipt.set(mappedReceipt);
       if (res.credits_remaining !== undefined) this.credits.set(res.credits_remaining);
 
     } catch (err) {
+      console.error(err);
       this.errorMessage.set("Submission Failed.");
     } finally {
       this.isLoading.set(false);
