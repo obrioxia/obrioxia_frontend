@@ -4,12 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { HealthService } from '../services/health.service';
-import { Subscription, interval } from 'rxjs';
+import { Subscription, interval, firstValueFrom, isObservable } from 'rxjs';
 
 @Component({
   selector: 'app-submit',
   standalone: true,
-  imports: [CommonModule, FormsModule], // ✅ Required for ngModel and structural directives
+  imports: [CommonModule, FormsModule],
   templateUrl: './submit.component.html'
 })
 export class SubmitComponent implements OnInit, OnDestroy {
@@ -55,7 +55,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   checkDemoBalance(key: string) {
-    this.api.verifyDemoKey(key).subscribe((res: any) => this.credits.set(res.credits || 0));
+    const resOrObs = this.api.verifyDemoKey(key);
+    if (isObservable(resOrObs)) {
+      resOrObs.subscribe((res: any) => this.credits.set(res.credits || 0));
+    } else {
+      (resOrObs as Promise<any>).then((res: any) => this.credits.set(res.credits || 0));
+    }
   }
 
   redirectToPricing() {
@@ -64,12 +69,35 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   async onSubmit() {
     this.isLoading.set(true);
+    this.errorMessage.set('');
+    
     try {
-      const res: any = await this.api.submitIncident(this.formData, localStorage.getItem('demo_key') || '');
+      const demoKey = localStorage.getItem('demo_key') || '';
+      const responseOrObservable = this.api.submitIncident(this.formData, demoKey);
+      
+      // 1. Get the real data (Wait for it properly)
+      let res: any;
+      if (isObservable(responseOrObservable)) {
+        res = await firstValueFrom(responseOrObservable);
+      } else {
+        res = await responseOrObservable;
+      }
+
+      console.log("✅ Success! Receipt received:", res);
+
+      // 2. Populate the UI (Fills the 'Genesis' box with real data)
       this.latestReceipt.set(res);
-      if (res.credits_remaining !== undefined) this.credits.set(res.credits_remaining);
-    } catch {
-      this.errorMessage.set("Submission Failed.");
+
+      // 3. Update Credits
+      if (res.credits_remaining !== undefined) {
+        this.credits.set(res.credits_remaining);
+      }
+
+      // NOTE: Auto-download removed. User can click buttons now.
+
+    } catch (err) {
+      console.error("Submission Error:", err);
+      this.errorMessage.set("Submission Failed. Check console.");
     } finally {
       this.isLoading.set(false);
     }
@@ -88,19 +116,25 @@ export class SubmitComponent implements OnInit, OnDestroy {
   }
 
   downloadJSON() {
+    if (!this.latestReceipt()) return;
     const data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.latestReceipt(), null, 2));
     const a = document.createElement('a');
     a.setAttribute("href", data);
-    a.setAttribute("download", `receipt.json`);
+    a.setAttribute("download", `receipt_${Date.now()}.json`);
     a.click();
   }
 
   async downloadPDF() {
-    const blob = await this.api.downloadSubmissionPdf(this.latestReceipt());
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Certificate.pdf`;
-    a.click();
+    if (!this.latestReceipt()) return;
+    try {
+      const blob = await this.api.downloadSubmissionPdf(this.latestReceipt());
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Certificate_${Date.now()}.pdf`;
+      a.click();
+    } catch (e) {
+      console.error("PDF Download Error:", e);
+    }
   }
 }
