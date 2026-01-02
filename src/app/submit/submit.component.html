@@ -104,7 +104,7 @@
 
         <div class="pt-6 mt-6 border-t border-gray-800">
           <label class="block text-xs font-bold text-gray-500 mb-2 font-orbitron">OR BATCH UPLOAD (CSV)</label>
-          <input type="file" (change)="onBatchUpload($event)" accept=".csv" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-cyan-400 hover:file:bg-gray-700 cursor-pointer"/>
+          <input type="file" (change)="onBatchUpload()" accept=".csv" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-gray-800 file:text-cyan-400 hover:file:bg-gray-700 cursor-pointer"/>
           <p class="text-xs text-green-400 mt-2 font-mono" *ngIf="uploadStatus">{{ uploadStatus }}</p>
         </div>
       </form>
@@ -126,7 +126,7 @@
           <div class="space-y-4 font-mono text-xs">
             <div class="bg-black p-3 rounded border border-gray-800">
               <span class="text-gray-500 block mb-1 font-orbitron text-[10px]">SEQUENCE ID</span>
-              <span class="text-white text-sm">{{ latestReceipt().sequence || 'GENESIS' }}</span>
+              <span class="text-white text-sm">{{ latestReceipt().sequenceId }}</span>
             </div>
             <div class="bg-black p-3 rounded border border-gray-800">
               <span class="text-gray-500 block mb-1 font-orbitron text-[10px]">TIMESTAMP</span>
@@ -134,7 +134,7 @@
             </div>
             <div class="bg-black p-3 rounded border border-gray-800 group cursor-help">
               <span class="text-gray-500 block mb-1 font-orbitron text-[10px]">CURRENT HASH</span>
-              <span class="text-cyan-500 break-all group-hover:text-white transition-colors">{{ latestReceipt().current_hash }}</span>
+              <span class="text-cyan-500 break-all group-hover:text-white transition-colors">{{ latestReceipt().currentHash }}</span>
             </div>
           </div>
 
