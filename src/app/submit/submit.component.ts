@@ -58,9 +58,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
-  // --- CRYPTOGRAPHIC SIGNING ENGINE ---
+  // --- CRYPTOGRAPHIC SIGNING ENGINE (V6) ---
   async calculateClientHash(data: any): Promise<string> {
-    // 1. Canonicalize: Sort keys to ensure '{"a":1, "b":2}' == '{"b":2, "a":1}'
+    // 1. Canonicalize: Sort keys
     const sortedKeys = Object.keys(data).sort();
     const canonicalObj: any = {};
     sortedKeys.forEach(k => canonicalObj[k] = data[k]);
@@ -68,10 +68,10 @@ export class SubmitComponent implements OnInit, OnDestroy {
     // 2. Serialize
     const msgBuffer = new TextEncoder().encode(JSON.stringify(canonicalObj));
     
-    // 3. Hash (SHA-256) using Native Browser Crypto
+    // 3. Hash (SHA-256)
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
     
-    // 4. Convert to Hex String
+    // 4. Hex String
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     
@@ -86,20 +86,18 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const demoKey = localStorage.getItem('demo_key') || '';
 
       // [STEP 1] CLIENT-SIDE SIGNING
-      // We calculate the hash BEFORE sending it to the server.
       const clientSignature = await this.calculateClientHash(this.formData);
       console.log("Client Signed Payload:", clientSignature);
 
       // [STEP 2] PREPARE PAYLOAD
-      // We attach the signature so the backend can "Notarize" it.
       const signedPayload = {
         ...this.formData,
         current_hash: clientSignature,
-        currentHash: clientSignature, // Redundancy for safety
+        currentHash: clientSignature, // Redundancy
         hash: clientSignature
       };
 
-      // [STEP 3] SEND TO NOTARY (BACKEND)
+      // [STEP 3] SEND TO NOTARY
       const responseOrObservable = this.api.submitIncident(signedPayload, demoKey);
       
       let res: any;
@@ -107,19 +105,16 @@ export class SubmitComponent implements OnInit, OnDestroy {
       else res = await responseOrObservable;
 
       // [STEP 4] RECEIPT GENERATION
-      // Use the signature we generated (it is now the authority).
       const finalId = res._id || res.decision_id;
       const finalTime = res.timestamp || res.timestamp_utc || new Date().toISOString();
 
       const mappedReceipt = {
         ...res,
-        // UI KEYS
         currentHash: clientSignature, // Trust Local Signature
         sequenceId: finalId,
         timestamp: finalTime,
         creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits(),
-
-        // VERIFIER KEYS (Must match exactly what we verified against)
+        
         current_hash: clientSignature,
         decision_id: finalId,
         entry_hash: clientSignature,
