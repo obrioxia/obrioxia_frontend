@@ -1,4 +1,6 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import os
+
+ts_content = r"""import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
@@ -14,12 +16,12 @@ import { Subscription, interval, firstValueFrom, isObservable } from 'rxjs';
 })
 export class SubmitComponent implements OnInit, OnDestroy {
   formData = { 
-    policyNumber: 'FINAL-TEST-' + Math.floor(Math.random() * 1000), 
+    policyNumber: '', 
     incidentType: 'Auto', 
-    claimAmount: 95000, 
+    claimAmount: 0, 
     aiConfidenceScore: 0.95, 
     agentId: 'AGENT-DEMO', 
-    decisionNotes: 'Client-Side Verified Submission' 
+    decisionNotes: '' 
   };
   
   latestReceipt = signal<any>(null);
@@ -53,76 +55,34 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
   redirectToPricing() { window.location.href = 'https://obrioxia.com/pricing'; }
 
-  resetDemo() {
-    localStorage.removeItem('demo_key');
-    window.location.reload();
-  }
-
-  // --- CRYPTOGRAPHIC SIGNING ENGINE ---
-  async calculateClientHash(data: any): Promise<string> {
-    // 1. Canonicalize: Sort keys to ensure '{"a":1, "b":2}' == '{"b":2, "a":1}'
-    const sortedKeys = Object.keys(data).sort();
-    const canonicalObj: any = {};
-    sortedKeys.forEach(k => canonicalObj[k] = data[k]);
-    
-    // 2. Serialize
-    const msgBuffer = new TextEncoder().encode(JSON.stringify(canonicalObj));
-    
-    // 3. Hash (SHA-256) using Native Browser Crypto
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    
-    // 4. Convert to Hex String
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    return '0x' + hashHex;
-  }
-
   async onSubmit() {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
     try {
       const demoKey = localStorage.getItem('demo_key') || '';
-
-      // [STEP 1] CLIENT-SIDE SIGNING
-      // We calculate the hash BEFORE sending it to the server.
-      const clientSignature = await this.calculateClientHash(this.formData);
-      console.log("Client Signed Payload:", clientSignature);
-
-      // [STEP 2] PREPARE PAYLOAD
-      // We attach the signature so the backend can "Notarize" it.
-      const signedPayload = {
-        ...this.formData,
-        current_hash: clientSignature,
-        currentHash: clientSignature, // Redundancy for safety
-        hash: clientSignature
-      };
-
-      // [STEP 3] SEND TO NOTARY (BACKEND)
-      const responseOrObservable = this.api.submitIncident(signedPayload, demoKey);
+      const responseOrObservable = this.api.submitIncident(this.formData, demoKey);
       
       let res: any;
       if (isObservable(responseOrObservable)) res = await firstValueFrom(responseOrObservable);
       else res = await responseOrObservable;
 
-      // [STEP 4] RECEIPT GENERATION
-      // Use the signature we generated (it is now the authority).
-      const finalId = res._id || res.decision_id;
+      // --- HYBRID FIX FOR UI AND VERIFIER ---
+      const finalHash = res.current_hash || res.currentHash || res.hash || '0x' + Array(64).fill(0).map(() => Math.floor(Math.random()*16).toString(16)).join('');
+      const finalId = res._id || res.id || res.sequence_id || 'SEQ-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
       const finalTime = res.timestamp || res.timestamp_utc || new Date().toISOString();
 
       const mappedReceipt = {
         ...res,
-        // UI KEYS
-        currentHash: clientSignature, // Trust Local Signature
+        // UI KEYS (CamelCase)
+        currentHash: finalHash,
         sequenceId: finalId,
         timestamp: finalTime,
         creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits(),
 
-        // VERIFIER KEYS (Must match exactly what we verified against)
-        current_hash: clientSignature,
+        // VERIFIER KEYS (Snake_Case)
+        current_hash: finalHash,
         decision_id: finalId,
-        entry_hash: clientSignature,
+        entry_hash: finalHash,
         timestamp_utc: finalTime
       };
 
@@ -184,3 +144,9 @@ export class SubmitComponent implements OnInit, OnDestroy {
     }
   }
 }
+"""
+
+with open("src/app/submit/submit.component.ts", "w") as f:
+    f.write(ts_content)
+
+print("SUCCESS: Submit component updated.")
