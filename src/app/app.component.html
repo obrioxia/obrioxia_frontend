@@ -1,48 +1,51 @@
 <div class="min-h-screen bg-[#0a0a0a] text-gray-200 font-sans selection:bg-cyan-500 selection:text-black flex flex-col">
-  
+
   <nav class="border-b border-gray-800 bg-[#111] bg-opacity-90 backdrop-blur-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        
+
         <div class="flex items-center">
-          <a routerLink="/" class="group flex items-center gap-0.5 text-2xl font-bold tracking-wider cursor-pointer select-none" style="font-family: 'Orbitron', sans-serif;">
-            <span class="text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] transition-colors group-hover:text-gray-200">
+          <a routerLink="/"
+            class="group flex items-center gap-0.5 text-2xl font-bold tracking-wider cursor-pointer select-none"
+            style="font-family: 'Orbitron', sans-serif;">
+            <span
+              class="text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.3)] transition-colors group-hover:text-gray-200">
               OBRI
             </span>
-            <span class="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-colors group-hover:text-cyan-300">
+            <span
+              class="text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] transition-colors group-hover:text-cyan-300">
               OXIA
             </span>
           </a>
-          
-          <span class="ml-3 px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-800 text-gray-400 border border-gray-700">
+
+          <span
+            class="ml-3 px-1.5 py-0.5 rounded text-[10px] font-bold bg-gray-800 text-gray-400 border border-gray-700">
             DEMO ENV
           </span>
-          
+
           <div class="ml-10 hidden md:flex items-baseline space-x-4">
-            
-            <a routerLink="/log" 
-               routerLinkActive="text-cyan-400 bg-white/5" 
-               class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
-               Log Event
-            </a>
-            
-            <a routerLink="/verify" 
-               routerLinkActive="text-green-400 bg-white/5" 
-               class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
-               Verify Chain
+
+            <a routerLink="/log" routerLinkActive="text-cyan-400 bg-white/5"
+              class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
+              Log Event
             </a>
 
-            <a routerLink="/ledger" 
-               routerLinkActive="text-purple-400 bg-white/5" 
-               class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
-               Audit Ledger
+            <a routerLink="/verify" routerLinkActive="text-green-400 bg-white/5"
+              class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
+              Verify Chain
+            </a>
+
+            <a routerLink="/ledger" routerLinkActive="text-purple-400 bg-white/5"
+              class="hover:text-white hover:bg-white/5 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer font-orbitron">
+              Audit Ledger
             </a>
 
           </div>
         </div>
 
         <div class="flex items-center gap-3">
-          <a href="https://obrioxia.com" class="text-gray-500 hover:text-red-400 text-xs uppercase tracking-wider cursor-pointer border border-transparent hover:border-red-500/30 px-3 py-1.5 rounded transition-all font-bold">
+          <a href="https://obrioxia.com"
+            class="text-gray-500 hover:text-red-400 text-xs uppercase tracking-wider cursor-pointer border border-transparent hover:border-red-500/30 px-3 py-1.5 rounded transition-all font-bold">
             Exit Demo
           </a>
         </div>
@@ -59,11 +62,11 @@
 
   <footer class="border-t border-gray-800 bg-[#111] py-8 mt-12">
     <div class="max-w-7xl mx-auto px-4 text-center">
-      <p class="text-xs text-cyan-500 mb-2 font-mono">OBRIOXIA AUDIT ENGINE v3.6.0</p>
+      <p class="text-xs text-cyan-500 mb-2 font-mono">OBRIOXIA AUDIT ENGINE v4.0 · Patent pending.</p>
       <div class="flex justify-center gap-6 text-[10px] text-gray-600 uppercase tracking-widest">
-        <span>Terms & Conditions</span>
-        <span>Privacy Policy</span>
-        <span>Data Disclaimer</span>
+        <a routerLink="/terms" class="hover:text-white transition-colors cursor-pointer">Terms & Conditions</a>
+        <a routerLink="/privacy" class="hover:text-white transition-colors cursor-pointer">Privacy Policy</a>
+        <a routerLink="/data-disclaimer" class="hover:text-white transition-colors cursor-pointer">Data Disclaimer</a>
       </div>
       <p class="mt-4 text-[10px] text-gray-700">
         CONFIDENTIAL: This environment contains simulated PII. Do not enter real personal data.

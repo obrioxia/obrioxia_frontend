@@ -1,47 +1,50 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ✅ Added to complete global build-sync
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-terms',
-  standalone: true, // ✅ Standalone components handle their own module logic
-  imports: [CommonModule, FormsModule], // ✅ Required to resolve remaining NG8002 ghost errors
+  standalone: true,
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="min-h-screen bg-gray-900 text-gray-300 font-sans p-8">
       <div class="max-w-3xl mx-auto">
-        <h1 class="text-3xl text-white font-orbitron mb-6">Terms of <span class="text-cyan-400">Service</span></h1>
-        
-        <div class="bg-black/40 border border-gray-800 rounded-xl p-8 space-y-4 shadow-2xl backdrop-blur-md">
-          <p class="text-xs text-gray-500 uppercase tracking-widest border-b border-gray-800 pb-4 mb-6">
-            Effective Date: November 2025
-          </p>
-          
-          <p class="text-sm md:text-base leading-relaxed">
-            By accessing the <span class="text-white">Obrioxia Audit Engine</span>, you agree to these terms. This system provides immutable cryptographic proof for insurance events.
-          </p>
-          
-          <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">1. Usage Limits</h2>
-          <p class="text-sm md:text-base leading-relaxed">
-            Access is strictly restricted to authorized agents. All actions, including logins and data submissions, are logged permanently on the audit chain for forensic review.
-          </p>
+        <h1 class="text-3xl text-white font-orbitron mb-6">Terms &amp; <span class="text-cyan-400">Conditions</span></h1>
 
-          <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">2. Immutable Data</h2>
-          <p class="text-sm md:text-base leading-relaxed">
-            Data submitted to the engine <span class="text-white font-bold underline">cannot be modified or deleted</span>. Users are responsible for ensuring absolute accuracy before sealing events into the ledger.
-          </p>
+        <div class="bg-black/40 border border-gray-800 rounded-xl p-8 space-y-6 shadow-2xl backdrop-blur-md text-sm md:text-base leading-relaxed">
 
-          <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">3. Liability</h2>
-          <p class="text-sm md:text-base leading-relaxed italic text-gray-400">
-            Obrioxia provides audit trails "as is". Verification relies solely on the mathematical integrity of the cryptographic hash chain.
-          </p>
+          <section>
+            <h2 class="text-xl text-cyan-400 mt-2 mb-2 font-orbitron">1. Demo Purpose</h2>
+            <p>This is a demonstration environment. All data within this demo is synthetic and generated for illustration purposes only. The demo is provided to help you evaluate the capabilities of the platform.</p>
+          </section>
 
-          <div class="pt-8 mt-8 border-t border-gray-800 flex justify-between items-center">
-            <span class="text-[10px] text-gray-600 uppercase tracking-widest">v4.2 PROD-READY</span>
-            <div class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></div>
-          </div>
+          <section>
+            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">2. Synthetic Data Only</h2>
+            <p>Do not submit real personal data into this demo. You are responsible for ensuring that any data you enter is fictitious or non-sensitive. We accept no liability for real data submitted to the demo environment.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">3. No Warranties</h2>
+            <p>This demo is provided "as is" without warranties of any kind, either express or implied. We make no guarantees regarding availability, accuracy, or fitness for any particular purpose.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">4. Service Basis</h2>
+            <p>The service is provided as-is for evaluation purposes. No service-level agreement applies to this demo environment. Features shown may not reflect the final production offering.</p>
+          </section>
+
+          <section>
+            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">5. Changes</h2>
+            <p>This demo environment may be updated, modified, or removed at any time without notice.</p>
+          </section>
+
+        </div>
+
+        <div class="mt-8">
+          <a routerLink="/log" class="text-cyan-400 text-sm hover:underline font-orbitron">← Back to Demo</a>
         </div>
       </div>
     </div>
   `
 })
-export class TermsComponent {}
+export class TermsComponent { }
