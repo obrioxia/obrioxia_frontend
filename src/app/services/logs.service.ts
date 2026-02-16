@@ -28,7 +28,7 @@ export class LogsService {
   private http = inject(HttpClient);
 
   // ✅ Ensures no trailing slash for clean endpoint concatenation
-  private apiUrl = environment.apiUrl.replace(/\/$/, '');
+  private apiUrl = environment.apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
   private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
