@@ -19,8 +19,7 @@
           LOGIC</span>
       </h1>
       <p class="text-gray-400 max-w-2xl text-sm md:text-base leading-relaxed font-sans">
-        This sandbox demonstrates tamper-evident logging, write-only protection for sensitive fields, and selective
-        shredding.
+        This sandbox demonstrates tamper-evident logging and write-only protection for sensitive fields.
       </p>
     </div>
   </div>
@@ -44,15 +43,15 @@
           <ul class="text-slate-300 text-sm list-disc pl-5 space-y-1">
             <li>Events are sealed into a tamper-evident chain that detects modification</li>
             <li>Selected fields are protected with write-only encryption that the service cannot reverse</li>
-            <li>Shredding makes protected fields irrecoverable without breaking the chain</li>
+            <li>The full audit chain can be independently verified at any time</li>
           </ul>
         </div>
         <div>
           <h3 class="text-white font-semibold text-lg mb-2">How to use this demo</h3>
           <ol class="text-slate-300 text-sm list-decimal pl-5 space-y-1">
-            <li>Open <strong class="text-white">Logger</strong> and submit a test decision event</li>
-            <li>Open <strong class="text-white">Verifier</strong> and confirm the chain verifies cleanly</li>
-            <li>Open <strong class="text-white">Shredder</strong>, shred the record, then re-verify</li>
+            <li>Open <strong class="text-white">Log Event</strong> and submit a test decision event</li>
+            <li>Open <strong class="text-white">Verify Chain</strong> and confirm the chain verifies cleanly</li>
+            <li>Open <strong class="text-white">Audit Ledger</strong> to browse the full event history</li>
           </ol>
         </div>
         <div>
@@ -60,7 +59,7 @@
           <ul class="text-slate-300 text-sm list-disc pl-5 space-y-1">
             <li>After logging: an entry hash links the event to the previous record</li>
             <li>After verifying: the chain reports zero verification errors</li>
-            <li>After shredding: protected fields show as irrecoverable, but verification still passes</li>
+            <li>In the ledger: each record shows its hash and link to the previous block</li>
           </ul>
         </div>
         <p class="text-slate-500 text-xs font-mono">
@@ -200,10 +199,9 @@
     <div class="w-24 h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent mx-auto mb-8"></div>
 
     <p class="text-cyan-100/70 text-lg mb-10 leading-relaxed font-sans max-w-lg mx-auto relative z-10">
-      You have successfully verified the logging engine.
-      To access the <span class="text-cyan-400 font-bold">Forensic Dashboard</span>, <span
-        class="text-cyan-400 font-bold">Verifier</span>, and <span
-        class="text-cyan-400 font-bold">Crypto-Shredder</span>, please proceed to our pricing page.
+      You have successfully tested the logging and verification engine.
+      To access the full <span class="text-cyan-400 font-bold">Hub</span> with additional features, please proceed to
+      our pricing page.
     </p>
 
     <button (click)="redirectToPricing()"

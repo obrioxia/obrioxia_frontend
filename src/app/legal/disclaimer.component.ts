@@ -24,8 +24,8 @@ import { RouterLink } from '@angular/router';
           </section>
 
           <section>
-            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">3. Selective Shredding</h2>
-            <p>The shredding feature makes protected fields permanently irrecoverable while preserving the integrity of the audit chain. The record remains in the chain, but the sensitive payload can no longer be accessed.</p>
+            <h2 class="text-xl text-cyan-400 mt-6 mb-2 font-orbitron">3. Chain Verification</h2>
+            <p>Each event is linked to the previous record by a cryptographic hash. The chain can be independently verified at any time to confirm that no records have been altered.</p>
           </section>
 
           <section>
