@@ -14,13 +14,13 @@
     class="relative overflow-hidden mb-8 py-10 border-b border-gray-800 bg-gradient-to-b from-[#050a0f] to-transparent">
     <div class="relative z-10 px-4">
       <h1 class="text-4xl md:text-6xl font-bold text-white mb-4 tracking-tighter font-orbitron">
-        <span class="text-gray-100">IMMUTABLE</span>
+        <span class="text-gray-100">TAMPER-EVIDENT</span>
         <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-cyan-200 ml-2 md:ml-4">DECISION
           LOGIC</span>
       </h1>
       <p class="text-gray-400 max-w-2xl text-sm md:text-base leading-relaxed font-sans">
-        Create an immutable "snapshot" of your AI's decision-making process. By logging the inputs and outcomes here,
-        you generate a tamper-evident record that proves exactly what the AI decided.
+        This sandbox demonstrates tamper-evident logging, write-only protection for sensitive fields, and selective
+        shredding.
       </p>
     </div>
   </div>
@@ -38,18 +38,33 @@
         <span class="text-cyan-500">►</span> Log Insurance Event
       </h2>
 
-      <div class="mb-8 p-6 bg-slate-800/50 rounded-xl border border-slate-700">
-        <h3 class="text-white font-semibold text-lg mb-3">What this demo shows</h3>
-        <p class="text-slate-300 text-sm leading-relaxed mb-4">
-          This simulates an AI system making a decision (e.g. loan approval, insurance claim, risk score).
-        </p>
-        <ul class="text-slate-300 text-sm list-disc pl-5 space-y-1 mb-4">
-          <li>Records the decision inputs</li>
-          <li>Cryptographically seals the event</li>
-          <li>Links it to an immutable audit chain</li>
-        </ul>
-        <p class="text-emerald-400 text-xs font-mono uppercase tracking-wide">
-          * In production, this data is sent automatically by your AI system — not by a human.
+      <div class="mb-8 p-6 bg-slate-800/50 rounded-xl border border-slate-700 space-y-6">
+        <div>
+          <h3 class="text-white font-semibold text-lg mb-2">What this demo proves</h3>
+          <ul class="text-slate-300 text-sm list-disc pl-5 space-y-1">
+            <li>Events are sealed into a tamper-evident chain that detects modification</li>
+            <li>Selected fields are protected with write-only encryption that the service cannot reverse</li>
+            <li>Shredding makes protected fields irrecoverable without breaking the chain</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-white font-semibold text-lg mb-2">How to use this demo</h3>
+          <ol class="text-slate-300 text-sm list-decimal pl-5 space-y-1">
+            <li>Open <strong class="text-white">Logger</strong> and submit a test decision event</li>
+            <li>Open <strong class="text-white">Verifier</strong> and confirm the chain verifies cleanly</li>
+            <li>Open <strong class="text-white">Shredder</strong>, shred the record, then re-verify</li>
+          </ol>
+        </div>
+        <div>
+          <h3 class="text-white font-semibold text-lg mb-2">What to look for</h3>
+          <ul class="text-slate-300 text-sm list-disc pl-5 space-y-1">
+            <li>After logging: an entry hash links the event to the previous record</li>
+            <li>After verifying: the chain reports zero verification errors</li>
+            <li>After shredding: protected fields show as irrecoverable, but verification still passes</li>
+          </ul>
+        </div>
+        <p class="text-slate-500 text-xs font-mono">
+          Synthetic data. Demonstrates technical capabilities, not a compliance certification.
         </p>
       </div>
 
@@ -124,7 +139,7 @@
 
         <div *ngIf="!latestReceipt()" class="text-gray-700 animate-pulse">
           <div class="text-6xl mb-4 opacity-20">📜</div>
-          <p class="text-sm font-orbitron text-gray-600">AWAITING IMMUTABLE RECORD...</p>
+          <p class="text-sm font-orbitron text-gray-600">AWAITING TAMPER-EVIDENT RECORD...</p>
         </div>
 
         <div *ngIf="latestReceipt()" class="w-full text-left space-y-4 animate-fade-in-up">

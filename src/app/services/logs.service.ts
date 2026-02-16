@@ -34,7 +34,7 @@ export class LogsService {
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'x-api-key': this.HARD_CODED_KEY 
+      'x-api-key': this.HARD_CODED_KEY
     });
   }
 
@@ -53,17 +53,17 @@ export class LogsService {
     };
 
     return this.http.post<any>(
-      `${this.apiUrl}/api/incidents`, 
+      `${this.apiUrl}/api/incidents`,
       payload,
       { headers: this.getHeaders() }
     ).pipe(
       map(res => ({
         success: true,
-        id: res.receipt.sequence, 
-        sequence: res.receipt.sequence,
-        current_hash: res.receipt.current_hash,
-        prev_hash: res.receipt.prev_hash,
-        timestamp: res.receipt.timestamp
+        id: res.decision_id || res._id,
+        sequence: res.decision_id || res._id,
+        current_hash: res.current_hash || res.currentHash,
+        prev_hash: res.previous_hash || null,
+        timestamp: res.timestamp_utc || res.timestamp
       })),
       catchError(err => {
         console.error('Submission Error:', err);
@@ -78,15 +78,15 @@ export class LogsService {
    */
   getLogs(): Observable<LogEntry[]> {
     return this.http.get<any>(
-      `${this.apiUrl}/api/admin/incidents?page_size=100`, 
+      `${this.apiUrl}/api/admin/incidents?page_size=100`,
       { headers: this.getHeaders() }
     ).pipe(
       map((res: any) => {
-        const rawData = res.data || []; 
+        const rawData = res.data || [];
         return rawData.map((item: any) => ({
           timestamp: item.timestamp,
           // ✅ Backend uses snake_case, mapping to camelCase for UI
-          eventType: item.incident_type || 'Generic Event', 
+          eventType: item.incident_type || 'Generic Event',
           hash: item.current_hash,
           status: 'Verified',
           policyNumber: item.policy_number
@@ -105,15 +105,15 @@ export class LogsService {
   // --- 3. VERIFY POLICY ---
   verifyPolicy(hash: string): Observable<any> {
     return this.http.post<any>(
-      `${this.apiUrl}/api/verify`,
-      { current_hash: hash }, 
+      `${this.apiUrl}/api/verify/`,
+      { current_hash: hash },
       { headers: this.getHeaders() }
     ).pipe(
       catchError(err => throwError(() => err))
     );
   }
 
-  // --- 4. SHRED USER (GDPR / Data Retention) ---
+  // --- 4. SHRED USER (Data Retention) ---
   shredUser(policyNumber: string): Observable<any> {
     return this.http.delete<any>(
       `${this.apiUrl}/api/admin/shred/${policyNumber}`,

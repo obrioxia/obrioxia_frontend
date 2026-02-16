@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // ✅ Fixes NG8002 error for this component
-import { LogsService } from '../../services/logs.service'; 
+import { LogsService } from '../../services/logs.service';
 import { Observable, map } from 'rxjs';
 
 @Component({
@@ -14,7 +14,7 @@ import { Observable, map } from 'rxjs';
       <div class="flex items-end justify-between border-b border-white/10 pb-6">
         <div>
           <h2 class="text-3xl text-white font-orbitron mb-2">Audit <span class="text-purple-400">Ledger</span></h2>
-          <p class="text-gray-400 text-sm">Read-only view of the immutable hash chain. Verify specific hashes using the Verify tool.</p>
+          <p class="text-gray-400 text-sm">Read-only view of the tamper-evident hash chain. Verify specific hashes using the Verify tool.</p>
         </div>
         <div class="text-right">
           <div class="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Blocks</div>
@@ -69,7 +69,7 @@ import { Observable, map } from 'rxjs';
 })
 export class AuditLedgerComponent implements OnInit {
   private logsService = inject(LogsService);
-  
+
   searchTerm: string = '';
   logs$!: Observable<any[]>;
   filteredLogs$!: Observable<any[]>;
@@ -81,8 +81,8 @@ export class AuditLedgerComponent implements OnInit {
 
   onSearchChange() {
     this.filteredLogs$ = this.logs$.pipe(
-      map(logs => logs.filter(log => 
-        log.hash.toLowerCase().includes(this.searchTerm.toLowerCase()) || 
+      map(logs => logs.filter(log =>
+        log.hash.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         log.eventType.toLowerCase().includes(this.searchTerm.toLowerCase())
       ))
     );
