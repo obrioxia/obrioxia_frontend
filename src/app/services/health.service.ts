@@ -10,7 +10,7 @@ export class HealthService {
   // ✅ Ensures no trailing slash for consistent endpoint joining
   private apiUrl = environment.apiUrl.replace(/\/$/, '');
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   /**
    * Pings the Render backend to check system readiness.
@@ -18,7 +18,7 @@ export class HealthService {
    */
   checkBackendStatus(): Observable<boolean> {
     return this.http.get<{ status: string }>(`${this.apiUrl}/health`).pipe(
-      map(res => res.status === 'operational'),
+      map(res => res.status === 'operational' || res.status === 'active'),
       catchError((err) => {
         console.error('Health Check Failed:', err);
         return of(false);
