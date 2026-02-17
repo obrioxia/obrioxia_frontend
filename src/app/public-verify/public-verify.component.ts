@@ -67,9 +67,8 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
     reader.onload = async (e: any) => {
       try {
         const data = JSON.parse(e.target.result);
-        const key = data.current_hash || data.decision_id || data.entry_hash;
-        if (!key) throw new Error();
-        await this.verifyReceiptFile(key);
+        if (!data) throw new Error();
+        await this.verifyReceiptFile(data);
       } catch {
         this.errorMessage.set("Invalid Receipt File.");
       }
@@ -92,11 +91,12 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
   }
 
   // Legacy file upload handler (single receipt check)
-  async verifyReceiptFile(key: string) {
+  async verifyReceiptFile(receipt: any) {
     this.isLoading.set(true);
     this.verificationResult.set(null);
     try {
-      const res = await this.api.verifyReceipt({ current_hash: key });
+      const payload = typeof receipt === 'string' ? { current_hash: receipt } : receipt;
+      const res = await this.api.verifyReceipt(payload);
       this.verificationResult.set(res);
     } catch {
       this.errorMessage.set("Receipt Verification Failed.");
