@@ -29,12 +29,10 @@ export class LogsService {
 
   // ✅ Ensures no trailing slash for clean endpoint concatenation
   private apiUrl = environment.apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
-  private readonly HARD_CODED_KEY = 'c919848182e3e4250082ea7bacd14e170';
 
   private getHeaders(): HttpHeaders {
     return new HttpHeaders({
       'Content-Type': 'application/json',
-      'x-api-key': this.HARD_CODED_KEY
     });
   }
 
