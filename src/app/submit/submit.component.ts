@@ -13,25 +13,25 @@ import { Subscription, interval, firstValueFrom, isObservable } from 'rxjs';
   templateUrl: './submit.component.html'
 })
 export class SubmitComponent implements OnInit, OnDestroy {
-  formData = { 
-    policyNumber: 'FINAL-TEST-' + Math.floor(Math.random() * 1000), 
-    incidentType: 'Auto', 
-    claimAmount: 95000, 
-    aiConfidenceScore: 0.95, 
-    agentId: 'AGENT-DEMO', 
-    decisionNotes: 'Client-Side Verified Submission' 
+  formData = {
+    policyNumber: 'FINAL-TEST-' + Math.floor(Math.random() * 1000),
+    incidentType: 'Auto',
+    claimAmount: 95000,
+    aiConfidenceScore: 0.95,
+    agentId: 'AGENT-DEMO',
+    decisionNotes: 'Client-Side Verified Submission'
   };
-  
+
   latestReceipt = signal<any>(null);
   isLoading = signal(false);
   errorMessage = signal('');
   credits = signal(0);
-  uploadStatus = ''; 
+  uploadStatus = '';
   isDemoUser = false;
   isSystemOnline = false;
   private healthSub: Subscription | null = null;
 
-  constructor(private api: ApiService, public auth: AuthService, private healthService: HealthService) {}
+  constructor(private api: ApiService, public auth: AuthService, private healthService: HealthService) { }
 
   ngOnInit() {
     const demoKey = localStorage.getItem('demo_key');
@@ -64,24 +64,24 @@ export class SubmitComponent implements OnInit, OnDestroy {
     const sortedKeys = Object.keys(data).sort();
     const canonicalObj: any = {};
     sortedKeys.forEach(k => canonicalObj[k] = data[k]);
-    
+
     // 2. Serialize
     const msgBuffer = new TextEncoder().encode(JSON.stringify(canonicalObj));
-    
+
     // 3. Hash (SHA-256)
     const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    
+
     // 4. Hex String
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
+
     return '0x' + hashHex;
   }
 
   async onSubmit() {
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     try {
       const demoKey = localStorage.getItem('demo_key') || '';
 
@@ -99,7 +99,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
       // [STEP 3] SEND TO NOTARY
       const responseOrObservable = this.api.submitIncident(signedPayload, demoKey);
-      
+
       let res: any;
       if (isObservable(responseOrObservable)) res = await firstValueFrom(responseOrObservable);
       else res = await responseOrObservable;
@@ -110,14 +110,14 @@ export class SubmitComponent implements OnInit, OnDestroy {
 
       const mappedReceipt = {
         ...res,
-        currentHash: clientSignature, // Trust Local Signature
+        currentHash: res.current_hash || res.entry_hash || clientSignature,
         sequenceId: finalId,
         timestamp: finalTime,
         creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits(),
-        
-        current_hash: clientSignature,
+
+        current_hash: res.current_hash || res.entry_hash || clientSignature,
         decision_id: finalId,
-        entry_hash: clientSignature,
+        entry_hash: res.entry_hash || res.current_hash || clientSignature,
         timestamp_utc: finalTime
       };
 
