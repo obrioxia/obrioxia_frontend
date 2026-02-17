@@ -1,10 +1,11 @@
 export const environment = {
   production: false,
-  
+
   // ✅ FIXED: Pointing to the active engine
   apiUrl: 'https://obrioxia-engine.onrender.com/api',
-  
-  apiKey: 'c919848182e3e4250082ea7bacd14e170', // Use the actual backend key
+
+  // SECURITY: Admin API key must never be in the client bundle
+  apiKey: '',
 
   firebase: {
     apiKey: "AIzaSyDuhcvj5JS_8bCtF5K6i3DlVlEuYEKMDuM",
