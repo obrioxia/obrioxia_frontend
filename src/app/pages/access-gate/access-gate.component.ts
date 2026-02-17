@@ -2,12 +2,14 @@ import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ApiService } from '../../services/api.service'; 
+import { ApiService } from '../../services/api.service';
+import { Auth, authState, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { firstValueFrom, take } from 'rxjs';
 
 @Component({
   selector: 'app-access-gate',
   standalone: true,
-  imports: [CommonModule, FormsModule], // ✅ Required for ngModel
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative">
       <div class="max-w-md w-full text-center space-y-8 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl relative z-10">
@@ -19,21 +21,53 @@ import { ApiService } from '../../services/api.service';
         </div>
 
         <h1 class="text-3xl text-white font-bold font-orbitron">Restricted Access</h1>
-        <p class="text-gray-400">The Obrioxia Demo Environment is invite-only.</p>
+        <p class="text-gray-400">Sign in to request your demo key.</p>
 
-        <div class="space-y-4">
+        <!-- Sign-in form (shown when not signed in) -->
+        <div *ngIf="!isSignedIn" class="space-y-4">
           <input 
             [(ngModel)]="email" 
             type="email" 
-            placeholder="Enter your email"
+            placeholder="Email address"
             class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
           >
+          <input 
+            [(ngModel)]="password" 
+            type="password" 
+            placeholder="Password"
+            class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
+          >
+          <div class="flex gap-2">
+            <button 
+              (click)="onSignIn()" 
+              [disabled]="isLoading || !email || !password"
+              class="flex-1 py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest text-xs font-orbitron disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ isLoading ? '...' : 'Sign In' }}
+            </button>
+            <button 
+              (click)="onSignUp()" 
+              [disabled]="isLoading || !email || !password"
+              class="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-lg transition-all uppercase tracking-widest text-xs font-orbitron border border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ isLoading ? '...' : 'Sign Up' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Request key (shown after sign-in) -->
+        <div *ngIf="isSignedIn && !keyRequested" class="space-y-4">
+          <p class="text-green-400 text-sm">&#10003; Signed in as {{ userEmail }}</p>
           <button 
             (click)="onRequestKey()" 
-            [disabled]="isLoading || !email"
+            [disabled]="isLoading"
             class="block w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest font-orbitron shadow-[0_0_15px_rgba(34,211,238,0.3)] disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ isLoading ? 'Processing...' : 'Request Session Key' }}
+            {{ isLoading ? 'Processing...' : 'Request Demo Key' }}
           </button>
+        </div>
+
+        <!-- Success message -->
+        <div *ngIf="keyRequested" class="space-y-3">
+          <p class="text-green-400 text-sm font-bold">&#10003; Key sent to {{ userEmail }}</p>
+          <p class="text-gray-500 text-xs">Check your inbox, then enter the key below.</p>
         </div>
 
         <div class="mt-8 pt-8 border-t border-white/10">
@@ -67,34 +101,71 @@ import { ApiService } from '../../services/api.service';
 export class AccessGateComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
-  
+  private auth = inject(Auth);
+
   email = '';
+  password = '';
   inputKey = '';
   isLoading = false;
   errorMessage = '';
+  isSignedIn = false;
+  userEmail = '';
+  keyRequested = false;
 
-  ngOnInit() {
+  async ngOnInit() {
     if (localStorage.getItem('demo_key')) {
       this.router.navigate(['/log']);
+      return;
+    }
+    // Check if already signed in
+    const user = await firstValueFrom(authState(this.auth).pipe(take(1)));
+    if (user) {
+      this.isSignedIn = true;
+      this.userEmail = user.email || '';
     }
   }
 
-  onRequestKey() {
-    if (!this.email) return;
+  async onSignIn() {
     this.isLoading = true;
     this.errorMessage = '';
+    try {
+      await signInWithEmailAndPassword(this.auth, this.email, this.password);
+      this.isSignedIn = true;
+      this.userEmail = this.email;
+    } catch (err: any) {
+      this.errorMessage = '\u274C Invalid credentials';
+    } finally {
+      this.isLoading = false;
+    }
+  }
 
-    this.api.requestDemoKey(this.email).subscribe({
-      next: () => {
-        alert("✓ Success! If authorized, your key is on its way.");
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error("Email Worker Error:", err);
-        this.isLoading = false;
-        this.errorMessage = '⚠️ Error sending key.';
-      }
-    });
+  async onSignUp() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    try {
+      await createUserWithEmailAndPassword(this.auth, this.email, this.password);
+      this.isSignedIn = true;
+      this.userEmail = this.email;
+    } catch (err: any) {
+      this.errorMessage = err.code === 'auth/email-already-in-use'
+        ? '\u26A0\uFE0F Account exists \u2014 use Sign In'
+        : '\u274C ' + (err.message || 'Sign-up failed');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onRequestKey() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    try {
+      await this.api.requestDemoKey();
+      this.keyRequested = true;
+    } catch (err: any) {
+      this.errorMessage = '\u26A0\uFE0F Error requesting key.';
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   verifyAndUnlock() {
@@ -111,13 +182,13 @@ export class AccessGateComponent implements OnInit {
           this.router.navigate(['/log']);
         } else {
           this.isLoading = false;
-          this.errorMessage = '❌ Invalid or Expired Key';
+          this.errorMessage = '\u274C Invalid or Expired Key';
         }
       },
       error: (err: any) => {
         console.error("Verification Error:", err);
         this.isLoading = false;
-        this.errorMessage = '⚠️ Connection Error.';
+        this.errorMessage = '\u26A0\uFE0F Connection Error.';
       }
     });
   }

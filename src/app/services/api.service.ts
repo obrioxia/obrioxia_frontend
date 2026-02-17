@@ -27,8 +27,9 @@ export class ApiService {
     return headers;
   }
 
-  requestDemoKey(email: string) {
-    return this.http.post(`${this.apiUrl}/api/demo/request-key`, { email });
+  async requestDemoKey(): Promise<any> {
+    const headers = await this.getHeaders();
+    return firstValueFrom(this.http.post(`${this.apiUrl}/api/demo/request-key`, {}, { headers }));
   }
 
   verifyDemoKey(key: string) {
