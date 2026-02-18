@@ -7,6 +7,7 @@ import { AccessGateComponent } from './pages/access-gate/access-gate.component';
 import { TermsComponent } from './legal/terms.component';
 import { PrivacyComponent } from './legal/privacy.component';
 import { DisclaimerComponent } from './legal/disclaimer.component';
+import { DemoShredComponent } from './pages/demo-shred/demo-shred.component';
 
 export const routes: Routes = [
   // 1. The Gate: Public entry point (No Guard)
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'log', component: SubmitComponent },
       { path: 'verify', component: PublicVerifyComponent },
       { path: 'ledger', component: AuditLedgerComponent },
+      { path: 'shred', component: DemoShredComponent },
       { path: 'terms', component: TermsComponent },
       { path: 'privacy', component: PrivacyComponent },
       { path: 'data-disclaimer', component: DisclaimerComponent }
