@@ -27,18 +27,18 @@ export class SignupComponent {
   isLoading = false;
 
   async onRequestKey() {
+    // Note: API implementation for requestDemoKey takes 0 arguments.
+    // The email binding is still used for UI state (enable/disable button).
     if (!this.email) return;
     this.isLoading = true;
 
-    this.apiService.requestDemoKey(this.email).subscribe({
-      next: (response) => {
-        alert("✓ Access Key sent! Check your inbox.");
-        this.isLoading = false;
-      },
-      error: (err) => {
-        alert("❌ Error: Check browser console for details.");
-        this.isLoading = false;
-      }
-    });
+    try {
+      await this.apiService.requestDemoKey();
+      alert("✓ Access Key sent! Check your inbox.");
+      this.isLoading = false;
+    } catch (err: any) {
+      alert("❌ Error: Check browser console for details.");
+      this.isLoading = false;
+    }
   }
 }
