@@ -52,6 +52,8 @@
             <li>Open <strong class="text-white">Log Event</strong> and submit a test decision event</li>
             <li>Open <strong class="text-white">Verify Chain</strong> and confirm the chain verifies cleanly</li>
             <li>Open <strong class="text-white">Audit Ledger</strong> to browse the full event history</li>
+            <li>Open <strong class="text-white">Shredder</strong> — enter a policy number to crypto-shred its PII, then
+              re-verify the chain</li>
           </ol>
         </div>
         <div>
@@ -60,6 +62,8 @@
             <li>After logging: an entry hash links the event to the previous record</li>
             <li>After verifying: the chain reports zero verification errors</li>
             <li>In the ledger: each record shows its hash and link to the previous block</li>
+            <li>After shredding: the record shows [SHREDDED] but the chain <strong class="text-white">still
+                verifies</strong> — proof preserved, data destroyed</li>
           </ul>
         </div>
         <p class="text-slate-500 text-xs font-mono">
