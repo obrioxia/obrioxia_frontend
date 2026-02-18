@@ -58,6 +58,11 @@ export class SubmitComponent implements OnInit, OnDestroy {
     window.location.reload();
   }
 
+  // Strip 0x prefix from hash strings (server hashes never have 0x)
+  private stripHash(h: string): string {
+    return h ? h.replace(/^0x/i, '') : '';
+  }
+
   // --- CRYPTOGRAPHIC SIGNING ENGINE (V6) ---
   async calculateClientHash(data: any): Promise<string> {
     // 1. Canonicalize: Sort keys
@@ -108,16 +113,18 @@ export class SubmitComponent implements OnInit, OnDestroy {
       const finalId = res._id || res.decision_id;
       const finalTime = res.timestamp || res.timestamp_utc || new Date().toISOString();
 
+      // Use SERVER-AUTHORITATIVE hashes only. Strip 0x prefix as safety.
+      const serverHash = this.stripHash(res.entry_hash || res.current_hash || '');
       const mappedReceipt = {
         ...res,
-        currentHash: res.current_hash || res.entry_hash || clientSignature,
+        currentHash: serverHash,
         sequenceId: finalId,
         timestamp: finalTime,
         creditsRemaining: res.credits_remaining !== undefined ? res.credits_remaining : this.credits(),
 
-        current_hash: res.current_hash || res.entry_hash || clientSignature,
+        current_hash: serverHash,
         decision_id: finalId,
-        entry_hash: res.entry_hash || res.current_hash || clientSignature,
+        entry_hash: serverHash,
         timestamp_utc: finalTime
       };
 

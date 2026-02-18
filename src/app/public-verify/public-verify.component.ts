@@ -91,11 +91,23 @@ export class PublicVerifyComponent implements OnInit, OnDestroy {
   }
 
   // Legacy file upload handler (single receipt check)
+  // Single receipt check — strips 0x prefix as safety
   async verifyReceiptFile(receipt: any) {
     this.isLoading.set(true);
     this.verificationResult.set(null);
     try {
-      const payload = typeof receipt === 'string' ? { current_hash: receipt } : receipt;
+      let payload: any;
+      if (typeof receipt === 'string') {
+        payload = { current_hash: receipt.replace(/^0x/i, '') };
+      } else {
+        payload = { ...receipt };
+        // Strip 0x from all hash fields
+        for (const k of ['current_hash', 'currentHash', 'entry_hash', 'hash']) {
+          if (payload[k] && typeof payload[k] === 'string') {
+            payload[k] = payload[k].replace(/^0x/i, '');
+          }
+        }
+      }
       const res = await this.api.verifyReceipt(payload);
       this.verificationResult.set(res);
     } catch {
