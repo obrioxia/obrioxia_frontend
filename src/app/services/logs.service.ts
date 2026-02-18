@@ -50,10 +50,17 @@ export class LogsService {
       agentId: data.agentId
     };
 
+    const demoKey = localStorage.getItem('demo_key') || '';
+
     return this.http.post<any>(
       `${this.apiUrl}/api/incidents`,
       payload,
-      { headers: this.getHeaders() }
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+          'x-demo-key': demoKey
+        })
+      }
     ).pipe(
       map(res => ({
         success: true,
@@ -75,18 +82,24 @@ export class LogsService {
    * Hits: https://your-backend.onrender.com/api/admin/incidents
    */
   getLogs(): Observable<LogEntry[]> {
+    const demoKey = localStorage.getItem('demo_key') || '';
+
     return this.http.get<any>(
-      `${this.apiUrl}/api/admin/incidents?page_size=100`,
-      { headers: this.getHeaders() }
+      `${this.apiUrl}/api/demo/incidents`,
+      {
+        headers: new HttpHeaders({
+          'Content-Type': 'application/json',
+          'x-demo-key': demoKey
+        })
+      }
     ).pipe(
       map((res: any) => {
         const rawData = res.data || [];
         return rawData.map((item: any) => ({
           timestamp: item.timestamp,
-          // ✅ Backend uses snake_case, mapping to camelCase for UI
           eventType: item.incident_type || 'Generic Event',
           hash: item.current_hash,
-          status: 'Verified',
+          status: item.is_shredded ? 'SHREDDED' : 'Verified', // Update status if shredded
           policyNumber: item.policy_number
         }));
       }),
