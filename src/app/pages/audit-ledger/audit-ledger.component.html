@@ -24,6 +24,7 @@
           <tr>
             <th class="px-6 py-4">Timestamp</th>
             <th class="px-6 py-4">Event Type</th>
+            <th class="px-6 py-4">Policy Number</th>
             <th class="px-6 py-4">Hash</th>
             <th class="px-6 py-4">Status</th>
           </tr>
@@ -32,13 +33,18 @@
           <tr *ngFor="let log of filteredLogs$ | async" class="hover:bg-white/5 transition-colors group">
             <td class="px-6 py-4 font-mono text-xs">{{ log.timestamp | date:'short' }}</td>
             <td class="px-6 py-4 text-white">{{ log.eventType }}</td>
+            <td class="px-6 py-4 text-white font-mono text-xs">{{ log.policyNumber || 'N/A' }}</td>
             <td class="px-6 py-4 font-mono text-xs text-cyan-500 truncate max-w-[200px]" [title]="log.hash">
               {{ log.hash }}
             </td>
             <td class="px-6 py-4">
-              <span
+              <span *ngIf="log.status !== 'SHREDDED'"
                 class="px-2 py-1 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                VERIFIED
+                {{ log.status | uppercase }}
+              </span>
+              <span *ngIf="log.status === 'SHREDDED'"
+                class="px-2 py-1 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                SHREDDED
               </span>
             </td>
           </tr>

@@ -38,6 +38,7 @@ import { Observable, map } from 'rxjs';
               <tr>
                 <th class="px-6 py-4">Timestamp</th>
                 <th class="px-6 py-4">Event Type</th>
+                <th class="px-6 py-4">Policy Number</th>
                 <th class="px-6 py-4">Hash</th>
                 <th class="px-6 py-4">Status</th>
               </tr>
@@ -46,12 +47,16 @@ import { Observable, map } from 'rxjs';
               <tr *ngFor="let log of filteredLogs$ | async" class="hover:bg-white/5 transition-colors">
                 <td class="px-6 py-4 font-mono text-xs">{{ log.timestamp | date:'short' }}</td>
                 <td class="px-6 py-4 text-white">{{ log.eventType }}</td>
+                <td class="px-6 py-4 text-white font-mono text-xs">{{ log.policyNumber || 'N/A' }}</td>
                 <td class="px-6 py-4 font-mono text-xs text-cyan-400 truncate max-w-[150px]" title="{{ log.hash }}">
                   {{ log.hash }}
                 </td>
                 <td class="px-6 py-4">
-                  <span class="px-2 py-1 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
-                    VERIFIED
+                  <span *ngIf="log.status !== 'SHREDDED'" class="px-2 py-1 rounded text-[10px] font-bold bg-green-500/10 text-green-400 border border-green-500/20">
+                    {{ log.status | uppercase }}
+                  </span>
+                  <span *ngIf="log.status === 'SHREDDED'" class="px-2 py-1 rounded text-[10px] font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                    SHREDDED
                   </span>
                 </td>
               </tr>
@@ -82,8 +87,9 @@ export class AuditLedgerComponent implements OnInit {
   onSearchChange() {
     this.filteredLogs$ = this.logs$.pipe(
       map(logs => logs.filter(log =>
-        log.hash.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        log.eventType.toLowerCase().includes(this.searchTerm.toLowerCase())
+        (log.hash && log.hash.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (log.eventType && log.eventType.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (log.policyNumber && log.policyNumber.toLowerCase().includes(this.searchTerm.toLowerCase()))
       ))
     );
   }
