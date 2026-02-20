@@ -1,7 +1,7 @@
 /* --- LAYOUT & THEME --- */
 :host {
   display: block;
-  background-color: #000;
+  background-color: transparent;
   color: #fff;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -56,10 +56,10 @@
   animation: fadeIn 0.3s ease;
 }
 
-.icon { 
-  font-size: 3rem; 
-  margin-bottom: 1rem; 
-  opacity: 0.8; 
+.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
 }
 
 .btn-upload {
@@ -74,7 +74,9 @@
   transition: transform 0.1s;
 }
 
-.btn-upload:hover { transform: scale(1.02); }
+.btn-upload:hover {
+  transform: scale(1.02);
+}
 
 /* --- LOADING SPINNER --- */
 .processing {
@@ -91,8 +93,27 @@
   margin: 0 auto 1rem;
 }
 
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .filename {
   color: #007bff;
@@ -114,29 +135,46 @@
   background: #111;
 }
 
-.valid-result { 
-  border: 2px solid #0f5132; 
-  background: radial-gradient(circle at center, #051b11 0%, #000 100%); 
+.valid-result {
+  border: 2px solid #0f5132;
+  background: radial-gradient(circle at center, #051b11 0%, #000 100%);
 }
 
-.invalid-result { 
-  border: 2px solid #842029; 
-  background: radial-gradient(circle at center, #2c0b0e 0%, #000 100%); 
+.invalid-result {
+  border: 2px solid #842029;
+  background: radial-gradient(circle at center, #2c0b0e 0%, #000 100%);
 }
 
 /* Empty State (Neutral) */
 .empty-result {
-  border: 2px solid #ffc107; 
+  border: 2px solid #ffc107;
   background: radial-gradient(circle at center, #2b2715 0%, #1a1a1a 100%);
 }
 
-.result-icon { font-size: 4rem; margin-bottom: 1rem; }
-.result-overlay h2 { margin: 0; font-size: 1.5rem; letter-spacing: 1px; }
-.error-msg { color: #ea868f; margin-top: 0.5rem; }
+.result-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.result-overlay h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.error-msg {
+  color: #ea868f;
+  margin-top: 0.5rem;
+}
 
 /* Error colors */
-.empty-result h2 { color: #ffc107; }
-.empty-result .error-msg { color: #ffc107; }
+.empty-result h2 {
+  color: #ffc107;
+}
+
+.empty-result .error-msg {
+  color: #ffc107;
+}
 
 .btn-reset {
   margin-top: 2rem;
@@ -147,7 +185,11 @@
   cursor: pointer;
   border-radius: 4px;
 }
-.btn-reset:hover { color: #fff; border-color: #fff; }
+
+.btn-reset:hover {
+  color: #fff;
+  border-color: #fff;
+}
 
 /* --- CHAIN VISUALIZER --- */
 .chain-viz {
@@ -192,5 +234,3 @@
   color: #666;
   font-size: 0.7rem;
 }
-
-
