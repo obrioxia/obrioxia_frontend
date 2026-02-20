@@ -46,14 +46,7 @@
   </div>
 </div>
 
-<!-- PRIMARY ACTION: Full Chain Verification -->
-<div *ngIf="!verificationResult() && !isLoading()" class="mb-8 text-center">
-  <button (click)="verifyChain('')"
-    class="bg-cyan-600 hover:bg-cyan-500 text-white px-8 py-4 rounded-xl font-bold tracking-wide shadow-[0_0_20px_rgba(8,145,178,0.3)] hover:shadow-[0_0_30px_rgba(8,145,178,0.5)] transition-all duration-300 transform hover:-translate-y-1">
-    RUN FULL CHAIN VERIFICATION
-  </button>
-  <p class="text-[10px] text-gray-500 mt-2 font-mono">Re-calculates SHA-256 hashes for all linked entries</p>
-</div>
+
 
 <div *ngIf="!verificationResult() && !isLoading()" class="relative group cursor-pointer" (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave($event)" (drop)="onDrop($event)" (click)="fileInput.click()">
