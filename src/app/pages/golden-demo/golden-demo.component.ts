@@ -207,17 +207,18 @@ export class GoldenDemoComponent {
         const res = await this.http.get<any>(url, {
           headers: { 'X-Demo-Key': this.demoKey! }
         }).toPromise();
-        const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
+        const list = res?.incidents || res?.data || [];
+        const found = list.find((i: any) => i.decision_id === this.incidentId);
         if (found) {
           this.beforeShred = {
             decision_id: found.decision_id,
-            policyNumber: found.policyNumber,
-            incidentType: found.incidentType,
+            policyNumber: found.policyNumber || found.policy_number,
+            incidentType: found.incidentType || found.incident_type,
             risk: found.risk,
             is_shredded: found.is_shredded || false
           };
         }
-        return { found: !!found, decision_id: this.incidentId, total_records: res?.incidents?.length || 0 };
+        return { found: !!found, decision_id: this.incidentId, total_records: list.length };
       });
 
       // Step 4: Shred
@@ -234,17 +235,32 @@ export class GoldenDemoComponent {
         const res = await this.http.get<any>(url, {
           headers: { 'X-Demo-Key': this.demoKey! }
         }).toPromise();
-        const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
+        // Handle both response shapes: {incidents: [...]} and {data: [...]}
+        const list = res?.incidents || res?.data || [];
+        const found = list.find((i: any) => i.decision_id === this.incidentId);
         if (found) {
           this.afterShred = {
             decision_id: found.decision_id,
-            policyNumber: found.policyNumber,
-            incidentType: found.incidentType,
+            policyNumber: found.policyNumber || found.policy_number,
+            incidentType: found.incidentType || found.incident_type,
             risk: found.risk,
             is_shredded: found.is_shredded
           };
+          return {
+            is_shredded: found.is_shredded,
+            policyNumber: found.policyNumber || found.policy_number,
+            incidentType: found.incidentType || found.incident_type,
+            decision_id: found.decision_id,
+            proof: found.is_shredded ? 'SHRED VERIFIED ✓' : 'NOT YET SHREDDED'
+          };
         }
-        return { is_shredded: found?.is_shredded, policyNumber: found?.policyNumber };
+        // Record not found after shred — should not happen
+        return {
+          error: 'Record not found in ledger after shred',
+          decision_id: this.incidentId,
+          records_checked: list.length,
+          proof: 'VERIFY FAILED — record missing'
+        };
       });
 
       this.completed = true;
