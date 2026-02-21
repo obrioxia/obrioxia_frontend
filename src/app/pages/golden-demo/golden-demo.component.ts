@@ -4,18 +4,18 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
 interface DemoStep {
-    title: string;
-    description: string;
-    status: 'pending' | 'running' | 'done' | 'error';
-    result?: any;
-    error?: string;
+  title: string;
+  description: string;
+  status: 'pending' | 'running' | 'done' | 'error';
+  result?: any;
+  error?: string;
 }
 
 @Component({
-    selector: 'app-golden-demo',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
+  selector: 'app-golden-demo',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
     <div class="golden-demo-page">
       <div class="demo-header">
         <h1>⚡ Obrioxia Golden Path Demo</h1>
@@ -81,7 +81,7 @@ interface DemoStep {
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .golden-demo-page { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
     .demo-header { text-align: center; margin-bottom: 2rem; }
     .demo-header h1 { font-size: 2rem; }
@@ -112,7 +112,7 @@ interface DemoStep {
     .step-content p { margin: 0; font-size: 0.9rem; color: #94a3b8; }
     .step-result { margin-top: 0.5rem; background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; padding: 0.5rem; }
     .step-result pre { font-size: 0.75rem; color: #22c55e; white-space: pre-wrap; word-break: break-all; margin: 0; }
-    .step-error { margin-top: 0.5rem; color: #ef4444; font-size: 0.85rem; }
+    .step-error { margin-top: 0.5rem; color: #ef4444; font-size: 0.85rem; background: #ef444410; border: 1px solid #ef444430; padding: 0.5rem; border-radius: 6px; white-space: pre-wrap; }
 
     .shred-comparison { margin-top: 2rem; }
     .shred-comparison h2 { text-align: center; margin-bottom: 1rem; }
@@ -131,143 +131,152 @@ interface DemoStep {
   `]
 })
 export class GoldenDemoComponent {
-    private http = inject(HttpClient);
-    private apiUrl = environment.apiUrl;
+  private http = inject(HttpClient);
+  // ApiService strips /api from apiUrl then prepends it. Match that pattern.
+  private baseUrl = environment.apiUrl.replace(/\/$/, '').replace(/\/api$/, '');
 
-    running = false;
-    completed = false;
-    elapsedSeconds = 0;
-    private timer: any;
+  running = false;
+  completed = false;
+  elapsedSeconds = 0;
+  private timer: any;
 
-    demoKey: string | null = null;
-    incidentId: string | null = null;
-    beforeShred: any = null;
-    afterShred: any = null;
+  demoKey: string | null = null;
+  incidentId: string | null = null;
+  beforeShred: any = null;
+  afterShred: any = null;
 
-    steps: DemoStep[] = [
-        { title: 'Get Demo Key', description: 'Request a demo API key from the system.', status: 'pending' },
-        { title: 'Log Incident', description: 'Submit a test audit decision to the immutable ledger.', status: 'pending' },
-        { title: 'View in Ledger', description: 'Fetch the incident from the audit ledger.', status: 'pending' },
-        { title: 'Shred Record', description: 'Irreversibly redact the record via crypto shredding.', status: 'pending' },
-        { title: 'Verify Shredded', description: 'Confirm the record shows as shredded in the ledger.', status: 'pending' },
-    ];
+  steps: DemoStep[] = [
+    { title: 'Get Demo Key', description: 'Retrieve your demo API key.', status: 'pending' },
+    { title: 'Log Incident', description: 'Submit a test audit decision to the immutable ledger.', status: 'pending' },
+    { title: 'View in Ledger', description: 'Fetch the incident from the audit ledger.', status: 'pending' },
+    { title: 'Shred Record', description: 'Irreversibly redact the record via crypto shredding.', status: 'pending' },
+    { title: 'Verify Shredded', description: 'Confirm the record shows as shredded in the ledger.', status: 'pending' },
+  ];
 
-    reset() {
-        this.running = false;
-        this.completed = false;
-        this.elapsedSeconds = 0;
-        this.demoKey = null;
-        this.incidentId = null;
-        this.beforeShred = null;
-        this.afterShred = null;
-        this.steps.forEach(s => { s.status = 'pending'; s.result = undefined; s.error = undefined; });
-        clearInterval(this.timer);
-    }
+  reset() {
+    this.running = false;
+    this.completed = false;
+    this.elapsedSeconds = 0;
+    this.demoKey = null;
+    this.incidentId = null;
+    this.beforeShred = null;
+    this.afterShred = null;
+    this.steps.forEach(s => { s.status = 'pending'; s.result = undefined; s.error = undefined; });
+    clearInterval(this.timer);
+  }
 
-    async runGoldenPath() {
-        this.reset();
-        this.running = true;
-        this.timer = setInterval(() => this.elapsedSeconds++, 1000);
+  async runGoldenPath() {
+    this.reset();
+    this.running = true;
+    this.timer = setInterval(() => this.elapsedSeconds++, 1000);
 
-        try {
-            // Step 1: Get demo key from localStorage or the existing demo key system
-            await this.runStep(0, async () => {
-                const stored = localStorage.getItem('demo_key');
-                if (stored) {
-                    this.demoKey = stored;
-                    return { demo_key: stored, source: 'cached' };
-                }
-                // Use a pre-seeded demo key for the golden path
-                // The golden path uses the demo endpoints which accept x_demo_key
-                this.demoKey = localStorage.getItem('obrioxia_demo_key') || 'GOLDEN01';
-                return { demo_key: this.demoKey, source: 'golden_path' };
-            });
-
-            // Step 2: Submit incident
-            await this.runStep(1, () => {
-                return this.http.post<any>(`${this.apiUrl}/incidents`, {
-                    incidentType: 'golden_path_demo',
-                    policyNumber: 'GOLDEN-' + Date.now(),
-                    system: 'demo_golden_path',
-                    message: 'Golden path test incident',
-                    risk: 'low',
-                    schema_version: '4.1-strict'
-                }, {
-                    headers: { 'X-Demo-Key': this.demoKey! }
-                }).toPromise();
-            });
-
-            if (this.steps[1].result) {
-                this.incidentId = this.steps[1].result.decision_id;
-            }
-
-            // Step 3: View in ledger
-            await this.runStep(2, async () => {
-                const res = await this.http.get<any>(`${this.apiUrl}/demo/incidents`, {
-                    headers: { 'X-Demo-Key': this.demoKey! }
-                }).toPromise();
-                const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
-                if (found) {
-                    this.beforeShred = {
-                        decision_id: found.decision_id,
-                        policyNumber: found.policyNumber,
-                        incidentType: found.incidentType,
-                        risk: found.risk,
-                        is_shredded: found.is_shredded || false
-                    };
-                }
-                return { found: !!found, decision_id: this.incidentId, total_records: res?.incidents?.length || 0 };
-            });
-
-            // Step 4: Shred
-            const policyNumber = this.steps[1].result?.policyNumber || `GOLDEN-${Date.now()}`;
-            await this.runStep(3, () => {
-                return this.http.post<any>(`${this.apiUrl}/demo/shred/${this.incidentId}`, {}, {
-                    headers: { 'X-Demo-Key': this.demoKey! }
-                }).toPromise();
-            });
-
-            // Step 5: Verify shredded
-            await this.runStep(4, async () => {
-                const res = await this.http.get<any>(`${this.apiUrl}/demo/incidents`, {
-                    headers: { 'X-Demo-Key': this.demoKey! }
-                }).toPromise();
-                const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
-                if (found) {
-                    this.afterShred = {
-                        decision_id: found.decision_id,
-                        policyNumber: found.policyNumber,
-                        incidentType: found.incidentType,
-                        risk: found.risk,
-                        is_shredded: found.is_shredded
-                    };
-                }
-                return { is_shredded: found?.is_shredded, policyNumber: found?.policyNumber };
-            });
-
-            this.completed = true;
-        } catch (e) {
-            // Error already handled in runStep
+    try {
+      // Step 1: Get demo key from localStorage (same as SubmitComponent)
+      await this.runStep(0, async () => {
+        const stored = localStorage.getItem('demo_key');
+        if (stored) {
+          this.demoKey = stored;
+          return { demo_key: stored, source: 'cached' };
         }
-        this.running = false;
-        clearInterval(this.timer);
-    }
+        // No demo key available — user needs to go through the gate
+        throw new Error('No demo key found. Please enter through the Demo Gate first to receive a key.');
+      });
 
-    private async runStep(index: number, fn: () => Promise<any>): Promise<void> {
-        this.steps[index].status = 'running';
-        try {
-            const result = await fn();
-            this.steps[index].result = result;
-            this.steps[index].status = 'done';
-        } catch (err: any) {
-            this.steps[index].status = 'error';
-            this.steps[index].error = err?.error?.detail || err?.message || 'Step failed';
-            throw err;
+      // Step 2: Submit incident — uses same URL/header pattern as ApiService.submitIncident
+      await this.runStep(1, () => {
+        const url = `${this.baseUrl}/api/incidents`;
+        return this.http.post<any>(url, {
+          incidentType: 'golden_path_demo',
+          policyNumber: 'GOLDEN-' + Date.now(),
+          system: 'demo_golden_path',
+          message: 'Golden path test incident',
+          risk: 'low',
+          schema_version: '4.1-strict'
+        }, {
+          headers: { 'X-Demo-Key': this.demoKey! }
+        }).toPromise();
+      });
+
+      if (this.steps[1].result) {
+        this.incidentId = this.steps[1].result.decision_id;
+      }
+
+      // Step 3: View in ledger
+      await this.runStep(2, async () => {
+        const url = `${this.baseUrl}/api/demo/incidents`;
+        const res = await this.http.get<any>(url, {
+          headers: { 'X-Demo-Key': this.demoKey! }
+        }).toPromise();
+        const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
+        if (found) {
+          this.beforeShred = {
+            decision_id: found.decision_id,
+            policyNumber: found.policyNumber,
+            incidentType: found.incidentType,
+            risk: found.risk,
+            is_shredded: found.is_shredded || false
+          };
         }
-    }
+        return { found: !!found, decision_id: this.incidentId, total_records: res?.incidents?.length || 0 };
+      });
 
-    getFields(obj: any): { key: string; value: any }[] {
-        if (!obj) return [];
-        return Object.entries(obj).map(([key, value]) => ({ key, value }));
+      // Step 4: Shred
+      await this.runStep(3, () => {
+        const url = `${this.baseUrl}/api/demo/shred/${this.incidentId}`;
+        return this.http.post<any>(url, {}, {
+          headers: { 'X-Demo-Key': this.demoKey! }
+        }).toPromise();
+      });
+
+      // Step 5: Verify shredded
+      await this.runStep(4, async () => {
+        const url = `${this.baseUrl}/api/demo/incidents`;
+        const res = await this.http.get<any>(url, {
+          headers: { 'X-Demo-Key': this.demoKey! }
+        }).toPromise();
+        const found = res?.incidents?.find((i: any) => i.decision_id === this.incidentId);
+        if (found) {
+          this.afterShred = {
+            decision_id: found.decision_id,
+            policyNumber: found.policyNumber,
+            incidentType: found.incidentType,
+            risk: found.risk,
+            is_shredded: found.is_shredded
+          };
+        }
+        return { is_shredded: found?.is_shredded, policyNumber: found?.policyNumber };
+      });
+
+      this.completed = true;
+    } catch (e) {
+      // Error already handled in runStep
     }
+    this.running = false;
+    clearInterval(this.timer);
+  }
+
+  private async runStep(index: number, fn: () => Promise<any>): Promise<void> {
+    this.steps[index].status = 'running';
+    try {
+      const result = await fn();
+      this.steps[index].result = result;
+      this.steps[index].status = 'done';
+    } catch (err: any) {
+      this.steps[index].status = 'error';
+      // Rich error output: show HTTP status, body, and URL — never secrets
+      const status = err?.status || err?.error?.status || '';
+      const body = err?.error?.detail || err?.error?.message || err?.error || err?.message || 'Step failed';
+      const url = err?.url || '';
+      let msg = typeof body === 'string' ? body : JSON.stringify(body);
+      if (status) msg = `HTTP ${status}: ${msg}`;
+      if (url) msg += `\nURL: ${url}`;
+      this.steps[index].error = msg;
+      throw err;
+    }
+  }
+
+  getFields(obj: any): { key: string; value: any }[] {
+    if (!obj) return [];
+    return Object.entries(obj).map(([key, value]) => ({ key, value }));
+  }
 }
