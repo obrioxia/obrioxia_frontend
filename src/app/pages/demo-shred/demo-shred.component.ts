@@ -148,7 +148,7 @@ import { environment } from '../../../environments/environment';
                 </div>
                 
                 <div class="text-center text-gray-500 text-[10px] uppercase tracking-wider">
-                     Shreds Remaining: <span class="text-white">{{ result()!.remaining ?? 'N/A' }}</span>
+                     Shreds Remaining: <span class="text-white">{{ result()!.remaining }}</span>
                 </div>
               </div>
 
