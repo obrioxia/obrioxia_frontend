@@ -259,7 +259,7 @@ export class GoldenDemoComponent {
           const res = await this.http.get<any>(url, {
             headers: { 'X-Demo-Key': this.demoKey! }
           }).toPromise();
-          lastList = res?.incidents || res?.data || [];
+          lastList = res?.data || [];
           const found = lastList.find((i: any) => i.decision_id === this.incidentId);
           if (found) {
             this.beforeShred = {
@@ -316,7 +316,7 @@ export class GoldenDemoComponent {
           const res = await this.http.get<any>(url, {
             headers: { 'X-Demo-Key': this.demoKey! }
           }).toPromise();
-          const list = res?.incidents || res?.data || [];
+          const list = res?.data || [];
           const found = list.find((i: any) => i.decision_id === this.incidentId);
           if (found && found.is_shredded) {
             this.afterShred = {
@@ -341,7 +341,7 @@ export class GoldenDemoComponent {
         const finalRes = await this.http.get<any>(url, {
           headers: { 'X-Demo-Key': this.demoKey! }
         }).toPromise();
-        const finalList = finalRes?.incidents || finalRes?.data || [];
+        const finalList = finalRes?.data || [];
         const finalFound = finalList.find((i: any) => i.decision_id === this.incidentId);
         if (finalFound) {
           this.afterShred = {
