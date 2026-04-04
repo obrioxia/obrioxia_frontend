@@ -8,7 +8,7 @@ import { getAuth, provideAuth } from '@angular/fire/auth';
 import { routes } from './app.routes';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDuhcvj5JS_8bCtF5K6i3DlVlEuYEKMDuM",
+  apiKey: "AIzaSyA9LSZb_IeyS3Mi8hVTtOzpU9gdGp4p_gw", // REPLACED FOR SECURITY
   authDomain: "obrioxia-audit-engine.firebaseapp.com",
   projectId: "obrioxia-audit-engine",
   storageBucket: "obrioxia-audit-engine.firebasestorage.app",

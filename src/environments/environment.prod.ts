@@ -7,7 +7,7 @@ export const environment = {
 
 
   firebase: {
-    apiKey: "AIzaSyDuhcvj5JS_8bCtF5K6i3DlVlEuYEKMDuM",
+    apiKey: "AIzaSyA9LSZb_IeyS3Mi8hVTtOzpU9gdGp4p_gw",
     authDomain: "obrioxia-audit-engine.firebaseapp.com",
     projectId: "obrioxia-audit-engine",
     storageBucket: "obrioxia-audit-engine.firebasestorage.app",
