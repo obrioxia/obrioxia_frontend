@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../services/api.service';
-import { AuthService } from '../services/auth.service';
+
 import { HealthService } from '../services/health.service';
 import { Subscription, interval, firstValueFrom, isObservable } from 'rxjs';
 
@@ -31,7 +31,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   isSystemOnline = false;
   private healthSub: Subscription | null = null;
 
-  constructor(private api: ApiService, public auth: AuthService, private healthService: HealthService) { }
+  constructor(private api: ApiService, private healthService: HealthService) { }
 
   ngOnInit() {
     const demoKey = localStorage.getItem('demo_key');
@@ -90,7 +90,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
     try {
       const demoKey = localStorage.getItem('demo_key') || '';
 
-      // [STEP 1] CLIENT-SIDE SIGNING
+      // [STEP 1] PAYLOAD PREPARATION (client hash is cosmetic; server is sole hash authority)
       const clientSignature = await this.calculateClientHash(this.formData);
       console.log("Client Signed Payload:", clientSignature);
 
@@ -170,19 +170,6 @@ export class SubmitComponent implements OnInit, OnDestroy {
       alert("PDF generation failed. Use JSON.");
     } finally {
       this.uploadStatus = oldStatus;
-    }
-  }
-
-  async onBatchUpload(event: any) {
-    if (!event || !event.target || !event.target.files) return;
-    const file = event.target.files[0];
-    if (!file) return;
-    this.uploadStatus = 'Uploading...';
-    try {
-      await this.api.uploadBatch(file, localStorage.getItem('demo_key') || '');
-      this.uploadStatus = 'Batch Complete';
-    } catch {
-      this.uploadStatus = 'Batch Failed';
     }
   }
 }

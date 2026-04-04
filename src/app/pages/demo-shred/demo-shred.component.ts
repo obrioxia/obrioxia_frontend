@@ -188,25 +188,25 @@ export class DemoShredComponent {
     this.errorMsg.set('');
 
     const key = localStorage.getItem('demo_key') || '';
-    this.http.get<any>(`${this.apiUrl}/api/demo/incidents`, {
+    const url = this.apiUrl + '/api/demo/lookup/' + encodeURIComponent(this.targetId.trim());
+    this.http.post<any>(url, {}, {
       headers: new HttpHeaders({ 'x-demo-key': key })
     }).subscribe({
       next: (res) => {
-        const results = res.data || [];
-        const found = results.find((r: any) =>
-          r.policy_number?.toLowerCase() === this.targetId.toLowerCase() ||
-          String(r.id) === this.targetId
-        );
-
-        if (found) {
-          this.targetRef.set(found);
-        } else {
-          this.errorMsg.set('Record not found. Ensure you created it with this demo key.');
-        }
+        this.targetRef.set(res);
         this.loading.set(false);
       },
       error: (err) => {
-        this.errorMsg.set('Failed to lookup records');
+        const status = err.status;
+        if (status === 404) {
+          this.errorMsg.set('Record not found. Check the policy number or decision ID and try again.');
+        } else if (status === 403) {
+          this.errorMsg.set('This record belongs to a different demo session.');
+        } else if (status === 401) {
+          this.errorMsg.set('Demo key invalid or expired. Please re-enter your demo key.');
+        } else {
+          this.errorMsg.set('Lookup failed — please try again.');
+        }
         this.loading.set(false);
       }
     });

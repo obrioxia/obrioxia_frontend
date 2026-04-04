@@ -18,7 +18,7 @@ export class HealthService {
    */
   checkBackendStatus(): Observable<boolean> {
     return this.http.get<{ status: string }>(`${this.apiUrl}/health`).pipe(
-      map(res => res.status === 'operational' || res.status === 'active'),
+      map(res => res.status === 'operational' || res.status === 'active' || res.status === 'ok'),
       catchError((err) => {
         console.error('Health Check Failed:', err);
         return of(false);

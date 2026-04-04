@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { Auth, authState, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { Auth, authState, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from '@angular/fire/auth';
 import { firstValueFrom, take } from 'rxjs';
 
 @Component({
@@ -12,7 +12,7 @@ import { firstValueFrom, take } from 'rxjs';
   imports: [CommonModule, FormsModule],
   template: `
     <div class="min-h-screen bg-[#0a0a0a] flex items-center justify-center p-4 relative">
-      <div class="max-w-md w-full text-center space-y-8 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl relative z-10">
+      <div class="max-w-md w-full text-center space-y-6 p-8 border border-white/10 rounded-2xl bg-[#111] shadow-2xl relative z-10">
         
         <div class="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto border border-cyan-500/20">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-cyan-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,23 +20,40 @@ import { firstValueFrom, take } from 'rxjs';
           </svg>
         </div>
 
-        <h1 class="text-3xl text-white font-bold font-orbitron">Restricted Access</h1>
-        <p class="text-gray-400">Sign in to request your demo key.</p>
+        <h1 class="text-3xl text-white font-bold font-orbitron">Obrioxia Demo</h1>
+
+        <!-- Explanation block (shown before sign-in) -->
+        <div *ngIf="!isSignedIn" class="text-left bg-white/5 border border-white/10 rounded-lg p-4 space-y-2">
+          <p class="text-gray-300 text-sm font-medium">What you get:</p>
+          <ul class="text-gray-400 text-xs space-y-1 list-disc pl-4">
+            <li>Submit test decision events to a tamper-evident ledger</li>
+            <li>Verify chain integrity cryptographically</li>
+            <li>Crypto-shred sensitive fields (GDPR Article 17)</li>
+            <li>Download evidence certificates</li>
+          </ul>
+          <p class="text-gray-500 text-xs mt-2">
+            Create an account to receive a demo key. No email verification required.
+            Your key gives you 50 demo credits to test the system.
+          </p>
+        </div>
 
         <!-- Sign-in form (shown when not signed in) -->
-        <div *ngIf="!isSignedIn" class="space-y-4">
+        <div *ngIf="!isSignedIn && !showResetForm" class="space-y-4">
           <input 
             [(ngModel)]="email" 
             type="email" 
             placeholder="Email address"
             class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
           >
-          <input 
-            [(ngModel)]="password" 
-            type="password" 
-            placeholder="Password"
-            class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
-          >
+          <div>
+            <input 
+              [(ngModel)]="password" 
+              type="password" 
+              placeholder="Password"
+              class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
+            >
+            <p class="text-gray-600 text-xs mt-1.5 text-left pl-1">Minimum 6 characters</p>
+          </div>
           <div class="flex gap-2">
             <button 
               (click)="onSignIn()" 
@@ -51,11 +68,39 @@ import { firstValueFrom, take } from 'rxjs';
               {{ isLoading ? '...' : 'Sign Up' }}
             </button>
           </div>
+          <button 
+            (click)="showResetForm = true" 
+            class="text-xs text-gray-500 hover:text-cyan-400 transition-colors underline">
+            Forgot password?
+          </button>
+        </div>
+
+        <!-- Password reset form -->
+        <div *ngIf="!isSignedIn && showResetForm" class="space-y-4">
+          <p class="text-gray-400 text-sm">Enter your email to receive a password reset link.</p>
+          <input 
+            [(ngModel)]="resetEmail" 
+            type="email" 
+            placeholder="Email address"
+            class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
+          >
+          <button 
+            (click)="onResetPassword()" 
+            [disabled]="isLoading || !resetEmail"
+            class="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-black font-bold rounded-lg transition-all uppercase tracking-widest text-xs font-orbitron disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isLoading ? 'Sending...' : 'Send Reset Link' }}
+          </button>
+          <button 
+            (click)="showResetForm = false; resetEmail = ''; errorMessage = ''; successMessage = ''" 
+            class="text-xs text-gray-500 hover:text-white transition-colors underline">
+            Back to sign in
+          </button>
         </div>
 
         <!-- Request key (shown after sign-in) -->
         <div *ngIf="isSignedIn && !keyRequested" class="space-y-4">
           <p class="text-green-400 text-sm">&#10003; Signed in as {{ userEmail }}</p>
+          <p class="text-gray-500 text-xs">Click below to generate your demo key. It will be sent to your email and stored in your browser session.</p>
           <button 
             (click)="onRequestKey()" 
             [disabled]="isLoading"
@@ -90,8 +135,11 @@ import { firstValueFrom, take } from 'rxjs';
             </button>
           </div>
           
-          <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold animate-pulse">
+          <p *ngIf="errorMessage" class="text-red-400 text-xs mt-3 font-bold">
             {{ errorMessage }}
+          </p>
+          <p *ngIf="successMessage" class="text-green-400 text-xs mt-3 font-bold">
+            {{ successMessage }}
           </p>
         </div>
       </div>
@@ -106,11 +154,14 @@ export class AccessGateComponent implements OnInit {
   email = '';
   password = '';
   inputKey = '';
+  resetEmail = '';
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
   isSignedIn = false;
   userEmail = '';
   keyRequested = false;
+  showResetForm = false;
 
   async ngOnInit() {
     if (localStorage.getItem('demo_key')) {
@@ -128,28 +179,70 @@ export class AccessGateComponent implements OnInit {
   async onSignIn() {
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
     try {
       await signInWithEmailAndPassword(this.auth, this.email, this.password);
       this.isSignedIn = true;
       this.userEmail = this.email;
     } catch (err: any) {
-      this.errorMessage = '\u274C Invalid credentials';
+      const code = err.code || '';
+      if (code === 'auth/user-not-found' || code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        this.errorMessage = 'Invalid email or password. Check your credentials and try again.';
+      } else if (code === 'auth/too-many-requests') {
+        this.errorMessage = 'Too many attempts. Please wait a few minutes and try again.';
+      } else {
+        this.errorMessage = 'Sign-in failed. Please try again.';
+      }
     } finally {
       this.isLoading = false;
     }
   }
 
   async onSignUp() {
+    if (this.password.length < 6) {
+      this.errorMessage = 'Password must be at least 6 characters.';
+      return;
+    }
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
     try {
       await createUserWithEmailAndPassword(this.auth, this.email, this.password);
       this.isSignedIn = true;
       this.userEmail = this.email;
     } catch (err: any) {
-      this.errorMessage = err.code === 'auth/email-already-in-use'
-        ? '\u26A0\uFE0F Account exists \u2014 use Sign In'
-        : '\u274C ' + (err.message || 'Sign-up failed');
+      const code = err.code || '';
+      if (code === 'auth/email-already-in-use') {
+        this.errorMessage = 'An account with this email already exists. Use Sign In instead.';
+      } else if (code === 'auth/weak-password') {
+        this.errorMessage = 'Password too weak. Use at least 6 characters.';
+      } else if (code === 'auth/invalid-email') {
+        this.errorMessage = 'Please enter a valid email address.';
+      } else {
+        this.errorMessage = 'Sign-up failed: ' + (err.message || 'Please try again.');
+      }
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async onResetPassword() {
+    if (!this.resetEmail) return;
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+    try {
+      await sendPasswordResetEmail(this.auth, this.resetEmail);
+      this.successMessage = 'Reset link sent. Check your inbox.';
+    } catch (err: any) {
+      const code = err.code || '';
+      if (code === 'auth/user-not-found') {
+        this.errorMessage = 'No account found with that email.';
+      } else if (code === 'auth/invalid-email') {
+        this.errorMessage = 'Please enter a valid email address.';
+      } else {
+        this.errorMessage = 'Failed to send reset email. Please try again.';
+      }
     } finally {
       this.isLoading = false;
     }
@@ -162,7 +255,7 @@ export class AccessGateComponent implements OnInit {
       await this.api.requestDemoKey();
       this.keyRequested = true;
     } catch (err: any) {
-      this.errorMessage = '\u26A0\uFE0F Error requesting key.';
+      this.errorMessage = 'Error requesting key. Please try again.';
     } finally {
       this.isLoading = false;
     }
@@ -174,6 +267,7 @@ export class AccessGateComponent implements OnInit {
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.api.verifyDemoKey(key).subscribe({
       next: (res: any) => {
@@ -182,13 +276,13 @@ export class AccessGateComponent implements OnInit {
           this.router.navigate(['/log']);
         } else {
           this.isLoading = false;
-          this.errorMessage = '\u274C Invalid or Expired Key';
+          this.errorMessage = 'Invalid or expired key. Please check and try again.';
         }
       },
       error: (err: any) => {
         console.error("Verification Error:", err);
         this.isLoading = false;
-        this.errorMessage = '\u26A0\uFE0F Connection Error.';
+        this.errorMessage = 'Connection error. Please check your internet and try again.';
       }
     });
   }

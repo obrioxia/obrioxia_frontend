@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom, take } from 'rxjs';
 import { Auth, authState } from '@angular/fire/auth';
 import { environment } from '../../environments/environment';
@@ -50,20 +50,6 @@ export class ApiService {
   async submitIncident(data: any, demoKey: string = '') {
     const headers = await this.getHeaders(demoKey);
     return firstValueFrom(this.http.post(`${this.apiUrl}/api/incidents`, data, { headers }));
-  }
-
-  async uploadBatch(file: File, demoKey: string = '') {
-    const headers = await this.getHeaders(demoKey);
-    const formData = new FormData();
-    formData.append('file', file);
-    return firstValueFrom(this.http.post(`${this.apiUrl}/api/admin/upload-csv`, formData, { headers }));
-  }
-
-  async getAdminIncidents(page: number, pageSize: number, filter: string = '') {
-    const headers = await this.getHeaders();
-    let params = new HttpParams().set('page', page.toString()).set('page_size', pageSize.toString());
-    if (filter) params = params.set('search', filter);
-    return firstValueFrom(this.http.get<any>(`${this.apiUrl}/api/admin/incidents`, { headers, params }));
   }
 
   async verifyReceipt(receipt: any) {

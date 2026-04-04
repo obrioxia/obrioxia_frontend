@@ -79,7 +79,7 @@ export class LogsService {
 
   // --- 2. GET LOGS (Audit Ledger Data) ---
   /**
-   * Hits: https://your-backend.onrender.com/api/admin/incidents
+   * Hits: /api/demo/incidents (demo-scoped, requires x-demo-key header)
    */
   getLogs(): Observable<LogEntry[]> {
     const demoKey = localStorage.getItem('demo_key') || '';
@@ -121,14 +121,6 @@ export class LogsService {
       { headers: this.getHeaders() }
     ).pipe(
       catchError(err => throwError(() => err))
-    );
-  }
-
-  // --- 4. SHRED USER (Data Retention) ---
-  shredUser(policyNumber: string): Observable<any> {
-    return this.http.delete<any>(
-      `${this.apiUrl}/api/admin/shred/${policyNumber}`,
-      { headers: this.getHeaders() }
     );
   }
 }
