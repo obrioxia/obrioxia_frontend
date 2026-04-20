@@ -38,6 +38,9 @@ testem.log
 /typings
 __screenshots__/
 
+# Firebase secrets (local-only, never commit)
+**/firebase-secrets.ts
+
 # System files
 .DS_Store
 Thumbs.db

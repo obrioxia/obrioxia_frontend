@@ -1,13 +1,13 @@
+import { FIREBASE_API_KEY } from './firebase-secrets';
+
 export const environment = {
   production: true,
 
   // ✅ FIXED: Pointing to the active Python Engine
   apiUrl: 'https://obrioxia-engine.onrender.com',
 
-
-
   firebase: {
-    apiKey: "AIzaSyA9LSZb_IeyS3Mi8hVTtOzpU9gdGp4p_gw",
+    apiKey: FIREBASE_API_KEY,
     authDomain: "obrioxia-audit-engine.firebaseapp.com",
     projectId: "obrioxia-audit-engine",
     storageBucket: "obrioxia-audit-engine.firebasestorage.app",
