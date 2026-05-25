@@ -4,7 +4,7 @@ export const environment = {
   production: true,
 
   // ✅ FIXED: Pointing to the active Python Engine
-  apiUrl: 'https://obrioxia-engine.onrender.com',
+  apiUrl: 'https://obrioxia-engine.onrender.com/api',
 
   firebase: {
     apiKey: FIREBASE_API_KEY,
