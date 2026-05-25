@@ -20,20 +20,20 @@ import { firstValueFrom, take } from 'rxjs';
           </svg>
         </div>
 
-        <h1 class="text-3xl text-white font-bold font-orbitron">Obrioxia Demo</h1>
+        <h1 class="text-3xl text-white font-bold font-orbitron">Enter your Obrioxia <span class="text-cyan-400">demo key</span></h1>
 
         <!-- Explanation block (shown before sign-in) -->
         <div *ngIf="!isSignedIn" class="text-left bg-white/5 border border-white/10 rounded-lg p-4 space-y-2">
-          <p class="text-gray-300 text-sm font-medium">What you get:</p>
-          <ul class="text-gray-400 text-xs space-y-1 list-disc pl-4">
-            <li>Submit test decision events to a tamper-evident ledger</li>
-            <li>Verify chain integrity cryptographically</li>
-            <li>Crypto-shred sensitive fields (GDPR Article 17)</li>
-            <li>Download evidence certificates</li>
+          <p class="text-gray-300 text-sm font-medium">Paste the key you received after creating your account. This unlocks the demo environment.</p>
+          <ul class="text-gray-400 text-xs space-y-1 list-disc pl-4 mt-2">
+            <li>Log Event — submit a decision record to the ledger</li>
+            <li>Verify Chain — check tamper-evident chain integrity</li>
+            <li>Audit Ledger — browse all sealed records</li>
+            <li>Shredder — crypto-shred sensitive fields</li>
+            <li>Golden Path — guided walkthrough of the full flow</li>
           </ul>
           <p class="text-gray-500 text-xs mt-2">
-            Create an account to receive a demo key. No email verification required.
-            Your key gives you 50 demo credits to test the system.
+            Don't have a key yet? <a href="https://obrioxia.com/signup" class="text-cyan-400 hover:underline">Create a demo account</a>
           </p>
         </div>
 
@@ -52,7 +52,7 @@ import { firstValueFrom, take } from 'rxjs';
               placeholder="Password"
               class="w-full bg-black border border-gray-700 rounded-lg px-4 py-3 text-white focus:border-cyan-500 outline-none transition-all"
             >
-            <p class="text-gray-600 text-xs mt-1.5 text-left pl-1">Minimum 6 characters</p>
+            <p class="text-gray-600 text-xs mt-1.5 text-left pl-1">Use at least 8 characters and 1 number.</p>
           </div>
           <div class="flex gap-2">
             <button 
@@ -199,8 +199,12 @@ export class AccessGateComponent implements OnInit {
   }
 
   async onSignUp() {
-    if (this.password.length < 6) {
-      this.errorMessage = 'Password must be at least 6 characters.';
+    if (this.password.length < 8) {
+      this.errorMessage = 'Password must be at least 8 characters.';
+      return;
+    }
+    if (!/\d/.test(this.password)) {
+      this.errorMessage = 'Password must contain at least 1 number.';
       return;
     }
     this.isLoading = true;
@@ -215,7 +219,7 @@ export class AccessGateComponent implements OnInit {
       if (code === 'auth/email-already-in-use') {
         this.errorMessage = 'An account with this email already exists. Use Sign In instead.';
       } else if (code === 'auth/weak-password') {
-        this.errorMessage = 'Password too weak. Use at least 6 characters.';
+        this.errorMessage = 'Password too weak. Use at least 8 characters and 1 number.';
       } else if (code === 'auth/invalid-email') {
         this.errorMessage = 'Please enter a valid email address.';
       } else {
